@@ -240,7 +240,7 @@ body{
   border-top: 1px solid rgba(255,255,255,.10);
 
   /* тень и “разделитель” сверху как в рефе */
-  box-shadow: 0 -14px 46px rgba(0,0,0,.55);
+box-shadow: 0 -10px 30px rgba(0,0,0,.40);
 
   display: grid;
   grid-template-columns: repeat(4, 1fr);
