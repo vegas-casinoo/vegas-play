@@ -21,6 +21,22 @@ const supabase = window.supabase.createClient(
   SUPABASE_ANON_KEY
 );
 
+  async function upsertUser(tgUser) {
+    // сохраняем пользователя
+    await supabase.from("users").upsert({
+      id: tgUser.id,
+      username: tgUser.username || null,
+      first_name: tgUser.first_name || null,
+      last_name: tgUser.last_name || null,
+      photo_url: tgUser.photo_url || null
+    });
+
+    // создаём кошелёк, если его нет
+    await supabase.from("wallets").upsert({
+      user_id: tgUser.id
+    });
+  }
+
   function setActiveTab(tab) {
     document.querySelectorAll(".tab").forEach(b => {
       b.classList.toggle("active", b.dataset.tab === tab);
@@ -29,13 +45,17 @@ const supabase = window.supabase.createClient(
 
   // Telegram init
   if (tg) {
-    tg.ready();
-    tg.expand();
+  tg.ready();
+  tg.expand();
 
-    const user = tg.initDataUnsafe?.user;
-    if (user) {
-      elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
-    }
+  const user = tg.initDataUnsafe?.user;
+  if (user) {
+    elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
+
+    upsertUser(user);       // ← ВОТ ТУТ ВЫЗОВ
+    loadBalance(user.id);  // ← добавим сразу, если ты уже сделал 4.8
+  }
+}
 
     elDebug.textContent = JSON.stringify(
       {
