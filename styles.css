@@ -273,3 +273,43 @@ body{
 }
 .txAmt.plus{color:#7ee2a8}
 .txAmt.minus{color:#ffb4b4}
+
+/* Экраны для табов */
+.screen{ display:none; }
+.screen.active{ display:block; }
+
+/* Быстрые действия (как в рефе) */
+.quickRow{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:10px;
+  margin: 12px 0 14px;
+}
+
+.quickBtn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
+  padding: 12px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+
+  color: var(--text);
+  font-weight: 900;
+  letter-spacing: .2px;
+
+  transition: transform var(--fast) var(--ease), border-color var(--fast);
+}
+
+.quickBtn:active{
+  transform: scale(0.97);
+  border-color: rgba(179,108,255,.55);
+}
+
+.qIcon{ font-size: 16px; opacity: .95; }
+.qText{ font-size: 13px; }
