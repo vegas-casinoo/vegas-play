@@ -1,4 +1,5 @@
 (function () {
+  alert("APP.JS LOADED");
   const tg = window.Telegram?.WebApp;
 
   const elName = document.getElementById("name");
@@ -13,8 +14,6 @@
     elBalance.textContent =
       `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
   }
-  
-  alert("APP.JS LOADED");
 
   // --- Supabase init ---
   const SUPABASE_URL = "https://gtwozscjklqzegiwzqss.supabase.co";
