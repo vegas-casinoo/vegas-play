@@ -1,16 +1,17 @@
-:root {
-  /* Base */
-  --bg: radial-gradient(
-    1200px 600px at 20% -10%,
-    rgba(180, 90, 255, 0.18),
-    transparent 60%
-  ),
-  radial-gradient(
-    800px 400px at 90% 10%,
-    rgba(80, 200, 255, 0.18),
-    transparent 55%
-  ),
-  #0a0b10;
+:root{
+  --bg:
+    radial-gradient(
+      1200px 600px at 20% -140px,
+      rgba(180, 90, 255, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 420px at 90% 140px,
+      rgba(80, 200, 255, 0.18),
+      transparent 55%
+    ),
+    #0a0b10;
+}
 
   --glass: rgba(255, 255, 255, 0.06);
   --glass-strong: rgba(255, 255, 255, 0.12);
@@ -47,6 +48,7 @@ body {
   margin: 0;
   min-height: 100%;
   background: var(--bg);
+  background-repeat: no-repeat;
   color: var(--text);
   font-family: system-ui, -apple-system, BlinkMacSystemFont;
 }
