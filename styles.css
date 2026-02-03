@@ -159,39 +159,30 @@ body{
 }
 
 .gameCard{
-  position: relative;
-  min-height: 120px;
-  padding: 18px;
-  border-radius: 20px;
+  overflow: hidden; /* важно для сияния */
+}
 
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.gameCard::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius: inherit;
+  pointer-events:none;
 
   background:
-    radial-gradient(
-      180px 90px at 15% 10%,
-      rgba(180, 120, 255, 0.35),
-      transparent 60%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(255,255,255,.10),
-      rgba(255,255,255,.03)
-    );
+    radial-gradient(220px 120px at 40% -20%,
+      rgba(179,108,255,.18),
+      transparent 60%),
+    radial-gradient(220px 120px at 70% 120%,
+      rgba(90,215,255,.14),
+      transparent 60%);
 
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  opacity:.55;
+  transition: opacity var(--normal) var(--ease);
+}
 
-  border: 1px solid var(--stroke);
-  box-shadow:
-    0 10px 40px rgba(0,0,0,.45),
-    inset 0 1px 0 rgba(255,255,255,.12);
-
-  transition:
-    transform .35s var(--ease),
-    box-shadow .35s var(--ease),
-    border-color .35s;
+.gameCard:active::after{
+  opacity:.9;
 }
 
 /* неоновый “ореол” внутри карточки */
@@ -285,9 +276,6 @@ body{
 
 .gTitle{ font-weight: 900; letter-spacing: .2px; }
 .gSub{ color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.2; }
-
-.gTitle{font-weight:800}
-.gSub{color:var(--muted); font-size:12px; margin-top:6px}
 
 .row{display:flex; justify-content:space-between; align-items:center; gap:10px}
 .btnRow{display:flex; gap:8px}
@@ -479,8 +467,6 @@ box-shadow: 0 -10px 30px rgba(0,0,0,.40);
 /* Экраны для табов */
 .screen{
   display: none;
-  opacity: 0;
-  transform: translateY(10px);
 }
 
 .screen.active{
@@ -489,8 +475,8 @@ box-shadow: 0 -10px 30px rgba(0,0,0,.40);
 }
 
 @keyframes screenIn{
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 /* Быстрые действия (как в рефе) */
