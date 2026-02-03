@@ -312,8 +312,9 @@ box-shadow: 0 -10px 30px rgba(0,0,0,.40);
 }
 
 .tab.active .tabIcon{
-  transform: translateY(-1px) scale(1.04);
-  opacity: 1;
+  text-shadow:
+    0 0 12px rgba(179,108,255,.45),
+    0 0 22px rgba(90,215,255,.35);
 }
 
 .tab.active::before{
