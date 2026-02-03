@@ -526,10 +526,11 @@ button{
   appearance: none;
 
   border: none;
-  background: transparent;
-  color: inherit;
+  /* УБРАТЬ эти две строки, они ломают styled-кнопки */
+  /* background: transparent; */
+  /* padding: 0; */
 
-  padding: 0;
+  color: inherit;
 }
 button:disabled{ opacity: .5; }
 
