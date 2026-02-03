@@ -13,8 +13,8 @@
     elBalance.textContent = `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
   }
   
-  const SUPABASE_URL = "https://XXXX.supabase.co";
-const SUPABASE_ANON_KEY = "XXXX";
+  const SUPABASE_URL = "https://gtwozscjklqzegiwzqss.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0d296c2Nqa2xxemVnaXd6cXNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMTIxMTUsImV4cCI6MjA4NTY4ODExNX0.yLr6jAl13KuA1OzHrnMkX4VAKH6l40fFVqNik6uBlP4";
 
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
