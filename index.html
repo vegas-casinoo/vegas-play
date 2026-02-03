@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <title>Mini App</title>
+    <link rel="stylesheet" href="/styles.css" />
+
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="avatar" id="avatar"></div>
+      <div class="user">
+        <div class="name" id="name">Гость</div>
+        <div class="meta">
+          <span id="lvl">LVL 1</span>
+          <span class="dot">•</span>
+          <span id="balance">0 ₽</span>
+        </div>
+      </div>
+      <button class="iconBtn" id="closeBtn">✕</button>
+    </header>
+
+    <main class="content">
+      <section class="card hero">
+        <div>
+          <div class="title">Колесо Фортуны</div>
+          <div class="subtitle">Выигрывайте призы каждый день</div>
+        </div>
+        <button class="primary" id="spinBtn">Крутить</button>
+      </section>
+
+      <h2 class="h2">Доступные игры</h2>
+
+      <div class="grid">
+        <button class="gameCard" data-game="mines">
+          <div class="gTitle">Mines</div>
+          <div class="gSub">Найдите алмазы, избегая мин</div>
+        </button>
+
+        <button class="gameCard" data-game="slots">
+          <div class="gTitle">Слот-машина</div>
+          <div class="gSub">Классические слоты</div>
+        </button>
+
+        <button class="gameCard" data-game="coinflip">
+          <div class="gTitle">Орёл или Решка</div>
+          <div class="gSub">Подбрось монетку</div>
+        </button>
+
+        <button class="gameCard" data-game="cups">
+          <div class="gTitle">Стаканчики</div>
+          <div class="gSub">Угадай, где шарик</div>
+        </button>
+      </div>
+
+      <section class="card">
+        <div class="row">
+          <div>
+            <div class="title">Кошелёк</div>
+            <div class="subtitle">Пополнение и вывод</div>
+          </div>
+          <div class="btnRow">
+            <button class="ghost" id="depositBtn">Депозит</button>
+            <button class="ghost" id="withdrawBtn">Вывести</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="title">Debug (пока для проверки Telegram)</div>
+        <pre id="debug" class="debug"></pre>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button class="tab active" data-tab="home">Главная</button>
+      <button class="tab" data-tab="games">Слоты</button>
+      <button class="tab" data-tab="wallet">Кошелёк</button>
+      <button class="tab" data-tab="bonuses">Бонусы</button>
+    </nav>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
