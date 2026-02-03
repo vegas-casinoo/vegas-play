@@ -1,5 +1,18 @@
 (function () {
   const tg = window.Telegram?.WebApp;
+  
+  function haptic(type = "light") {
+  // Telegram haptic
+  try {
+    tg?.HapticFeedback?.impactOccurred?.(type);
+    return;
+  } catch (_) {}
+
+  // Fallback (не всегда работает в iOS webview)
+  try {
+    if (navigator.vibrate) navigator.vibrate(12);
+  } catch (_) {}
+}
 
   const elName = document.getElementById("name");
   const elBalance = document.getElementById("balance");
@@ -256,9 +269,18 @@ function setActiveTab(tab) {
     });
   }
 
-  document.querySelectorAll(".tab").forEach((btn) => {
-    btn.addEventListener("click", () => setActiveTab(btn.dataset.tab));
+document.querySelectorAll(".tab").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    haptic("light");
+    setActiveTab(btn.dataset.tab);
+
+    // переключаем экраны (если у тебя есть .screen блоки)
+    const tab = btn.dataset.tab;
+    document.querySelectorAll(".screen").forEach(s => {
+      s.classList.toggle("active", s.dataset.screen === tab);
+    });
   });
+});
 
   document.querySelectorAll(".gameCard").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -303,3 +325,15 @@ if (depositQuickBtn) depositQuickBtn.addEventListener("click", () => setActiveTa
 const withdrawQuickBtn = document.getElementById("withdrawQuickBtn");
 if (withdrawQuickBtn) withdrawQuickBtn.addEventListener("click", () => setActiveTab("wallet"));
 })();
+
+["spinBtn","depositBtn","withdrawBtn","testPlus100Btn"].forEach(id=>{
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("click", ()=> haptic("light"));
+});
+
+document.querySelectorAll(".gameCard").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    haptic("medium");
+    alert(`Открыть игру: ${btn.dataset.game} (пока заглушка)`);
+  });
+});
