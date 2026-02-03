@@ -303,10 +303,15 @@ body{
   border-radius: 999px;
 
   border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06);
 
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* стабильный фон (не будет синеть/зеленеть от подложки) */
+  background: rgba(20, 22, 30, 0.55);
+
+  /* важно: убрать glass-сэмплинг */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
 }
 
 .gTitle{
