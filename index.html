@@ -24,14 +24,95 @@
       <button class="iconBtn" id="closeBtn">✕</button>
     </header>
 
-    <main class="content">
-      <section class="card hero">
+<main class="content">
+  <!-- HOME -->
+  <section class="screen active" data-screen="home">
+    <section class="card hero">
+      <div>
+        <div class="title">Колесо Фортуны</div>
+        <div class="subtitle">Выигрывайте призы каждый день</div>
+      </div>
+      <button class="primary" id="spinBtn">Крутить</button>
+    </section>
+
+    <!-- Быстрые действия как в рефе -->
+    <div class="quickRow">
+      <button class="quickBtn" id="promoBtn">
+        <span class="qIcon">🎁</span><span class="qText">Промокод</span>
+      </button>
+      <button class="quickBtn" id="withdrawQuickBtn">
+        <span class="qIcon">↗️</span><span class="qText">Вывести</span>
+      </button>
+      <button class="quickBtn" id="depositQuickBtn">
+        <span class="qIcon">⚡</span><span class="qText">Депозит</span>
+      </button>
+    </div>
+
+    <h2 class="h2">Доступные игры</h2>
+
+    <div class="grid">
+      <button class="gameCard" data-game="mines">
+        <div class="gTitle">Mines</div>
+        <div class="gSub">Найдите алмазы, избегая мин</div>
+      </button>
+
+      <button class="gameCard" data-game="slots">
+        <div class="gTitle">Слот-машина</div>
+        <div class="gSub">Классические слоты</div>
+      </button>
+
+      <button class="gameCard" data-game="coinflip">
+        <div class="gTitle">Орёл или Решка</div>
+        <div class="gSub">Подбрось монетку</div>
+      </button>
+
+      <button class="gameCard" data-game="cups">
+        <div class="gTitle">Стаканчики</div>
+        <div class="gSub">Угадай, где шарик</div>
+      </button>
+    </div>
+  </section>
+
+  <!-- GAMES -->
+  <section class="screen" data-screen="games">
+    <section class="card">
+      <div class="title">Слоты</div>
+      <div class="subtitle">Скоро добавим экран со слотами и выбором игр</div>
+    </section>
+  </section>
+
+  <!-- WALLET -->
+  <section class="screen" data-screen="wallet">
+    <section class="card">
+      <div class="row">
         <div>
-          <div class="title">Колесо Фортуны</div>
-          <div class="subtitle">Выигрывайте призы каждый день</div>
+          <div class="title">Кошелёк</div>
+          <div class="subtitle">Пополнение и вывод</div>
         </div>
-        <button class="primary" id="spinBtn">Крутить</button>
-      </section>
+        <div class="btnRow">
+          <button class="ghost" id="depositBtn">Депозит</button>
+          <button class="ghost" id="withdrawBtn">Вывести</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div class="subtitle">Тест</div>
+        <button class="ghost" id="testPlus100Btn">+100 ₽</button>
+      </div>
+
+      <div class="txTitle">Последние операции</div>
+      <div id="txList" class="txList"></div>
+    </section>
+  </section>
+
+  <!-- BONUSES -->
+  <section class="screen" data-screen="bonuses">
+    <section class="card">
+      <div class="title">Бонусы</div>
+      <div class="subtitle">Скоро: ежедневный бонус, промокоды, задания</div>
+    </section>
+  </section>
+</main>
 
       <h2 class="h2">Доступные игры</h2>
 
