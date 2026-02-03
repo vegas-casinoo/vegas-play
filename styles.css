@@ -185,20 +185,28 @@ body{
 
 .row{display:flex; justify-content:space-between; align-items:center; gap:10px}
 .btnRow{display:flex; gap:8px}
-.ghost {
+.ghost{
   border: 1px solid var(--stroke);
-  background: var(--glass);
+  background: rgba(255,255,255,0.06);
   backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+
   color: var(--text);
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+
   padding: 10px 12px;
   border-radius: 14px;
-  font-weight: 700;
-  transition: transform var(--fast), border-color var(--fast);
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  transition: transform var(--fast) var(--ease), border-color var(--fast), background var(--fast);
 }
 
-.ghost:active {
+.ghost:active{
   transform: scale(0.96);
-  border-color: var(--neon-purple);
+  border-color: rgba(179,108,255,.6);
+  background: rgba(255,255,255,0.09);
 }
 
 .debug{
