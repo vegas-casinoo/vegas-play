@@ -8,6 +8,7 @@
 
   // Баланс по умолчанию (потом подтянем из Supabase)
   let balance = 0;
+  let currentUserId = null;
 
   function render() {
     if (!elBalance) return;
