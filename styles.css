@@ -516,3 +516,64 @@ button:disabled{ opacity: .5; }
 @media (prefers-reduced-motion: reduce){
   *{ animation: none !important; transition: none !important; }
 }
+
+/* ===== NEON QUICK BUTTONS (Promo / Withdraw / Deposit) ===== */
+
+.quickRow .ghost,
+.quickNeon {
+  padding: 12px 14px;
+  border-radius: 16px;
+
+  font-weight: 900;
+  letter-spacing: .2px;
+
+  color: #fff;
+
+  background: linear-gradient(
+    135deg,
+    rgba(179,108,255,.85),
+    rgba(90,215,255,.85)
+  );
+
+  border: none;
+
+  box-shadow:
+    0 0 0 rgba(0,0,0,0),
+    0 6px 20px rgba(179,108,255,.35),
+    0 0 28px rgba(90,215,255,.25);
+
+  transition:
+    transform .15s cubic-bezier(.2,.8,.2,1),
+    box-shadow .2s cubic-bezier(.2,.8,.2,1),
+    filter .2s;
+}
+
+/* иконка внутри */
+.quickRow .ghost span,
+.quickNeon span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* нажатие */
+.quickRow .ghost:active,
+.quickNeon:active {
+  transform: scale(0.96);
+  filter: brightness(1.1);
+
+  box-shadow:
+    0 10px 30px rgba(179,108,255,.55),
+    0 0 40px rgba(90,215,255,.45);
+}
+
+/* индивидуальные акценты (если хочешь) */
+.quickNeon.deposit {
+  background: linear-gradient(135deg, #5ad7ff, #63f2b6);
+}
+.quickNeon.withdraw {
+  background: linear-gradient(135deg, #b36cff, #ff6fd8);
+}
+.quickNeon.promo {
+  background: linear-gradient(135deg, #ff6fd8, #ffd36a);
+}
