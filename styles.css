@@ -252,9 +252,9 @@ body{
   content:"";
   position:absolute;
   left:0; right:0;
-  top:-24px;
-  height:24px;
-  background: linear-gradient(to top, rgba(12,13,18,0), rgba(12,13,18,.55));
+  top:-10px;
+  height:10px;
+  background: linear-gradient(to top, rgba(12,13,18,0), rgba(12,13,18,.22));
   pointer-events:none;
 }
 
