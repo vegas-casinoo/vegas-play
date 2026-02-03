@@ -327,3 +327,16 @@ body{
 
 .qIcon{ font-size: 16px; opacity: .95; }
 .qText{ font-size: 13px; }
+
+button{
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled{
+  opacity: .5;
+}
+
+button{
+  background: transparent;
+  color: inherit;
