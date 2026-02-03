@@ -12,6 +12,14 @@
   function render() {
     elBalance.textContent = `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
   }
+  
+  const SUPABASE_URL = "https://XXXX.supabase.co";
+const SUPABASE_ANON_KEY = "XXXX";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
   function setActiveTab(tab) {
     document.querySelectorAll(".tab").forEach(b => {
