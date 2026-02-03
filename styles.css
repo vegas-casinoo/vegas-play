@@ -436,3 +436,10 @@ button:disabled{
   opacity: .5;
 }
 
+.card, .gameCard, .quickBtn, .ghost, .primary{
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation: none !important; transition: none !important; }
+}
