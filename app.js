@@ -3,6 +3,7 @@
 
   const elName = document.getElementById("name");
   const elBalance = document.getElementById("balance");
+  const elTxList = document.getElementById("txList");
   const elDebug = document.getElementById("debug");
   const closeBtn = document.getElementById("closeBtn");
 
@@ -15,7 +16,45 @@
     elBalance.textContent =
       `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
   }
+  
+  function formatDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return iso || "";
+  }
+}
 
+function renderTxList(items) {
+  if (!elTxList) return;
+
+  if (!items || items.length === 0) {
+    elTxList.innerHTML = `<div class="txDate">Пока нет операций</div>`;
+    return;
+  }
+
+  elTxList.innerHTML = items.map(tx => {
+    const amt = Number(tx.amount || 0);
+    const signClass = amt >= 0 ? "plus" : "minus";
+    const sign = amt >= 0 ? "+" : "";
+    const type = tx.type || "unknown";
+    const when = formatDate(tx.created_at);
+
+    return `
+      <div class="txItem">
+        <div class="txLeft">
+          <div class="txType">${type}</div>
+          <div class="txDate">${when}</div>
+        </div>
+        <div class="txAmt ${signClass}">
+          ${sign}${amt.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+  
   // --- Supabase init ---
   const SUPABASE_URL = "https://gtwozscjklqzegiwzqss.supabase.co";
   const SUPABASE_ANON_KEY =
@@ -79,6 +118,22 @@
     }
   }
 
+async function loadTransactions(userId) {
+  const res = await supabase
+    .from("transactions")
+    .select("type, amount, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  if (res.error) {
+    if (elDebug) elDebug.textContent += "\n\n❌ LOAD TX ERROR:\n" + JSON.stringify(res.error, null, 2);
+    return;
+  }
+
+  renderTxList(res.data || []);
+}
+
 async function testAdd100() {
   if (!currentUserId) {
     if (elDebug) elDebug.textContent += "\n\n❌ No currentUserId yet";
@@ -110,6 +165,8 @@ async function testAdd100() {
     if (elDebug) elDebug.textContent += "\n\n❌ UPDATE WALLET ERROR:\n" + JSON.stringify(updRes.error, null, 2);
     return;
   }
+
+await loadTransactions(currentUserId);
 
   // 3) пишем транзакцию (type можно назвать как угодно)
   const txRes = await supabase
@@ -169,6 +226,7 @@ async function testAdd100() {
           await upsertUser(user);
           if (elDebug) elDebug.textContent += "\n\n✅ Saved to Supabase (users + wallets)";
           await loadBalance(user.id);
+          await loadTransactions(user.id);
         } catch (e) {
           if (elDebug) elDebug.textContent += "\n\n❌ " + (e?.message || String(e));
         }
