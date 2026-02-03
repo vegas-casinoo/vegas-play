@@ -228,34 +228,89 @@ body{
   left: 0;
   right: 0;
   bottom: 0;
-
-  z-index: 2000; /* чтобы было выше всех card/blur */
-
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 8px;
+  z-index: 3000;
 
   padding: 10px 12px calc(18px + env(safe-area-inset-bottom));
-  background: rgba(10, 11, 16, 0.72);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
 
-  border-top: 1px solid var(--stroke);
+  background: rgba(12, 13, 18, 0.60);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  border-top: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 -12px 40px rgba(0,0,0,.45);
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
 
 .tab{
-  border:1px solid var(--stroke);
-  background:rgba(255,255,255,.03);
-  color:var(--muted);
-  padding:10px 8px;
-  border-radius:14px;
-  font-weight:800;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  padding: 10px 8px;
+  border-radius: 16px;
+
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
+
+  color: rgba(245,247,251,.70);
+  font-weight: 900;
+
+  transition: transform var(--fast) var(--ease),
+              background var(--fast),
+              border-color var(--fast),
+              color var(--fast),
+              box-shadow var(--fast);
 }
 
+.tabIcon{
+  font-size: 18px;
+  line-height: 1;
+  opacity: .95;
+}
+
+.tabLabel{
+  font-size: 12px;
+  line-height: 1;
+}
+
+.tab:active{
+  transform: scale(0.97);
+}
+
+/* Активная “пилюля” как в рефе */
 .tab.active{
-  color:var(--text);
-  border-color:rgba(43,140,255,.45);
-  background:rgba(43,140,255,.15);
+  color: var(--text);
+  border-color: rgba(179,108,255,.40);
+  background: rgba(179,108,255,.14);
+
+  box-shadow:
+    0 0 0 1px rgba(90,215,255,.10),
+    0 10px 30px rgba(0,0,0,.35),
+    0 0 26px rgba(179,108,255,.25);
+}
+
+/* Неоновый глоу внутри активной вкладки */
+.tab.active::before{
+  content:"";
+  position:absolute;
+  inset: 0;
+  border-radius: 16px;
+  background:
+    radial-gradient(120px 80px at 50% 0%,
+      rgba(179,108,255,.28),
+      transparent 60%),
+    radial-gradient(120px 80px at 50% 100%,
+      rgba(90,215,255,.18),
+      transparent 60%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: .9;
 }
 
 .txTitle{
