@@ -55,12 +55,26 @@ body{
 }
 
 .topbar{
-  position:sticky; top:0;
-  display:flex; align-items:center; gap:12px;
-  padding:14px 14px 10px;
-  background:linear-gradient(to bottom, rgba(11,15,20,.95), rgba(11,15,20,.7));
-  backdrop-filter: blur(10px);
-  border-bottom:1px solid var(--stroke);
+  position: sticky;
+  top: 0;
+  z-index: 1000;                 /* главное */
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  /* safe area для iPhone с “чёлкой” */
+  padding: calc(14px + env(safe-area-inset-top)) 14px 10px;
+
+  /* непрозрачнее, чтобы контент не “просвечивал” */
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 11, 16, 0.92),
+    rgba(10, 11, 16, 0.72)
+  );
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-bottom: 1px solid var(--stroke);
 }
 
 .avatar{
@@ -83,6 +97,7 @@ body{
 
 .content{
   padding:14px;
+  padding-top: 18px;      /* добавили */
   padding-bottom:92px;
 }
 
@@ -101,6 +116,11 @@ body{
   box-shadow:
     0 10px 30px rgba(0,0,0,.35),
     inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.card, .gameCard, .txItem {
+  position: relative;
+  z-index: 1;
 }
 
 .hero{
