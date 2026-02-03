@@ -2,17 +2,10 @@
   const tg = window.Telegram?.WebApp;
   
   function haptic(type = "light") {
-  // Telegram haptic
-  try {
-    tg?.HapticFeedback?.impactOccurred?.(type);
-    return;
-  } catch (_) {}
-
-  // Fallback (не всегда работает в iOS webview)
-  try {
-    if (navigator.vibrate) navigator.vibrate(12);
-  } catch (_) {}
+  try { tg?.HapticFeedback?.impactOccurred?.(type); return; } catch (_) {}
+  try { if (navigator.vibrate) navigator.vibrate(12); } catch (_) {}
 }
+
 
   const elName = document.getElementById("name");
   const elBalance = document.getElementById("balance");
@@ -201,19 +194,58 @@ await loadTransactions(currentUserId);
   if (elDebug) elDebug.textContent += "\n\n✅ +100 added. New balance: " + newBalance;
 }
 
+function haptic(type = "light") {
+  try { tg?.HapticFeedback?.impactOccurred?.(type); return; } catch (_) {}
+  try { if (navigator.vibrate) navigator.vibrate(12); } catch (_) {}
+}
+
+function haptic(type = "light") {
+  try { tg?.HapticFeedback?.impactOccurred?.(type); return; } catch (_) {}
+  try { if (navigator.vibrate) navigator.vibrate(12); } catch (_) {}
+}
+
 function setActiveTab(tab) {
+  const current = document.querySelector(".screen.active");
+  const next = document.querySelector(`.screen[data-screen="${tab}"]`);
+  if (!next || current === next) return;
+
+  // табы
   document.querySelectorAll(".tab").forEach(b => {
     b.classList.toggle("active", b.dataset.tab === tab);
   });
 
-  // показываем нужный экран
-  document.querySelectorAll(".screen").forEach(s => {
-    s.classList.toggle("active", s.dataset.screen === tab);
-  });
+  // плавный уход
+  if (current) {
+    current.classList.add("leaving");
+    current.classList.remove("active");
+    setTimeout(() => current.classList.remove("leaving"), 190);
+  }
 
-  // всегда скроллим вверх при смене вкладки
+  // плавный вход
+  next.classList.add("active");
+
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
+// Один обработчик на все клики по кнопкам
+document.addEventListener("click", (e) => {
+  const tabBtn = e.target.closest(".tab");
+  if (tabBtn) {
+    haptic("light");
+    setActiveTab(tabBtn.dataset.tab);
+    return;
+  }
+
+  const gameBtn = e.target.closest(".gameCard");
+  if (gameBtn) {
+    haptic("medium");
+    alert(`Открыть игру: ${gameBtn.dataset.game} (пока заглушка)`);
+    return;
+  }
+
+  const anyBtn = e.target.closest("button");
+  if (anyBtn) haptic("light");
+});
 
   // --- Telegram init ---
   if (tg) {
