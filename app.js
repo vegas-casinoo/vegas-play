@@ -282,11 +282,12 @@ document.querySelectorAll(".tab").forEach((btn) => {
   });
 });
 
-  document.querySelectorAll(".gameCard").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      alert(`Открыть игру: ${btn.dataset.game} (пока заглушка)`);
-    });
+document.querySelectorAll(".gameCard").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    haptic("medium");
+    alert(`Открыть игру: ${btn.dataset.game} (пока заглушка)`);
   });
+});
 
   const depositBtn = document.getElementById("depositBtn");
   if (depositBtn) {
@@ -316,6 +317,11 @@ if (testPlus100Btn) {
     });
   }
   
+  ["spinBtn","depositBtn","withdrawBtn","testPlus100Btn","promoBtn","depositQuickBtn","withdrawQuickBtn"].forEach(id=>{
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("click", ()=> haptic("light"));
+});
+  
   const promoBtn = document.getElementById("promoBtn");
 if (promoBtn) promoBtn.addEventListener("click", () => alert("Промокод (скоро)"));
 
@@ -325,15 +331,3 @@ if (depositQuickBtn) depositQuickBtn.addEventListener("click", () => setActiveTa
 const withdrawQuickBtn = document.getElementById("withdrawQuickBtn");
 if (withdrawQuickBtn) withdrawQuickBtn.addEventListener("click", () => setActiveTab("wallet"));
 })();
-
-["spinBtn","depositBtn","withdrawBtn","testPlus100Btn"].forEach(id=>{
-  const el = document.getElementById(id);
-  if (el) el.addEventListener("click", ()=> haptic("light"));
-});
-
-document.querySelectorAll(".gameCard").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    haptic("medium");
-    alert(`Открыть игру: ${btn.dataset.game} (пока заглушка)`);
-  });
-});
