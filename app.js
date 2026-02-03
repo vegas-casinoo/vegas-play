@@ -79,6 +79,58 @@
     }
   }
 
+async function testAdd100() {
+  if (!currentUserId) {
+    if (elDebug) elDebug.textContent += "\n\n❌ No currentUserId yet";
+    return;
+  }
+
+  // 1) получаем текущий баланс
+  const getRes = await supabase
+    .from("wallets")
+    .select("balance")
+    .eq("user_id", currentUserId)
+    .single();
+
+  if (getRes.error) {
+    if (elDebug) elDebug.textContent += "\n\n❌ GET WALLET ERROR:\n" + JSON.stringify(getRes.error, null, 2);
+    return;
+  }
+
+  const oldBalance = Number(getRes.data?.balance || 0);
+  const newBalance = oldBalance + 100;
+
+  // 2) обновляем баланс
+  const updRes = await supabase
+    .from("wallets")
+    .update({ balance: newBalance, updated_at: new Date().toISOString() })
+    .eq("user_id", currentUserId);
+
+  if (updRes.error) {
+    if (elDebug) elDebug.textContent += "\n\n❌ UPDATE WALLET ERROR:\n" + JSON.stringify(updRes.error, null, 2);
+    return;
+  }
+
+  // 3) пишем транзакцию (type можно назвать как угодно)
+  const txRes = await supabase
+    .from("transactions")
+    .insert({
+      user_id: currentUserId,
+      type: "test_credit",
+      amount: 100
+    });
+
+  if (txRes.error) {
+    if (elDebug) elDebug.textContent += "\n\n❌ INSERT TX ERROR:\n" + JSON.stringify(txRes.error, null, 2);
+    // баланс уже обновили — не критично, просто логируем
+  }
+
+  // 4) обновляем UI
+  balance = newBalance;
+  render();
+  if (elDebug) elDebug.textContent += "\n\n✅ +100 added. New balance: " + newBalance;
+}
+
   function setActiveTab(tab) {
     document.querySelectorAll(".tab").forEach(b => {
       b.classList.toggle("active", b.dataset.tab === tab);
@@ -106,6 +158,7 @@
     }
 
     if (user) {
+      currentUserId = user.id;
       if (elName) {
         elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
       }
@@ -160,6 +213,13 @@
       alert("Вывод (пока заглушка). Позже подключим KYC/лимиты и провайдера.");
     });
   }
+  
+  const testPlus100Btn = document.getElementById("testPlus100Btn");
+if (testPlus100Btn) {
+  testPlus100Btn.addEventListener("click", () => {
+    testAdd100();
+  });
+}
 
   const spinBtn = document.getElementById("spinBtn");
   if (spinBtn) {
