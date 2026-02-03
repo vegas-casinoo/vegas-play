@@ -1,5 +1,4 @@
 (function () {
-  alert("APP.JS LOADED");
   const tg = window.Telegram?.WebApp;
 
   const elName = document.getElementById("name");
