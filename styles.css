@@ -305,11 +305,11 @@ body{
   border: 1px solid rgba(255,255,255,.12);
 
   /* стабильный фон (не будет синеть/зеленеть от подложки) */
-  background: rgba(20, 22, 30, 0.55);
+  background: rgba(12, 13, 18, 0.38);
 
   /* важно: убрать glass-сэмплинг */
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
 
   box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
 }
