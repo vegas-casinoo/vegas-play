@@ -97,8 +97,8 @@ body{
 
 .content{
   padding:14px;
-  padding-top: 18px;      /* добавили */
-  padding-bottom:92px;
+  padding-top: 18px;
+  padding-bottom: calc(110px + env(safe-area-inset-bottom));
 }
 
 .card {
@@ -209,17 +209,23 @@ body{
   margin:10px 0 0;
 }
 
-.tabbar {
+.tabbar{
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
+
+  z-index: 2000; /* чтобы было выше всех card/blur */
+
   display: grid;
   grid-template-columns: repeat(4,1fr);
   gap: 8px;
-  padding: 10px 12px 18px;
-  background: rgba(10, 11, 16, 0.65);
+
+  padding: 10px 12px calc(18px + env(safe-area-inset-bottom));
+  background: rgba(10, 11, 16, 0.72);
   backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
   border-top: 1px solid var(--stroke);
 }
 
