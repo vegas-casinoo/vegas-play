@@ -284,16 +284,15 @@ box-shadow: 0 -10px 30px rgba(0,0,0,.40);
 }
 
 .tabIcon{
-  font-size: 18px;
+  font-size: 20px;        /* эмодзи крупнее */
   line-height: 1;
-  opacity: .95;
-  transition: transform var(--normal) var(--ease), opacity var(--normal) var(--ease);
+  transform: translateY(1px);
+  filter: saturate(1.1);
 }
 
 .tabLabel{
-  font-size: 12px;
-  line-height: 1;
-  transition: transform var(--normal) var(--ease), opacity var(--normal) var(--ease);
+  font-size: 11px;
+  opacity: .9;
 }
 
 .tab:active{
