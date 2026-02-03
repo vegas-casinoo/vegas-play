@@ -139,3 +139,39 @@ body{
   border-color:rgba(43,140,255,.45);
   background:rgba(43,140,255,.15);
 }
+
+.txTitle{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700;
+}
+
+.txList{
+  margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.txItem{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  padding:10px 12px;
+  border:1px solid var(--stroke);
+  border-radius:14px;
+  background:rgba(255,255,255,.03);
+}
+
+.txLeft{min-width:0}
+.txType{font-weight:800}
+.txDate{color:var(--muted); font-size:12px; margin-top:4px}
+
+.txAmt{
+  font-weight:900;
+  white-space:nowrap;
+}
+.txAmt.plus{color:#7ee2a8}
+.txAmt.minus{color:#ffb4b4}
