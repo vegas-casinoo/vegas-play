@@ -150,35 +150,134 @@ body{
 
 .h2{margin:12px 2px; font-size:16px}
 
+/* Сделаем карточки выше и “богаче” */
 .grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap:12px;
   margin-bottom:12px;
 }
 
-.gameCard {
-  position: relative;
-  padding: 16px;
-  border-radius: var(--radius);
+.gameCard{
+  position:relative;
+  min-height: 118px;              /* было просто padding */
+  padding: 14px 14px 16px;
+  border-radius: 18px;
   border: 1px solid var(--stroke);
+
   background:
-    radial-gradient(
-      120px 60px at 80% -10%,
-      rgba(180, 100, 255, 0.35),
-      transparent 60%
-    ),
-    var(--glass);
+    radial-gradient(220px 120px at 20% 0%, rgba(255,111,216,.22), transparent 60%),
+    radial-gradient(220px 120px at 90% 10%, rgba(90,215,255,.18), transparent 60%),
+    radial-gradient(200px 120px at 70% 120%, rgba(179,108,255,.20), transparent 60%),
+    rgba(255,255,255,.04);
+
   backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
   color: var(--text);
-  overflow: hidden;
-  transition: transform var(--normal) var(--ease), box-shadow var(--normal);
+  overflow:hidden;
+
+  box-shadow:
+    0 14px 40px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.08);
+
+  transition:
+    transform var(--normal) var(--ease),
+    box-shadow var(--normal) var(--ease),
+    border-color var(--normal) var(--ease),
+    filter var(--normal) var(--ease);
 }
 
-.gameCard:active {
-  transform: scale(0.97);
-  box-shadow: 0 0 32px rgba(150, 120, 255, 0.35);
+/* неоновый “ореол” внутри карточки */
+.gameCard::before{
+  content:"";
+  position:absolute;
+  inset:-40px;
+  background:
+    radial-gradient(180px 120px at 25% 35%, rgba(179,108,255,.25), transparent 60%),
+    radial-gradient(160px 120px at 80% 60%, rgba(90,215,255,.20), transparent 60%);
+  filter: blur(18px);
+  opacity:.55;
+  pointer-events:none;
+  transform: translateZ(0);
 }
+
+/* лёгкое “парение” */
+@keyframes floaty {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+@keyframes glowPulse {
+  0%   { opacity: .45; }
+  50%  { opacity: .75; }
+  100% { opacity: .45; }
+}
+
+.gameCard{
+  animation: floaty 3.6s ease-in-out infinite;
+}
+.gameCard::before{
+  animation: glowPulse 2.8s ease-in-out infinite;
+}
+
+/* чтобы карточки не “качались” все одинаково — немного разный старт */
+.gameCard:nth-child(2){ animation-delay: .12s; }
+.gameCard:nth-child(3){ animation-delay: .22s; }
+.gameCard:nth-child(4){ animation-delay: .34s; }
+
+.gameCard:active{
+  transform: scale(0.97);
+  border-color: rgba(179,108,255,.55);
+  box-shadow:
+    0 18px 60px rgba(0,0,0,.46),
+    0 0 30px rgba(179,108,255,.18),
+    inset 0 1px 0 rgba(255,255,255,.10);
+}
+
+/* Верхняя строка: эмодзи + бейдж */
+.gTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom: 10px;
+}
+
+.gIcon{
+  width: 44px;
+  height: 44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+
+  background:
+    radial-gradient(26px 26px at 30% 20%, rgba(255,255,255,.16), transparent 60%),
+    rgba(255,255,255,.05);
+
+  box-shadow:
+    0 10px 26px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.10);
+
+  font-size: 22px;
+  transform: translateY(1px);
+}
+
+.gBadge{
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(255,255,255,.92);
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.gTitle{ font-weight: 900; letter-spacing: .2px; }
+.gSub{ color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.2; }
 
 .gTitle{font-weight:800}
 .gSub{color:var(--muted); font-size:12px; margin-top:6px}
