@@ -1,16 +1,8 @@
 :root{
   /* Base */
   --bg:
-    radial-gradient(
-      1200px 600px at 20% -140px,
-      rgba(180, 90, 255, 0.18),
-      transparent 60%
-    ),
-    radial-gradient(
-      800px 420px at 90% 140px,
-      rgba(80, 200, 255, 0.18),
-      transparent 55%
-    ),
+    radial-gradient(1200px 600px at 20% -140px, rgba(180, 90, 255, 0.18), transparent 60%),
+    radial-gradient(800px 420px at 90% 140px, rgba(80, 200, 255, 0.18), transparent 55%),
     #0a0b10;
 
   --glass: rgba(255, 255, 255, 0.06);
@@ -40,10 +32,16 @@
   --ease: cubic-bezier(.2,.8,.2,1);
   --fast: 0.15s;
   --normal: 0.3s;
+
+  /* GameCard tokens */
+  --gc-radius: 20px;
+  --gc-minh: 154px;
+  --gc-pad: 16px;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
+/* ========== Base ========== */
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
 
 body{
   margin: 0;
@@ -54,18 +52,17 @@ body{
   font-family: system-ui, -apple-system, BlinkMacSystemFont;
 }
 
+/* ========== Topbar ========== */
 .topbar{
   position: sticky;
   top: 0;
-  z-index: 1000;                 /* главное */
+  z-index: 1000;
   display:flex;
   align-items:center;
   gap:12px;
 
-  /* safe area для iPhone с “чёлкой” */
   padding: calc(14px + env(safe-area-inset-top)) 14px 10px;
 
-  /* непрозрачнее, чтобы контент не “просвечивал” */
   background: linear-gradient(
     to bottom,
     rgba(10, 11, 16, 0.92),
@@ -82,10 +79,10 @@ body{
   background:linear-gradient(135deg,#2b8cff,#3bb273);
 }
 
-.user{flex:1; min-width:0}
-.name{font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.meta{color:var(--muted); font-size:12px; margin-top:2px}
-.dot{margin:0 6px}
+.user{ flex:1; min-width:0; }
+.name{ font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.meta{ color:var(--muted); font-size:12px; margin-top:2px; }
+.dot{ margin:0 6px; }
 
 .iconBtn{
   border:1px solid var(--stroke);
@@ -95,13 +92,15 @@ body{
   padding:8px 10px;
 }
 
+/* ========== Layout ========== */
 .content{
   padding:14px;
   padding-top: 18px;
   padding-bottom: calc(110px + env(safe-area-inset-bottom));
 }
 
-.card {
+/* ========== Cards ========== */
+.card{
   background: linear-gradient(
     180deg,
     rgba(255,255,255,0.08),
@@ -118,39 +117,34 @@ body{
     inset 0 1px 0 rgba(255,255,255,.08);
 }
 
-.card, .gameCard, .txItem {
-  position: relative;
-  z-index: 1;
-}
-
 .hero{
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
 }
 
-.title{font-weight:800}
-.subtitle{color:var(--muted); font-size:13px; margin-top:4px}
+.title{ font-weight:800; }
+.subtitle{ color:var(--muted); font-size:13px; margin-top:4px; }
+.h2{ margin:12px 2px; font-size:16px; }
 
-.primary {
+/* ========== Primary button ========== */
+.primary{
   background: var(--primary);
   border: none;
   color: white;
   padding: 12px 16px;
   border-radius: 14px;
   font-weight: 800;
-  box-shadow:
-    0 0 0 rgba(0,0,0,0),
-    0 0 24px rgba(120, 120, 255, 0.35);
+  box-shadow: 0 0 24px rgba(120, 120, 255, 0.35);
   transition: transform var(--fast) var(--ease), box-shadow var(--fast);
 }
-
-.primary:active {
+.primary:active{
   transform: scale(0.97);
   box-shadow: 0 0 40px rgba(180, 120, 255, 0.55);
 }
 
-.h2{margin:12px 2px; font-size:16px}
-
-/* Сделаем карточки выше и “богаче” */
+/* ========== Games grid ========== */
 .grid{
   display:grid;
   grid-template-columns: 1fr 1fr;
@@ -158,107 +152,145 @@ body{
   margin-bottom:12px;
 }
 
-.gameCard{
-  overflow: hidden; /* важно для сияния */
+/* ========= Game Cards (REWORK) ========= */
+
+/* лёгкое “парение” */
+@keyframes gc-float{
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-2.5px); }
+  100% { transform: translateY(0); }
+}
+@keyframes gc-pulse{
+  0%   { opacity: .55; }
+  50%  { opacity: .85; }
+  100% { opacity: .55; }
 }
 
-.gameCard::after{
+.gameCard{
+  position: relative;
+  min-height: var(--gc-minh);
+  padding: var(--gc-pad);
+  border-radius: var(--gc-radius);
+
+  display:flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+
+  overflow: hidden; /* glow внутри, без “обрезанности” */
+
+  border: 1px solid rgba(255,255,255,.12);
+  background:
+    radial-gradient(220px 120px at 15% 0%, rgba(255,111,216,.16), transparent 60%),
+    radial-gradient(240px 160px at 90% 20%, rgba(90,215,255,.14), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 14px 40px rgba(0,0,0,.42),
+    inset 0 1px 0 rgba(255,255,255,.12);
+
+  transform: translateZ(0);
+  transition:
+    transform .28s var(--ease),
+    box-shadow .28s var(--ease),
+    border-color .28s var(--ease),
+    filter .28s var(--ease);
+
+  animation: gc-float 4.2s ease-in-out infinite;
+}
+
+/* glow слой 1 — внутри (исправляет “обрезанные” края) */
+.gameCard::before{
   content:"";
   position:absolute;
-  inset:0;
+  inset: 0;                /* ключевое: НЕ -40px */
   border-radius: inherit;
   pointer-events:none;
 
   background:
-    radial-gradient(220px 120px at 40% -20%,
-      rgba(179,108,255,.18),
-      transparent 60%),
-    radial-gradient(220px 120px at 70% 120%,
-      rgba(90,215,255,.14),
-      transparent 60%);
+    radial-gradient(220px 160px at 20% 25%, rgba(179,108,255,.22), transparent 64%),
+    radial-gradient(240px 180px at 85% 70%, rgba(90,215,255,.16), transparent 66%);
+  filter: blur(18px);
+  opacity: .70;
+  z-index: 0;
 
-  opacity:.55;
-  transition: opacity var(--normal) var(--ease);
+  animation: gc-pulse 2.8s ease-in-out infinite;
 }
 
-.gameCard:active::after{
-  opacity:.9;
-}
-
-/* неоновый “ореол” внутри карточки */
-.gameCard::before{
+/* shine слой 2 — лёгкая “плёнка” */
+.gameCard::after{
   content:"";
   position:absolute;
-  inset:-40px;
-  background:
-    radial-gradient(180px 120px at 25% 35%, rgba(179,108,255,.25), transparent 60%),
-    radial-gradient(160px 120px at 80% 60%, rgba(90,215,255,.20), transparent 60%);
-  filter: blur(18px);
-  opacity:.55;
+  inset: 0;
+  border-radius: inherit;
   pointer-events:none;
-  transform: translateZ(0);
+
+  background:
+    radial-gradient(260px 140px at 45% -20%, rgba(255,255,255,.14), transparent 60%),
+    linear-gradient(120deg, transparent 28%, rgba(255,255,255,.10) 46%, transparent 62%);
+
+  opacity: .18;
+  filter: blur(10px);
+  z-index: 1;
+  transition: opacity .28s var(--ease);
 }
 
-/* лёгкое “парение” */
-@keyframes floaty {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-3px); }
-  100% { transform: translateY(0); }
-}
-@keyframes glowPulse {
-  0%   { opacity: .45; }
-  50%  { opacity: .75; }
-  100% { opacity: .45; }
+/* контент поверх glow */
+.gameCard > *{
+  position: relative;
+  z-index: 2;
 }
 
-.gameCard{
-  animation: floaty 3.6s ease-in-out infinite;
-}
-.gameCard::before{
-  animation: glowPulse 2.8s ease-in-out infinite;
-}
-
-/* чтобы карточки не “качались” все одинаково — немного разный старт */
+/* разные задержки, чтобы не “синхрон” */
 .gameCard:nth-child(2){ animation-delay: .12s; }
-.gameCard:nth-child(3){ animation-delay: .22s; }
-.gameCard:nth-child(4){ animation-delay: .34s; }
+.gameCard:nth-child(3){ animation-delay: .24s; }
+.gameCard:nth-child(4){ animation-delay: .36s; }
 
 .gameCard:active{
-  transform: scale(0.97);
-  border-color: rgba(179,108,255,.55);
+  transform: scale(.975);
+  border-color: rgba(179,108,255,.45);
   box-shadow:
-    0 18px 60px rgba(0,0,0,.46),
-    0 0 30px rgba(179,108,255,.18),
+    0 18px 55px rgba(0,0,0,.50),
+    0 0 28px rgba(179,108,255,.16),
     inset 0 1px 0 rgba(255,255,255,.10);
+  filter: saturate(1.06);
+}
+.gameCard:active::after{
+  opacity: .28;
 }
 
-/* Верхняя строка: эмодзи + бейдж */
+/* --- Верх карточки: эмодзи + бейдж --- */
 .gTop{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 4px;
 }
 
 .gIcon{
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   display:flex;
   align-items:center;
   justify-content:center;
 
   border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.12);
 
   background:
     radial-gradient(26px 26px at 30% 20%, rgba(255,255,255,.16), transparent 60%),
     rgba(255,255,255,.05);
 
   box-shadow:
-    0 10px 26px rgba(0,0,0,.35),
+    0 10px 26px rgba(0,0,0,.32),
     inset 0 1px 0 rgba(255,255,255,.10);
 
   font-size: 22px;
+  line-height: 1;
   transform: translateY(1px);
 }
 
@@ -266,28 +298,40 @@ body{
   font-size: 11px;
   font-weight: 900;
   color: rgba(255,255,255,.92);
+
   padding: 6px 10px;
   border-radius: 999px;
+
   border: 1px solid rgba(255,255,255,.12);
   background: rgba(255,255,255,.06);
+
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
-.gTitle{ font-weight: 900; letter-spacing: .2px; }
-.gSub{ color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.2; }
+.gTitle{
+  font-weight: 900;
+  letter-spacing: .2px;
+}
+.gSub{
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 6px;
+  line-height: 1.2;
+}
 
-.row{display:flex; justify-content:space-between; align-items:center; gap:10px}
-.btnRow{display:flex; gap:8px}
+/* ========== Wallet buttons ========== */
+.row{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.btnRow{ display:flex; gap:8px; flex-wrap: wrap; }
+
 .ghost{
   -webkit-appearance: none;
   appearance: none;
 
   border: 1px solid var(--stroke);
-  background: rgba(20, 22, 30, 0.55); /* темнее, чтобы не белело */
+  background: rgba(20, 22, 30, 0.55);
   color: var(--text);
 
-  /* ВАЖНО: убираем blur с кнопок (iOS баг) */
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 
@@ -302,21 +346,88 @@ body{
 
   transition: transform var(--fast) var(--ease), border-color var(--fast), background var(--fast);
 }
-
 .ghost:active{
   transform: scale(0.96);
   border-color: rgba(179,108,255,.6);
   background: rgba(25, 27, 38, 0.70);
 }
 
-.debug{
-  white-space:pre-wrap;
-  word-break:break-word;
-  color:#c7d2fe;
+/* ========== Transactions ========== */
+.txTitle{
+  margin-top:12px;
+  color:var(--muted);
   font-size:12px;
-  margin:10px 0 0;
+  font-weight:700;
+}
+.txList{
+  margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.txItem{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  padding:10px 12px;
+  border:1px solid var(--stroke);
+  border-radius:14px;
+  background:rgba(255,255,255,.03);
+}
+.txLeft{ min-width:0; }
+.txType{ font-weight:800; }
+.txDate{ color:var(--muted); font-size:12px; margin-top:4px; }
+.txAmt{ font-weight:900; white-space:nowrap; }
+.txAmt.plus{ color:#7ee2a8; }
+.txAmt.minus{ color:#ffb4b4; }
+
+/* ========== Screens transition ========== */
+.screen{ display:none; }
+.screen.active{
+  display:block;
+  animation: screenIn 240ms var(--ease) both;
+}
+@keyframes screenIn{
+  from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
+/* ========== Quick actions ========== */
+.quickRow{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:10px;
+  margin: 12px 0 14px;
+}
+.quickBtn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
+  padding: 12px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--stroke);
+
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+
+  color: var(--text);
+  font-weight: 900;
+  letter-spacing: .2px;
+
+  transition: transform var(--fast) var(--ease), border-color var(--fast);
+}
+.quickBtn:active{
+  transform: scale(0.97);
+  border-color: rgba(179,108,255,.55);
+}
+.qIcon{ font-size: 16px; opacity: .95; }
+.qText{ font-size: 13px; }
+
+/* ========== Tabbar ========== */
 .tabbar{
   position: fixed;
   left: 0;
@@ -325,31 +436,17 @@ body{
   z-index: 3000;
 
   padding: 10px 12px calc(18px + env(safe-area-inset-bottom));
-
-  /* стекло */
   background: rgba(12, 13, 18, 0.55);
+
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
 
   border-top: 1px solid rgba(255,255,255,.10);
-
-  /* тень и “разделитель” сверху как в рефе */
-box-shadow: 0 -10px 30px rgba(0,0,0,.40);
+  box-shadow: 0 -10px 30px rgba(0,0,0,.40);
 
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-}
-
-/* верхний fade (чтобы красиво отделять от контента) */
-.tabbar::before{
-  content:"";
-  position:absolute;
-  left:0; right:0;
-  top:-10px;
-  height:10px;
-  background: linear-gradient(to top, rgba(12,13,18,0), rgba(12,13,18,.22));
-  pointer-events:none;
 }
 
 .tab{
@@ -376,146 +473,46 @@ box-shadow: 0 -10px 30px rgba(0,0,0,.40);
     color var(--normal) var(--ease),
     box-shadow var(--normal) var(--ease);
 }
-
 .tabIcon{
-  font-size: 20px;        /* эмодзи крупнее */
+  font-size: 20px;
   line-height: 1;
   transform: translateY(1px);
   filter: saturate(1.1);
 }
-
 .tabLabel{
   font-size: 11px;
   opacity: .9;
 }
+.tab:active{ transform: scale(0.97); }
 
-.tab:active{
-  transform: scale(0.97);
-}
-
-/* активная вкладка */
 .tab.active{
   color: var(--text);
   border-color: rgba(179,108,255,.42);
   background: rgba(179,108,255,.14);
-
   box-shadow:
     0 0 0 1px rgba(90,215,255,.10),
     0 10px 30px rgba(0,0,0,.35),
     0 0 26px rgba(179,108,255,.22);
 }
-
 .tab.active .tabIcon{
   text-shadow:
     0 0 12px rgba(179,108,255,.45),
     0 0 22px rgba(90,215,255,.35);
 }
-
 .tab.active::before{
   content:"";
   position:absolute;
   inset:0;
   border-radius:16px;
   background:
-    radial-gradient(120px 80px at 50% 0%,
-      rgba(179,108,255,.28),
-      transparent 60%),
-    radial-gradient(120px 80px at 50% 100%,
-      rgba(90,215,255,.18),
-      transparent 60%);
+    radial-gradient(120px 80px at 50% 0%, rgba(179,108,255,.28), transparent 60%),
+    radial-gradient(120px 80px at 50% 100%, rgba(90,215,255,.18), transparent 60%);
   pointer-events:none;
   mix-blend-mode: screen;
   opacity: .9;
 }
 
-.txTitle{
-  margin-top:12px;
-  color:var(--muted);
-  font-size:12px;
-  font-weight:700;
-}
-
-.txList{
-  margin-top:8px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.txItem{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:10px;
-  padding:10px 12px;
-  border:1px solid var(--stroke);
-  border-radius:14px;
-  background:rgba(255,255,255,.03);
-}
-
-.txLeft{min-width:0}
-.txType{font-weight:800}
-.txDate{color:var(--muted); font-size:12px; margin-top:4px}
-
-.txAmt{
-  font-weight:900;
-  white-space:nowrap;
-}
-.txAmt.plus{color:#7ee2a8}
-.txAmt.minus{color:#ffb4b4}
-
-/* Экраны для табов */
-.screen{
-  display: none;
-}
-
-.screen.active{
-  display: block;
-  animation: screenIn 240ms var(--ease) both;
-}
-
-@keyframes screenIn{
-  from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
-  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
-
-/* Быстрые действия (как в рефе) */
-.quickRow{
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap:10px;
-  margin: 12px 0 14px;
-}
-
-.quickBtn{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-
-  padding: 12px 10px;
-  border-radius: 16px;
-  border: 1px solid var(--stroke);
-  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-
-  color: var(--text);
-  font-weight: 900;
-  letter-spacing: .2px;
-
-  transition: transform var(--fast) var(--ease), border-color var(--fast);
-}
-
-.quickBtn:active{
-  transform: scale(0.97);
-  border-color: rgba(179,108,255,.55);
-}
-
-.qIcon{ font-size: 16px; opacity: .95; }
-.qText{ font-size: 13px; }
-
-/* --- BUTTON RESET (важно закрыть блок!) --- */
+/* ========== Button reset ========== */
 button{
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
@@ -529,19 +526,14 @@ button{
 
   padding: 0;
 }
+button:disabled{ opacity: .5; }
 
-/* если какие-то кнопки должны иметь padding — он задаётся классами (.tab, .ghost, .primary...) */
-
-button:disabled{
-  opacity: .5;
-}
-
-/* чтобы анимации были плавные и без лагов */
+/* perf */
 .card, .gameCard, .quickBtn, .ghost, .primary, .tab{
   will-change: transform;
 }
 
-/* respect accessibility */
+/* accessibility */
 @media (prefers-reduced-motion: reduce){
   *{ animation: none !important; transition: none !important; }
 }
