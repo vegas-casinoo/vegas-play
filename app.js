@@ -6,24 +6,29 @@
   const elDebug = document.getElementById("debug");
   const closeBtn = document.getElementById("closeBtn");
 
-  // Мок-баланс для старта UI
+  // мок-баланс (позже заменим на реальный из БД)
   let balance = 12682.10;
 
   function render() {
-    elBalance.textContent = `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
+    elBalance.textContent =
+      `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
   }
-  
-  const SUPABASE_URL = "https://gtwozscjklqzegiwzqss.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0d296c2Nqa2xxemVnaXd6cXNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMTIxMTUsImV4cCI6MjA4NTY4ODExNX0.yLr6jAl13KuA1OzHrnMkX4VAKH6l40fFVqNik6uBlP4";
 
-const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+  // --- Supabase init ---
+  const SUPABASE_URL = "https://gtwozscjklqzegiwzqss.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0d296c2Nqa2xxemVnaXd6cXNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMTIxMTUsImV4cCI6MjA4NTY4ODExNX0.yLr6jAl13KuA1OzHrnMkX4VAKH6l40fFVqNik6uBlP4";
+
+  if (!window.supabase) {
+    elDebug.textContent =
+      "❌ Supabase SDK не подключён. Проверь, что в index.html есть:\n" +
+      "<script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2\"></script>";
+    return;
+  }
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   async function upsertUser(tgUser) {
-    // сохраняем пользователя
-    await supabase.from("users").upsert({
+    const r1 = await supabase.from("users").upsert({
       id: tgUser.id,
       username: tgUser.username || null,
       first_name: tgUser.first_name || null,
@@ -31,10 +36,19 @@ const supabase = window.supabase.createClient(
       photo_url: tgUser.photo_url || null
     });
 
-    // создаём кошелёк, если его нет
-    await supabase.from("wallets").upsert({
+    if (r1.error) {
+      throw new Error("USERS UPSERT ERROR: " + JSON.stringify(r1.error));
+    }
+
+    const r2 = await supabase.from("wallets").upsert({
       user_id: tgUser.id
     });
+
+    if (r2.error) {
+      throw new Error("WALLETS UPSERT ERROR: " + JSON.stringify(r2.error));
+    }
+
+    return true;
   }
 
   function setActiveTab(tab) {
@@ -43,30 +57,37 @@ const supabase = window.supabase.createClient(
     });
   }
 
-  // Telegram init
+  // --- Telegram init ---
   if (tg) {
-  tg.ready();
-  tg.expand();
+    tg.ready();
+    tg.expand();
 
-  const user = tg.initDataUnsafe?.user;
-  if (user) {
-    elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
-
-    upsertUser(user);       // ← ВОТ ТУТ ВЫЗОВ
-    loadBalance(user.id);  // ← добавим сразу, если ты уже сделал 4.8
-  }
-}
+    const user = tg.initDataUnsafe?.user;
 
     elDebug.textContent = JSON.stringify(
       {
         platform: tg.platform,
         version: tg.version,
-        user: tg.initDataUnsafe?.user || null,
+        user: user || null,
         initDataLength: (tg.initData || "").length
       },
       null,
       2
     );
+
+    if (user) {
+      elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
+
+      // Пишем в Supabase и показываем результат/ошибку прямо в Debug
+      (async () => {
+        try {
+          await upsertUser(user);
+          elDebug.textContent += "\n\n✅ Saved to Supabase (users + wallets)";
+        } catch (e) {
+          elDebug.textContent += "\n\n❌ " + (e?.message || String(e));
+        }
+      })();
+    }
   } else {
     elDebug.textContent =
       "Открой через Telegram Mini App, чтобы появился window.Telegram.WebApp";
