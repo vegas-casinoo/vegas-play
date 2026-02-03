@@ -188,11 +188,19 @@ await loadTransactions(currentUserId);
   if (elDebug) elDebug.textContent += "\n\n✅ +100 added. New balance: " + newBalance;
 }
 
-  function setActiveTab(tab) {
-    document.querySelectorAll(".tab").forEach(b => {
-      b.classList.toggle("active", b.dataset.tab === tab);
-    });
-  }
+function setActiveTab(tab) {
+  document.querySelectorAll(".tab").forEach(b => {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+
+  // показываем нужный экран
+  document.querySelectorAll(".screen").forEach(s => {
+    s.classList.toggle("active", s.dataset.screen === tab);
+  });
+
+  // всегда скроллим вверх при смене вкладки
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
   // --- Telegram init ---
   if (tg) {
@@ -285,4 +293,13 @@ if (testPlus100Btn) {
       alert("Колесо фортуны (пока заглушка)");
     });
   }
+  
+  const promoBtn = document.getElementById("promoBtn");
+if (promoBtn) promoBtn.addEventListener("click", () => alert("Промокод (скоро)"));
+
+const depositQuickBtn = document.getElementById("depositQuickBtn");
+if (depositQuickBtn) depositQuickBtn.addEventListener("click", () => setActiveTab("wallet"));
+
+const withdrawQuickBtn = document.getElementById("withdrawQuickBtn");
+if (withdrawQuickBtn) withdrawQuickBtn.addEventListener("click", () => setActiveTab("wallet"));
 })();
