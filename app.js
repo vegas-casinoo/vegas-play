@@ -287,6 +287,14 @@
       return;
     }
     
+        // Topbar BALANCE => как депозит (клик по плашке баланса)
+    if (t.closest("#balancePill")) {
+      haptic("light");
+      setActiveTab("wallet");
+      alert("Пополнение (пока заглушка).");
+      return;
+    }
+    
     const gameBtn = t.closest(".gameCard");
     if (gameBtn) { haptic("medium"); alert(`Открыть игру: ${gameBtn.dataset.game} (пока заглушка)`); return; }
 
