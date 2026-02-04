@@ -616,3 +616,85 @@ body.switching *{ animation: none !important; }
 .quickBtn{
   border-color: rgba(255,255,255,.14);
 }
+
+/* ===== BOOT SPLASH (3s max) ===== */
+.bootSplash{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: calc(18px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));
+  background: #070812; /* базовый */
+}
+
+.bootSplash::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 15% -10%, rgba(255, 90, 220, .28), transparent 62%),
+    radial-gradient(900px 520px at 85% 0%, rgba(90, 220, 255, .24), transparent 60%),
+    radial-gradient(1000px 700px at 50% 110%, rgba(125, 255, 170, .14), transparent 58%),
+    radial-gradient(700px 420px at 55% 45%, rgba(180, 90, 255, .12), transparent 60%);
+}
+
+.bootSplashInner{
+  position: relative;
+  width: min(420px, 92vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+
+  padding: 22px 18px 20px;
+  border-radius: 22px;
+
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(18,20,28,.80), rgba(10,11,16,.72));
+  box-shadow: 0 22px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08);
+
+  /* важно: без blur, чтобы не было серости в iOS */
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.bootLogo{
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  box-shadow: 0 14px 34px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.bootSpinner{
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 3px solid rgba(255,255,255,.16);
+  border-top-color: rgba(179,108,255,.9);
+  border-right-color: rgba(90,215,255,.7);
+  animation: bootspin 0.9s linear infinite;
+}
+
+@keyframes bootspin{
+  to { transform: rotate(360deg); }
+}
+
+.bootText{
+  font-weight: 900;
+  color: rgba(245,247,251,.86);
+  letter-spacing: .2px;
+}
+
+/* Анимация скрытия */
+.bootSplash.hide{
+  opacity: 0;
+  transform: scale(.98);
+  transition: opacity 180ms var(--ease), transform 180ms var(--ease);
+  pointer-events: none;
+}
+.bootSplash.gone{ display:none; }
