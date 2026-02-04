@@ -1,31 +1,29 @@
 :root{
-  /* ===== ULTRA NEON VEGAS BACKGROUND ===== */
-  --bg-solid:#0a0b18;
-
+  /* ===== Neon Aurora background ===== */
+  --bg-solid:#070812;
   --bg-grad:
-    radial-gradient(1400px 700px at 10% -15%, rgba(255, 80, 220, .55), transparent 60%),
-    radial-gradient(1300px 700px at 90% -10%, rgba(80, 210, 255, .55), transparent 60%),
-    radial-gradient(1200px 800px at 50% 120%, rgba(120, 255, 190, .35), transparent 60%),
-    radial-gradient(900px 600px at 60% 45%, rgba(170, 90, 255, .45), transparent 65%);
+    radial-gradient(900px 520px at 15% -10%, rgba(255, 90, 220, .28), transparent 62%),
+    radial-gradient(900px 520px at 85% 0%, rgba(90, 220, 255, .24), transparent 60%),
+    radial-gradient(1000px 700px at 50% 110%, rgba(125, 255, 170, .14), transparent 58%),
+    radial-gradient(700px 420px at 55% 45%, rgba(180, 90, 255, .12), transparent 60%);
 
-  --text:#f5f7fb;
-  --muted:#aab2c5;
+  --text: #f5f7fb;
+  --muted: #9aa3b2;
 
-  --stroke:rgba(255,255,255,.14);
+  --stroke: rgba(255,255,255,.12);
 
-  --neon-purple:#c084ff;
-  --neon-blue:#6ae3ff;
-  --neon-pink:#ff7adf;
+  --neon-purple: #b36cff;
+  --neon-blue: #5ad7ff;
 
-  --primary:linear-gradient(135deg, var(--neon-pink), var(--neon-purple), var(--neon-blue));
+  --primary: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
 
-  --blur:blur(14px);
+  --blur: blur(14px);
 
-  --radius-lg:22px;
+  --radius-lg: 22px;
 
-  --ease:cubic-bezier(.2,.8,.2,1);
-  --fast:140ms;
-  --normal:240ms;
+  --ease: cubic-bezier(.2,.8,.2,1);
+  --fast: 140ms;
+  --normal: 240ms;
 }
 
 /* ========= Base / Reset ========= */
