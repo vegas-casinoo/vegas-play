@@ -139,35 +139,44 @@
    * 3) выключаем switching по transitionend
    */
 function setActiveTab(tab) {
-  if (isSwitching) return;
+  if (switching) return;
 
-  const current = document.querySelector(".screen.active");
-  const next = document.querySelector(`.screen[data-screen="${tab}"]`);
+  const current = getActiveScreen();
+  const next = getScreen(tab);
+
   if (!next || current === next) return;
 
-  beginSwitchPerf();
+  setSwitching(true);
+  setActiveTabUI(tab);
 
-  // подсветка табов
-  tabs.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  // если текущего нет — просто включаем next
+  if (!current) {
+    screens.forEach(s => s.classList.remove("active", "leaving", "entering"));
+    next.classList.add("active");
+    hardScrollTop();
+    setSwitching(false);
+    activeTab = tab;
+    return;
+  }
 
-  // 1) уводим текущий (он остаётся active, но у него появится fade-out)
-  if (current) current.classList.add("leaving");
+  // 1) запускаем уход текущего
+  current.classList.add("leaving");
 
-  // 2) показываем следующий ТОЛЬКО после ухода текущего
-  const OUT_MS = 260; // = var(--normal) (0.26s). Держи одинаково с CSS
+  // 2) ждём окончания transition у текущего и только потом включаем следующий
+  onceTransitionEnd(current, () => {
+    current.classList.remove("active", "leaving");
 
-  setTimeout(() => {
-    if (current) {
-      current.classList.remove("active", "leaving");
-    }
+    // на всякий — убрать active у остальных
+    screens.forEach(s => {
+      if (s !== next) s.classList.remove("active", "leaving", "entering");
+    });
 
     next.classList.add("active");
 
-    // без smooth — меньше дерготни в webview
-    window.scrollTo(0, 0);
-
-    endSwitchPerf(120); // можно чуть короче тут
-  }, OUT_MS);
+    activeTab = tab;
+    hardScrollTop();
+    setSwitching(false);
+  });
 }
 
   // ========= SUPABASE =========
@@ -379,10 +388,10 @@ function setActiveTab(tab) {
     }
   }
 
-  // ========= BOOT =========
-  // выставим начальный таб корректно
-  setActiveTabUI(activeTab);
-  screens.forEach(s => s.classList.toggle("active", s.dataset.screen === activeTab));
-  renderBalance();
-  initTelegram();
+// ========= BOOT =========
+setActiveTabUI(activeTab);
+screens.forEach(s => s.classList.remove("active", "leaving", "entering"));
+getScreen(activeTab)?.classList.add("active");
+renderBalance();
+initTelegram();
 })();
