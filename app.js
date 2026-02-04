@@ -278,7 +278,15 @@
 
     if (t.closest("#promoBtn")) { haptic("light"); alert("Промокод (скоро)"); return; }
     if (t.closest("#depositQuickBtn") || t.closest("#withdrawQuickBtn")) { haptic("light"); setActiveTab("wallet"); return; }
-
+    
+    // Topbar PLUS => как депозит
+    if (t.closest("#topPlusBtn")) {
+      haptic("light");
+      setActiveTab("wallet");
+      alert("Пополнение (пока заглушка).");
+      return;
+    }
+    
     const gameBtn = t.closest(".gameCard");
     if (gameBtn) { haptic("medium"); alert(`Открыть игру: ${gameBtn.dataset.game} (пока заглушка)`); return; }
 
@@ -287,8 +295,6 @@
 
     if (t.closest("#testPlus100Btn")) { haptic("light"); testAdd100(); return; }
     if (t.closest("#spinBtn")) { haptic("light"); alert("Колесо фортуны (пока заглушка)"); return; }
-
-    if (t.closest("#closeBtn")) { haptic("light"); if (tg) tg.close(); else alert("Закрытие доступно только внутри Telegram"); return; }
 
     if (t.closest("button")) haptic("light");
   }, { passive: true });
