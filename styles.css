@@ -83,8 +83,13 @@ button:disabled{ opacity:.5; }
 }
 
 .avatar{
-  width:42px; height:42px; border-radius:999px;
-  background:linear-gradient(135deg,#2b8cff,#3bb273);
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  background: linear-gradient(135deg,#2b8cff,#3bb273);
+  box-shadow:
+    0 0 0 2px rgba(179,108,255,.45),
+    0 0 18px rgba(179,108,255,.55);
 }
 
 .user{ flex:1; min-width:0; }
