@@ -1,9 +1,10 @@
 :root{
   /* Base */
-  --bg:
+--bg-solid:#0a0b10;
+  --bg-grad:
     radial-gradient(1200px 600px at 20% -140px, rgba(180, 90, 255, 0.18), transparent 60%),
-    radial-gradient(800px 420px at 90% 140px, rgba(80, 200, 255, 0.18), transparent 55%),
-    #0a0b10;
+    radial-gradient(800px 420px at 90% 140px, rgba(80, 200, 255, 0.18), transparent 55%);
+
 
   --text: #f5f7fb;
   --muted: #9aa3b2;
@@ -31,11 +32,23 @@ html,body{ height:100%; }
 body{
   margin:0;
   min-height:100%;
-  background: var(--bg) no-repeat;
+  background: var(--bg-solid);
   color: var(--text);
   font-family: system-ui,-apple-system,BlinkMacSystemFont;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background: var(--bg-grad), var(--bg-solid);
+  background-repeat:no-repeat;
+  background-size:cover;
+  transform: translateZ(0);
 }
 
 button{
@@ -492,14 +505,6 @@ button:disabled{ opacity:.5; }
 .txAmt{ font-weight:950; white-space:nowrap; }
 .txAmt.plus{ color:#7ee2a8; }
 .txAmt.minus{ color:#ffb4b4; }
-
-/* лёгкий blur только если движок нормальный */
-@supports ((-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))) {
-  .txItem{
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-  }
-}
 
 /* ========= Tabbar ========= */
 .tabbar{
