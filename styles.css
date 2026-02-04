@@ -5,45 +5,35 @@
     radial-gradient(800px 420px at 90% 140px, rgba(80, 200, 255, 0.18), transparent 55%),
     #0a0b10;
 
-  --glass: rgba(255,255,255,.06);
-  --glass-strong: rgba(255,255,255,.10);
-  --stroke: rgba(255,255,255,.12);
-
   --text: #f5f7fb;
   --muted: #9aa3b2;
 
+  --stroke: rgba(255,255,255,.12);
+
   --neon-purple: #b36cff;
-  --neon-pink: #ff6fd8;
   --neon-blue: #5ad7ff;
 
   --primary: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
-  --success: #63f2b6;
-  --danger: #ff7b7b;
 
-  --blur-strong: blur(20px);
   --blur: blur(14px);
 
-  --radius: 18px;
   --radius-lg: 22px;
 
   --ease: cubic-bezier(.2,.8,.2,1);
-  --fast: 0.14s;
-  --normal: 0.26s;
-
-  --tabbar-h: 94px; /* приблизительно */
+  --fast: 140ms;
+  --normal: 240ms;
 }
 
-/* ========= Reset / Base ========= */
+/* ========= Base / Reset ========= */
 *{ box-sizing:border-box; }
 html,body{ height:100%; }
 
 body{
-  margin: 0;
-  min-height: 100%;
-  background: var(--bg);
-  background-repeat: no-repeat;
+  margin:0;
+  min-height:100%;
+  background: var(--bg) no-repeat;
   color: var(--text);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  font-family: system-ui,-apple-system,BlinkMacSystemFont;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -58,7 +48,7 @@ button{
   color: inherit;
   background: none;
 }
-button:disabled{ opacity: .5; }
+button:disabled{ opacity:.5; }
 
 /* ========= Topbar ========= */
 .topbar{
@@ -105,41 +95,45 @@ button:disabled{ opacity: .5; }
   padding-bottom: calc(118px + env(safe-area-inset-bottom));
 }
 
-/* ========= Screens (фикс наложения) ========= */
+/* ========= Screens (переключение вкладок) ========= */
 .screen{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  opacity: 0;
+  position:absolute;
+  inset:0;
+  width:100%;
+
+  opacity:0;
   transform: translate3d(0,10px,0);
-  pointer-events: none;
+  pointer-events:none;
 
   transition:
-    opacity 240ms var(--ease),
-    transform 240ms var(--ease);
+    opacity var(--normal) var(--ease),
+    transform var(--normal) var(--ease);
 
   will-change: opacity, transform;
-  z-index: 0;
+  z-index:0;
 }
 
-/* активный экран */
 .screen.active{
-  position: relative;
-  inset: auto;
-  opacity: 1;
+  position:relative;
+  inset:auto;
+
+  opacity:1;
   transform: translate3d(0,0,0);
-  pointer-events: auto;
-  z-index: 1;
+  pointer-events:auto;
+
+  z-index:1;
 }
 
-/* уходящий экран всегда сверху, чтобы “доиграл” анимацию */
+/* уходящий экран всегда сверху — чтобы успел “доиграть” */
 .screen.leaving{
-  position: absolute;
-  inset: 0;
-  opacity: 0;
+  position:absolute;
+  inset:0;
+
+  opacity:0;
   transform: translate3d(0,6px,0);
-  pointer-events: none;
-  z-index: 2;
+  pointer-events:none;
+
+  z-index:2;
   transition:
     opacity 180ms var(--ease),
     transform 180ms var(--ease);
@@ -148,7 +142,7 @@ button:disabled{ opacity: .5; }
 /* ========= Cards ========= */
 .card{
   background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
-  border: 1px solid rgba(255,255,255,.12);
+  border: 1px solid var(--stroke);
   border-radius: var(--radius-lg);
   padding: 14px;
   margin-bottom: 12px;
@@ -175,8 +169,7 @@ button:disabled{ opacity: .5; }
 /* ========= Primary ========= */
 .primary{
   background: var(--primary);
-  color: white;
-
+  color:#fff;
   padding: 12px 16px;
   border-radius: 14px;
   font-weight: 900;
@@ -184,7 +177,7 @@ button:disabled{ opacity: .5; }
   box-shadow: 0 0 22px rgba(120,120,255,.30);
   transition: transform var(--fast) var(--ease), filter var(--fast) var(--ease);
 }
-.primary:active{ transform: scale(0.97); filter: brightness(1.05); }
+.primary:active{ transform: scale(.97); filter: brightness(1.05); }
 
 /* ========= Quick actions ========= */
 .quickRow{
@@ -196,7 +189,7 @@ button:disabled{ opacity: .5; }
 
 .quickBtn{
   position: relative;
-  overflow: hidden;
+  overflow:hidden;
 
   display:flex;
   align-items:center;
@@ -205,7 +198,6 @@ button:disabled{ opacity: .5; }
 
   padding: 12px 10px;
   border-radius: 16px;
-
   border: 1px solid rgba(255,255,255,.14);
 
   background-color: rgba(18, 20, 28, .62);
@@ -226,10 +218,9 @@ button:disabled{ opacity: .5; }
 }
 .quickBtn:active{ transform: scale(.97); filter: brightness(1.06) saturate(1.05); }
 
-.qIcon{ font-size: 16px; opacity: .95; }
+.qIcon{ font-size: 16px; opacity:.95; }
 .qText{ font-size: 13px; }
 
-/* индивидуальные темы */
 #promoBtn{
   background-image:
     linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
@@ -257,7 +248,7 @@ button:disabled{ opacity: .5; }
   margin-bottom:12px;
 }
 
-/* ========= Game Cards (без “вечных” тяжёлых эффектов) ========= */
+/* ========= Game Cards ========= */
 .gameCard{
   position: relative;
   min-height: 156px;
@@ -269,7 +260,7 @@ button:disabled{ opacity: .5; }
   justify-content: space-between;
   gap: 10px;
 
-  overflow: hidden;
+  overflow:hidden;
 
   border: 1px solid rgba(255,255,255,.12);
 
@@ -288,6 +279,7 @@ button:disabled{ opacity: .5; }
   transform: translateZ(0);
   transition: transform var(--fast) var(--ease), filter var(--fast) var(--ease), border-color var(--fast) var(--ease);
 }
+
 .gameCard::before{
   content:"";
   position:absolute;
@@ -298,9 +290,10 @@ button:disabled{ opacity: .5; }
     radial-gradient(260px 180px at 25% 30%, rgba(179,108,255,.18), transparent 66%),
     radial-gradient(260px 200px at 85% 70%, rgba(90,215,255,.12), transparent 68%);
   filter: blur(18px);
-  opacity: .9;
-  z-index: 0;
+  opacity:.9;
+  z-index:0;
 }
+
 .gameCard::after{
   content:"";
   position:absolute;
@@ -310,11 +303,12 @@ button:disabled{ opacity: .5; }
   background:
     radial-gradient(280px 160px at 45% -20%, rgba(255,255,255,.12), transparent 60%),
     linear-gradient(120deg, transparent 28%, rgba(255,255,255,.08) 46%, transparent 62%);
-  opacity: .18;
+  opacity:.18;
   filter: blur(10px);
-  z-index: 1;
+  z-index:1;
 }
-.gameCard > *{ position: relative; z-index: 2; }
+
+.gameCard > *{ position: relative; z-index:2; }
 
 .gameCard:active{
   transform: scale(.985);
@@ -322,23 +316,22 @@ button:disabled{ opacity: .5; }
   border-color: rgba(179,108,255,.35);
 }
 
-/* Top row */
+/* Game card inner */
 .gTop{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap: 10px;
-  margin-bottom: 4px;
+  gap:10px;
+  margin-bottom:4px;
 }
 
 .gIcon{
-  width: 46px;
-  height: 46px;
+  width:46px; height:46px;
   display:flex;
   align-items:center;
   justify-content:center;
 
-  border-radius: 16px;
+  border-radius:16px;
   border: 1px solid rgba(255,255,255,.12);
 
   background:
@@ -349,20 +342,21 @@ button:disabled{ opacity: .5; }
     0 10px 26px rgba(0,0,0,.32),
     inset 0 1px 0 rgba(255,255,255,.10);
 
-  font-size: 22px;
-  line-height: 1;
+  font-size:22px;
+  line-height:1;
 }
 
 .gBadge{
-  font-size: 11px;
-  font-weight: 900;
+  font-size:11px;
+  font-weight:900;
   color: rgba(255,255,255,.92);
 
-  padding: 6px 10px;
-  border-radius: 999px;
+  padding:6px 10px;
+  border-radius:999px;
 
   border: 1px solid rgba(255,255,255,.12);
   background: linear-gradient(135deg, rgba(22,24,34,.72), rgba(16,18,26,.60));
+
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.10),
     0 10px 22px rgba(0,0,0,.22);
@@ -371,16 +365,16 @@ button:disabled{ opacity: .5; }
   -webkit-backdrop-filter: blur(10px);
 }
 
-.gTitle{ font-weight: 900; letter-spacing: .2px; }
-.gSub{ color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.2; }
+.gTitle{ font-weight:900; letter-spacing:.2px; }
+.gSub{ color:var(--muted); font-size:12px; margin-top:6px; line-height:1.2; }
 
 /* ========= Wallet ========= */
 .row{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
-.btnRow{ display:flex; gap:8px; flex-wrap: wrap; }
+.btnRow{ display:flex; gap:8px; flex-wrap:wrap; }
 
 .ghost{
   border: 1px solid rgba(255,255,255,.12);
-  background: rgba(20, 22, 30, 0.55);
+  background: rgba(20,22,30,.55);
   color: var(--text);
 
   /* iOS webview bug */
@@ -389,8 +383,8 @@ button:disabled{ opacity: .5; }
 
   padding: 10px 12px;
   border-radius: 14px;
-  font-weight: 900;
-  white-space: nowrap;
+  font-weight:900;
+  white-space:nowrap;
 
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.08),
@@ -398,13 +392,8 @@ button:disabled{ opacity: .5; }
 
   transition: transform var(--fast) var(--ease), filter var(--fast) var(--ease), border-color var(--fast) var(--ease);
 }
-.ghost:active{
-  transform: scale(0.97);
-  filter: brightness(1.05);
-  border-color: rgba(179,108,255,.35);
-}
+.ghost:active{ transform: scale(.97); filter: brightness(1.05); border-color: rgba(179,108,255,.35); }
 
-/* “реф-похожий” hero для кошелька (если блок есть в HTML) */
 .walletHero{
   margin: 10px 0 16px;
   padding: 18px;
@@ -425,26 +414,14 @@ button:disabled{ opacity: .5; }
   -webkit-backdrop-filter: blur(18px);
 }
 
-.walletHeroLabel{
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: .2px;
-}
-
-.walletHeroAmount{
-  margin-top: 6px;
-  font-size: 34px;
-  font-weight: 950;
-  letter-spacing: .3px;
-  color: #fff;
-}
+.walletHeroLabel{ color:var(--muted); font-size:13px; font-weight:900; letter-spacing:.2px; }
+.walletHeroAmount{ margin-top:6px; font-size:34px; font-weight:950; letter-spacing:.3px; color:#fff; }
 
 .walletHeroActions{
   margin-top: 16px;
-  display: grid;
+  display:grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap:12px;
 }
 
 .walletPrimary{
@@ -452,7 +429,7 @@ button:disabled{ opacity: .5; }
   border-radius: 16px;
   font-weight: 950;
   font-size: 15px;
-  color: #fff;
+  color:#fff;
 
   display:flex;
   align-items:center;
@@ -467,19 +444,22 @@ button:disabled{ opacity: .5; }
 }
 .walletPrimary:active{ transform: scale(.97); filter: brightness(1.05); }
 
-.walletPrimary.withdraw{
-  background: linear-gradient(135deg, rgba(90,215,255,.95), rgba(70,165,255,.95));
-}
-.walletPrimary.deposit{
-  background: linear-gradient(135deg, rgba(99,242,182,.95), rgba(55,220,150,.95));
+.walletPrimary.withdraw{ background: linear-gradient(135deg, rgba(90,215,255,.95), rgba(70,165,255,.95)); }
+.walletPrimary.deposit{ background: linear-gradient(135deg, rgba(99,242,182,.95), rgba(55,220,150,.95)); }
+
+/* ========= Transactions (темное стекло, НЕ сереет) ========= */
+.txTitle{
+  margin-top:12px;
+  color: var(--muted);
+  font-size:12px;
+  font-weight:900;
 }
 
-/* ========= Transactions (как было на фото 1) ========= */
 .txList{
   margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
 .txItem{
@@ -488,29 +468,44 @@ button:disabled{ opacity: .5; }
   align-items:flex-start;
   gap:10px;
 
-  padding: 10px 12px;
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 14px;
+  padding: 12px 14px;
+  border-radius: 18px;
 
-  background: rgba(255,255,255,.03);
-  box-shadow: none;
+  background: linear-gradient(180deg, rgba(18,20,28,.82), rgba(12,13,18,.72));
+  border: 1px solid rgba(255,255,255,.10);
 
-  /* чтобы не “мутнело/светлело” в iOS при переключениях */
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.08);
+
+  /* по умолчанию без blur (это и лечит “серость”) */
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+
+  transform: translateZ(0);
 }
 
-.txType{ font-weight: 900; }
-.txDate{ color: var(--muted); font-size: 12px; margin-top: 4px; }
-.txAmt{ font-weight: 900; white-space: nowrap; }
+.txLeft{ min-width:0; }
+.txType{ color: rgba(245,247,251,.94); font-weight:950; letter-spacing:.2px; }
+.txDate{ margin-top:4px; color: rgba(154,163,178,.86); font-size:12px; }
+
+.txAmt{ font-weight:950; white-space:nowrap; }
+.txAmt.plus{ color:#7ee2a8; }
+.txAmt.minus{ color:#ffb4b4; }
+
+/* лёгкий blur только если движок нормальный */
+@supports ((-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))) {
+  .txItem{
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+}
 
 /* ========= Tabbar ========= */
 .tabbar{
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 3000;
+  left:0; right:0; bottom:0;
+  z-index:3000;
 
   padding: 10px 12px calc(18px + env(safe-area-inset-bottom));
   background: rgba(12, 13, 18, 0.55);
@@ -521,9 +516,9 @@ button:disabled{ opacity: .5; }
   border-top: 1px solid rgba(255,255,255,.10);
   box-shadow: 0 -10px 30px rgba(0,0,0,.40);
 
-  display: grid;
+  display:grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap:10px;
 }
 
 .tabbar::before{
@@ -538,20 +533,21 @@ button:disabled{ opacity: .5; }
 
 .tab{
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
 
   padding: 10px 8px;
-  border-radius: 16px;
+  border-radius:16px;
 
   border: 1px solid rgba(255,255,255,.10);
   background: rgba(255,255,255,.03);
 
   color: rgba(245,247,251,.68);
-  font-weight: 900;
+  font-weight:900;
 
   transition:
     transform var(--fast) var(--ease),
@@ -559,9 +555,10 @@ button:disabled{ opacity: .5; }
     border-color var(--normal) var(--ease),
     color var(--normal) var(--ease);
 }
-.tabIcon{ font-size: 20px; line-height: 1; transform: translateY(1px); }
-.tabLabel{ font-size: 11px; opacity: .9; }
-.tab:active{ transform: scale(0.97); }
+
+.tabIcon{ font-size:20px; line-height:1; transform: translateY(1px); }
+.tabLabel{ font-size:11px; opacity:.9; }
+.tab:active{ transform: scale(.97); }
 
 .tab.active{
   color: var(--text);
@@ -578,112 +575,32 @@ button:disabled{ opacity: .5; }
     radial-gradient(120px 80px at 50% 100%, rgba(90,215,255,.16), transparent 60%);
   pointer-events:none;
   mix-blend-mode: screen;
-  opacity: .9;
+  opacity:.9;
 }
 
-/* ========= Performance switch (во время перехода) ========= */
+/* ========= Performance: на время перехода ========= */
 body.switching .card,
 body.switching .topbar,
 body.switching .tabbar,
 body.switching .quickBtn,
 body.switching .gameCard,
-body.switching .txItem,
 body.switching .walletHero{
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-/* во время перехода стопаем любые “шевеления” */
-body.switching *{
-  animation: none !important;
-}
-
-/* accessibility */
-@media (prefers-reduced-motion: reduce){
-  .screen{ transition: none !important; }
-  .tab, .quickBtn, .gameCard, .primary, .ghost{ transition: none !important; }
-}
-
-/* ===== TX (как на фото 1: тёмное стекло, без серого пластика) ===== */
-
-.txList{
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.txItem{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:10px;
-
-  padding: 12px 14px;
-  border-radius: 18px;
-
-  /* ключ: делаем темнее и более "плотно", чтобы не серело */
-  background:
-    linear-gradient(180deg, rgba(18,20,28,.82), rgba(12,13,18,.72));
-  border: 1px solid rgba(255,255,255,.10);
-
-  box-shadow:
-    0 14px 32px rgba(0,0,0,.38),
-    inset 0 1px 0 rgba(255,255,255,.08);
-
-  /* важно: по умолчанию БЕЗ backdrop-filter (он и даёт серость) */
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-
-  transform: translateZ(0);
-}
-
-.txType{
-  color: rgba(245,247,251,.94);
-  font-weight: 950;
-  letter-spacing: .2px;
-}
-
-.txDate{
-  margin-top: 4px;
-  color: rgba(154,163,178,.86);
-  font-size: 12px;
-}
-
-.txAmt{
-  font-weight: 950;
-  white-space: nowrap;
-}
-
-.txAmt.plus{ color:#7ee2a8; }
-.txAmt.minus{ color:#ffb4b4; }
-
-/* если очень хочешь "стекло" — включаем blur ТОЛЬКО на поддерживаемых и нормальных движках */
-@supports ((-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))) {
-  .txItem{
-    /* лёгкий blur, чтобы не высветляло */
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-  }
-}
-
-/* во время switching держим фон плотным, чтобы вообще ничего не "высветлялось" */
+/* tx — держим плотный фон, чтобы не “высветляло” */
 body.switching .txItem{
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-  background:
-    linear-gradient(180deg, rgba(16,18,26,.88), rgba(10,11,16,.82)) !important;
+  background: linear-gradient(180deg, rgba(16,18,26,.88), rgba(10,11,16,.82)) !important;
 }
 
-/* ===== HARD FIX TX: НЕ СЕРЕЕТ В iOS/Telegram ===== */
-.txItem{
-  background: linear-gradient(180deg, rgba(18,20,28,.88), rgba(12,13,18,.80)) !important;
-  border: 1px solid rgba(255,255,255,.10) !important;
+/* стопаем любые анимации во время перехода */
+body.switching *{ animation: none !important; }
 
-  box-shadow:
-    0 14px 32px rgba(0,0,0,.40),
-    inset 0 1px 0 rgba(255,255,255,.08) !important;
-
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+/* Accessibility */
+@media (prefers-reduced-motion: reduce){
+  .screen{ transition: none !important; }
+  .tab, .quickBtn, .gameCard, .primary, .ghost{ transition: none !important; }
 }
