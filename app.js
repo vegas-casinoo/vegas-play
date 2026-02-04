@@ -270,8 +270,27 @@
   }
 
   // ========= EVENTS (делегация) =========
-  document.addEventListener("click", (e) => {
-    const t = e.target;
+document.addEventListener("click", (e) => {
+  const t = e.target;
+
+  // Support card -> открыть чат @vegas_helps
+  if (t.closest("#supportBtn")) {
+    haptic("light");
+    const url = "https://t.me/vegas_helps";
+
+    try { tg?.openTelegramLink?.(url); return; } catch(_) {}
+    try { tg?.openLink?.(url); return; } catch(_) {}
+    window.open(url, "_blank");
+    return;
+  }
+
+  // Footer links (пока заглушки)
+  const footerBtn = t.closest(".footerLink");
+  if (footerBtn) {
+    haptic("light");
+    alert("Скоро добавим этот раздел 🙂");
+    return;
+  }
 
     const tabBtn = t.closest(".tab");
     if (tabBtn) { haptic("light"); setActiveTab(tabBtn.dataset.tab); return; }
@@ -307,25 +326,6 @@
     if (t.closest("button")) haptic("light");
   }, { passive: true });
 
-    // Support card -> открыть чат @vegas_helps
-    if (t.closest("#supportBtn")) {
-      haptic("light");
-      const username = "vegas_helps";
-      const url = `https://t.me/${username}`;
-
-      try { tg?.openTelegramLink?.(url); return; } catch(_) {}
-      try { tg?.openLink?.(url); return; } catch(_) {}
-      window.open(url, "_blank");
-      return;
-    }
-
-    // Footer links (пока заглушки)
-    const footerBtn = t.closest(".footerLink");
-    if (footerBtn) {
-      haptic("light");
-      alert("Скоро добавим этот раздел 🙂");
-      return;
-    }
 
   // ========= TELEGRAM INIT =========
   function initTelegram() {
