@@ -336,6 +336,7 @@ if (!user) {
     hideBootSplash(); // ✅ И СЮДА (чтобы не зависало при ошибке)
   }
 })();
+}
 
   // ========= BOOT =========
   setActiveTabUI(activeTab);
