@@ -418,12 +418,17 @@ button:disabled{ opacity: .5; }
 .screen.leaving{ display:block; animation: screenOut 180ms var(--ease) both; }
 
 @keyframes screenIn{
-  from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
-  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+  from { opacity: 0; transform: translate3d(0,10px,0); }
+  to   { opacity: 1; transform: translate3d(0,0,0); }
 }
 @keyframes screenOut{
-  from { opacity: 1; transform: translateY(0); filter: blur(0); }
-  to   { opacity: 0; transform: translateY(6px); filter: blur(3px); }
+  from { opacity: 1; transform: translate3d(0,0,0); }
+  to   { opacity: 0; transform: translate3d(0,6px,0); }
+}
+
+.screen{
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 /* ========= Tabbar ========= */
@@ -883,4 +888,13 @@ button:disabled{ opacity: .5; }
   box-shadow:
     0 18px 45px rgba(0,0,0,.55),
     0 0 34px rgba(90,215,255,.22);
+}
+
+body.switching .card,
+body.switching .topbar,
+body.switching .tabbar,
+body.switching .quickBtn,
+body.switching .gameCard{
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
