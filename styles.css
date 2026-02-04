@@ -115,8 +115,8 @@ button:disabled{ opacity: .5; }
   pointer-events: none;
 
   transition:
-    opacity var(--normal) var(--ease),
-    transform var(--normal) var(--ease);
+    opacity 240ms var(--ease),
+    transform 240ms var(--ease);
 
   will-change: opacity, transform;
   z-index: 0;
@@ -140,6 +140,9 @@ button:disabled{ opacity: .5; }
   transform: translate3d(0,6px,0);
   pointer-events: none;
   z-index: 2;
+  transition:
+    opacity 180ms var(--ease),
+    transform 180ms var(--ease);
 }
 
 /* ========= Cards ========= */
@@ -607,15 +610,16 @@ body.switching *{
 }
 
 .txItem{
-  background: rgba(14, 16, 22, .72) !important;
-  border: 1px solid rgba(255,255,255,.10) !important;
-  border-radius: 18px;
+background: rgba(18,20,28,.55) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-radius: 14px !important;
 
   box-shadow:
-    0 14px 30px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.06);
+    0 10px 24px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
 
-  color: var(--text);
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
 }
 
 .txType{
