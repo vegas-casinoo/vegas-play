@@ -865,35 +865,48 @@ body.switching *{ animation: none !important; }
 
 /* ===== Home bottom: Support + Footer ===== */
 .supportCard{
-  display:flex;
-  align-items:center;
-  gap:14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
   padding: 16px;
-  cursor:pointer;
-  user-select:none;
-}
+  border-radius: 20px;
 
-.supportIcon{
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  display:grid;
-  place-items:center;
-
-  border: 1px solid rgba(179,108,255,.22);
-  background:
-    radial-gradient(30px 30px at 30% 25%, rgba(255,255,255,.14), transparent 60%),
-    linear-gradient(135deg, rgba(179,108,255,.22), rgba(90,215,255,.12)),
-    rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(
+    180deg,
+    rgba(179,108,255,.22),
+    rgba(90,215,255,.10)
+  );
 
   box-shadow:
-    0 14px 34px rgba(0,0,0,.35),
-    0 0 26px rgba(179,108,255,.18),
-    inset 0 1px 0 rgba(255,255,255,.10);
+    0 18px 40px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.12);
+
+  color: var(--text);
 }
 
-.supportTitle{ font-weight: 950; letter-spacing:.2px; }
-.supportSub{ margin-top:4px; color: var(--muted); font-size: 13px; line-height:1.2; }
+
+.supportIcon{
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255,255,255,.14);
+  font-size: 22px;
+}
+
+.supportTitle{
+  font-weight: 900;
+}
+.supportSub{
+  font-size: 13px;
+  color: var(--muted);
+}
 
 .supportCard:active{
   transform: scale(.99);
@@ -926,4 +939,13 @@ body.switching *{ animation: none !important; }
   color: rgba(154,163,178,.55);
   font-size: 12px;
   font-weight: 800;
+}
+
+.globalFooter{
+  padding: 16px 14px 24px;
+  margin-bottom: 110px; /* чтобы не залезал под таббар */
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
