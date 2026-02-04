@@ -100,6 +100,92 @@ button:disabled{ opacity:.5; }
 }
 .iconBtn:active{ transform: scale(.98); }
 
+/* ===== Topbar right controls ===== */
+.topActions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* Balance pill (фиолетовый неон) */
+.balancePill{
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  padding: 10px 12px;
+  border-radius: 16px;
+
+  border: 1px solid rgba(179,108,255,.35);
+  background:
+    radial-gradient(120px 60px at 20% 20%, rgba(179,108,255,.22), transparent 62%),
+    radial-gradient(120px 70px at 90% 80%, rgba(90,215,255,.10), transparent 66%),
+    linear-gradient(180deg, rgba(18,20,28,.70), rgba(10,11,16,.55));
+
+  color: rgba(245,247,251,.92);
+  font-weight: 950;
+  letter-spacing: .2px;
+
+  box-shadow:
+    0 14px 34px rgba(0,0,0,.40),
+    0 0 18px rgba(179,108,255,.22),
+    inset 0 1px 0 rgba(255,255,255,.10);
+
+  cursor: pointer;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.balIcon{
+  opacity: .9;
+  font-size: 16px;
+  transform: translateY(1px);
+}
+
+.balText{
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Press эффект как у всего */
+.balancePill:active{
+  transform: scale(.98);
+  filter: brightness(1.06);
+}
+
+/* Plus button (вместо крестика) */
+.plusBtn{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border: 1px solid rgba(179,108,255,.40);
+  background:
+    radial-gradient(28px 28px at 30% 25%, rgba(255,255,255,.14), transparent 60%),
+    linear-gradient(180deg, rgba(18,20,28,.72), rgba(10,11,16,.60));
+
+  color: rgba(245,247,251,.95);
+  font-weight: 950;
+  font-size: 22px;
+  line-height: 1;
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,.38),
+    0 0 16px rgba(179,108,255,.24),
+    inset 0 1px 0 rgba(255,255,255,.10);
+
+  transition: transform var(--fast) var(--ease), filter var(--fast) var(--ease);
+}
+
+.plusBtn:active{
+  transform: scale(.97);
+  filter: brightness(1.06);
+}
+
 /* ========= Layout ========= */
 .content{
   position: relative;
