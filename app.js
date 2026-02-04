@@ -314,22 +314,28 @@
       }, null, 2);
     }
 
-    if (!user) return;
+if (!user) {
+  hideBootSplash();
+  return;
+}
 
     currentUserId = user.id;
     if (elName) elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
 
-    (async () => {
-      try {
-        await upsertUser(user);
-        await loadBalance(user.id);
-        await loadTransactions(user.id);
-        if (elDebug) elDebug.textContent += "\n\n✅ Supabase OK";
-      } catch (e) {
-        if (elDebug) elDebug.textContent += "\n\n❌ " + (e?.message || String(e));
-      }
-    })();
+(async () => {
+  try {
+    await upsertUser(user);
+    await loadBalance(user.id);
+    await loadTransactions(user.id);
+    if (elDebug) elDebug.textContent += "\n\n✅ Supabase OK";
+
+    hideBootSplash(); // ✅ ВОТ СЮДА
+  } catch (e) {
+    if (elDebug) elDebug.textContent += "\n\n❌ " + (e?.message || String(e));
+
+    hideBootSplash(); // ✅ И СЮДА (чтобы не зависало при ошибке)
   }
+})();
 
   // ========= BOOT =========
   setActiveTabUI(activeTab);
