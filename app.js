@@ -12,7 +12,6 @@
   const elBalance = document.getElementById("balance");
   const elTxList = document.getElementById("txList");
   const elDebug = document.getElementById("debug");
-  const closeBtn = document.getElementById("closeBtn");
 
   const screens = Array.from(document.querySelectorAll(".screen"));
   const tabs = Array.from(document.querySelectorAll(".tab"));
@@ -20,12 +19,18 @@
   // ========= STATE =========
   let balance = 0;
   let currentUserId = null;
-  let isSwitching = false;
-  let switchTimer = null;
+
+  let activeTab = (document.querySelector(".tab.active")?.dataset.tab) || "home";
+  let switching = false;
+  let switchingKillTimer = null;
 
   // ========= RENDER =========
+  function money(v) {
+    return `${Number(v || 0).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
+  }
+
   function renderBalance() {
-    const txt = `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
+    const txt = money(balance);
     if (elBalance) elBalance.textContent = txt;
 
     const heroAmount = document.getElementById("walletHeroAmount");
@@ -37,7 +42,7 @@
       const d = new Date(iso);
       return d.toLocaleString("ru-RU", {
         day: "2-digit", month: "2-digit", year: "2-digit",
-        hour: "2-digit", minute: "2-digit"
+        hour: "2-digit", minute: "2-digit",
       });
     } catch {
       return iso || "";
@@ -66,56 +71,124 @@
             <div class="txDate">${when}</div>
           </div>
           <div class="txAmt ${signClass}">
-            ${sign}${amt.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽
+            ${sign}${money(amt).replace(" ₽","")} ₽
           </div>
         </div>
       `;
     }).join("");
   }
 
-  // ========= TAB SWITCH PERF =========
-  function beginSwitchPerf() {
-    isSwitching = true;
-    document.body.classList.add("switching");
-    if (switchTimer) clearTimeout(switchTimer);
+  // ========= SWITCH PERF (важно для iOS WebView) =========
+  function setSwitching(on) {
+    if (on) {
+      switching = true;
+      document.body.classList.add("switching");
+      if (switchingKillTimer) clearTimeout(switchingKillTimer);
+      // страховка: если transitionend не прилетит
+      switchingKillTimer = setTimeout(() => {
+        document.body.classList.remove("switching");
+        switching = false;
+      }, 600);
+    } else {
+      document.body.classList.remove("switching");
+      switching = false;
+      if (switchingKillTimer) clearTimeout(switchingKillTimer);
+      switchingKillTimer = null;
+    }
   }
 
-  function endSwitchPerf(delay = 260) {
-    // delay чуть больше анимации screenIn (220ms) из CSS
-    switchTimer = setTimeout(() => {
-      document.body.classList.remove("switching");
-      isSwitching = false;
-    }, delay);
+  function onceTransitionEnd(el, cb) {
+    let called = false;
+    const done = () => {
+      if (called) return;
+      called = true;
+      el.removeEventListener("transitionend", onEnd);
+      cb();
+    };
+    const onEnd = (e) => {
+      // ловим только opacity/transform, а не все подряд
+      if (e.propertyName === "opacity" || e.propertyName === "transform") done();
+    };
+    el.addEventListener("transitionend", onEnd);
+    // страховка на случай если transitionend не сработал
+    setTimeout(done, 420);
   }
 
   // ========= NAV =========
-  function setActiveTab(tab) {
-    if (isSwitching) return;
+  function getScreen(tab) {
+    return document.querySelector(`.screen[data-screen="${tab}"]`);
+  }
 
-    const current = document.querySelector(".screen.active");
-    const next = document.querySelector(`.screen[data-screen="${tab}"]`);
+  function getActiveScreen() {
+    return document.querySelector(".screen.active");
+  }
+
+  function setActiveTabUI(tab) {
+    tabs.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  }
+
+  function hardScrollTop() {
+    // smooth в iOS webview часто режет FPS
+    try { window.scrollTo(0, 0); } catch (_) {}
+  }
+
+  /**
+   * Главный фикс лагов:
+   * 1) включаем switching
+   * 2) на следующем кадре меняем классы экранов
+   * 3) выключаем switching по transitionend
+   */
+  function setActiveTab(tab) {
+    if (!tab || tab === activeTab) return;
+    if (switching) return;
+
+    const current = getActiveScreen();
+    const next = getScreen(tab);
     if (!next || current === next) return;
 
-    beginSwitchPerf();
+    activeTab = tab;
 
-    // подсветка табов
-    tabs.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+    // Включаем "режим производительности" ДО любых изменений DOM
+    setSwitching(true);
 
-    // 1) текущий — уходим
-    if (current) {
-      current.classList.add("leaving");
-      current.classList.remove("active");
-      // после screenOut прячем
-      setTimeout(() => current.classList.remove("leaving"), 170);
-    }
+    // Двойной rAF: Safari часто применяет classList не сразу
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setActiveTabUI(tab);
 
-    // 2) следующий — показываем
-    next.classList.add("active");
+        // фиксируем высоту контейнера, чтобы не было “скачка” при absolute/relative
+        const content = document.querySelector(".content");
+        if (content && current) {
+          const h = current.getBoundingClientRect().height;
+          // маленький хак: даём высоту, потом отпустим
+          content.style.minHeight = Math.max(0, Math.ceil(h)) + "px";
+        }
 
-    // scroll без smooth — smooth в webview часто дёргает кадры
-    window.scrollTo(0, 0);
+        // уводим текущий
+        if (current) {
+          current.classList.add("leaving");
+          current.classList.remove("active");
+        }
 
-    endSwitchPerf();
+        // показываем следующий
+        next.classList.add("active");
+
+        hardScrollTop();
+
+        // когда следующий экран “встал”, выключаем perf-режим
+        onceTransitionEnd(next, () => {
+          if (current) current.classList.remove("leaving");
+
+          const content = document.querySelector(".content");
+          if (content) content.style.minHeight = "";
+
+          // выключаем switching на следующий кадр (чтобы blur вернулся уже после стабилизации)
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => setSwitching(false));
+          });
+        });
+      });
+    });
   }
 
   // ========= SUPABASE =========
@@ -142,7 +215,6 @@
       last_name: tgUser.last_name || null,
       photo_url: tgUser.photo_url || null
     });
-
     if (r1.error) throw new Error("USERS UPSERT ERROR: " + JSON.stringify(r1.error));
 
     const r2 = await supabase.from("wallets").upsert({ user_id: tgUser.id });
@@ -182,10 +254,7 @@
   }
 
   async function testAdd100() {
-    if (!currentUserId) {
-      if (elDebug) elDebug.textContent += "\n\n❌ No currentUserId yet";
-      return;
-    }
+    if (!currentUserId) return;
 
     const getRes = await supabase
       .from("wallets")
@@ -211,7 +280,6 @@
       return;
     }
 
-    // сначала пишем транзу, потом перерисовываем список
     const txRes = await supabase
       .from("transactions")
       .insert({ user_id: currentUserId, type: "test_credit", amount: 100 });
@@ -225,7 +293,7 @@
     await loadTransactions(currentUserId);
   }
 
-  // ========= ONE CLICK HANDLER (EVENT DELEGATION) =========
+  // ========= EVENTS (делегация) =========
   document.addEventListener("click", (e) => {
     const t = e.target;
 
@@ -291,12 +359,16 @@
       return;
     }
 
-    // Any button -> light haptic
     if (t.closest("button")) haptic("light");
-  }, { passive: true });
+  });
 
   // ========= TELEGRAM INIT =========
-  if (tg) {
+  function initTelegram() {
+    if (!tg) {
+      if (elDebug) elDebug.textContent = "Открой через Telegram Mini App, чтобы появился window.Telegram.WebApp";
+      return;
+    }
+
     tg.ready();
     tg.expand();
 
@@ -320,16 +392,18 @@
           await upsertUser(user);
           await loadBalance(user.id);
           await loadTransactions(user.id);
-          if (elDebug) elDebug.textContent += "\n\n✅ Supabase OK (users + wallets + tx)";
+          if (elDebug) elDebug.textContent += "\n\n✅ Supabase OK";
         } catch (e) {
           if (elDebug) elDebug.textContent += "\n\n❌ " + (e?.message || String(e));
         }
       })();
     }
-  } else {
-    if (elDebug) elDebug.textContent = "Открой через Telegram Mini App, чтобы появился window.Telegram.WebApp";
   }
 
-  // initial render
+  // ========= BOOT =========
+  // выставим начальный таб корректно
+  setActiveTabUI(activeTab);
+  screens.forEach(s => s.classList.toggle("active", s.dataset.screen === activeTab));
   renderBalance();
+  initTelegram();
 })();
