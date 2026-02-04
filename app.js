@@ -21,6 +21,12 @@
     if (!elBalance) return;
     elBalance.textContent =
       `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
+      
+      const heroAmount = document.getElementById("walletHeroAmount");
+if (heroAmount) {
+  heroAmount.textContent =
+    `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
+}
   }
   
   function formatDate(iso) {
@@ -326,6 +332,22 @@ document.addEventListener("click", (e) => {
       alert("Вывод (пока заглушка). Позже подключим KYC/лимиты и провайдера.");
     });
   }
+  
+  const walletHeroDeposit = document.getElementById("walletHeroDeposit");
+if (walletHeroDeposit) {
+  walletHeroDeposit.addEventListener("click", () => {
+    haptic("light");
+    alert("Пополнение (пока заглушка). Позже подключим провайдера и webhook.");
+  });
+}
+
+const walletHeroWithdraw = document.getElementById("walletHeroWithdraw");
+if (walletHeroWithdraw) {
+  walletHeroWithdraw.addEventListener("click", () => {
+    haptic("light");
+    alert("Вывод (пока заглушка). Позже подключим KYC/лимиты и провайдера.");
+  });
+}
   
   const testPlus100Btn = document.getElementById("testPlus100Btn");
 if (testPlus100Btn) {
