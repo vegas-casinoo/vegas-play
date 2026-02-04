@@ -1,6 +1,29 @@
 (function () {
   const tg = window.Telegram?.WebApp;
 
+  // ========= BOOT SPLASH =========
+  const boot = document.getElementById("bootSplash");
+  let bootTimer = null;
+  let bootHidden = false;
+
+  function hideBootSplash() {
+    if (!boot || bootHidden) return;
+    bootHidden = true;
+    boot.classList.add("hide");
+    setTimeout(() => boot.classList.add("gone"), 220);
+    if (bootTimer) clearTimeout(bootTimer);
+  }
+
+  function showBootSplash(maxMs = 3000) {
+    if (!boot) return;
+    bootHidden = false;
+    boot.classList.remove("hide", "gone");
+    bootTimer = setTimeout(hideBootSplash, maxMs); // максимум 3 сек
+  }
+
+  // показываем сразу при старте
+  showBootSplash(3000);
+
   // ========= HAPTIC =========
   function haptic(type = "light") {
     try { tg?.HapticFeedback?.impactOccurred?.(type); return; } catch (_) {}
