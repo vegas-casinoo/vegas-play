@@ -604,43 +604,73 @@ body.switching *{
   .tab, .quickBtn, .gameCard, .primary, .ghost{ transition: none !important; }
 }
 
-/* ===== FIX: История операций (txItem) ===== */
+/* ===== TX (как на фото 1: тёмное стекло, без серого пластика) ===== */
+
 .txList{
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
 .txItem{
-background: rgba(18,20,28,.55) !important;
-  border: 1px solid rgba(255,255,255,.12) !important;
-  border-radius: 14px !important;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+
+  padding: 12px 14px;
+  border-radius: 18px;
+
+  /* ключ: делаем темнее и более "плотно", чтобы не серело */
+  background:
+    linear-gradient(180deg, rgba(18,20,28,.82), rgba(12,13,18,.72));
+  border: 1px solid rgba(255,255,255,.10);
 
   box-shadow:
-    0 10px 24px rgba(0,0,0,.28),
-    inset 0 1px 0 rgba(255,255,255,.08) !important;
+    0 14px 32px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.08);
 
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+  /* важно: по умолчанию БЕЗ backdrop-filter (он и даёт серость) */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  transform: translateZ(0);
 }
 
 .txType{
-  color: rgba(245,247,251,.92);
+  color: rgba(245,247,251,.94);
+  font-weight: 950;
   letter-spacing: .2px;
 }
 
 .txDate{
-  color: rgba(154,163,178,.85);
+  margin-top: 4px;
+  color: rgba(154,163,178,.86);
+  font-size: 12px;
 }
 
 .txAmt{
-  text-shadow: 0 0 12px rgba(0,0,0,.25);
+  font-weight: 950;
+  white-space: nowrap;
 }
 
-/* чтобы во время switching не “высветлялось” */
+.txAmt.plus{ color:#7ee2a8; }
+.txAmt.minus{ color:#ffb4b4; }
+
+/* если очень хочешь "стекло" — включаем blur ТОЛЬКО на поддерживаемых и нормальных движках */
+@supports ((-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))) {
+  .txItem{
+    /* лёгкий blur, чтобы не высветляло */
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* во время switching держим фон плотным, чтобы вообще ничего не "высветлялось" */
 body.switching .txItem{
-  background: rgba(14, 16, 22, .82) !important;
-}
-
-/* во время переключения не даём новым элементам “промигнуть” */
-body.switching .screen.active{
-  transform: translate3d(0,0,0);
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background:
+    linear-gradient(180deg, rgba(16,18,26,.88), rgba(10,11,16,.82)) !important;
 }
