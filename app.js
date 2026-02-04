@@ -194,16 +194,6 @@ await loadTransactions(currentUserId);
   if (elDebug) elDebug.textContent += "\n\n✅ +100 added. New balance: " + newBalance;
 }
 
-function haptic(type = "light") {
-  try { tg?.HapticFeedback?.impactOccurred?.(type); return; } catch (_) {}
-  try { if (navigator.vibrate) navigator.vibrate(12); } catch (_) {}
-}
-
-function haptic(type = "light") {
-  try { tg?.HapticFeedback?.impactOccurred?.(type); return; } catch (_) {}
-  try { if (navigator.vibrate) navigator.vibrate(12); } catch (_) {}
-}
-
 function setActiveTab(tab) {
   const current = document.querySelector(".screen.active");
   const next = document.querySelector(`.screen[data-screen="${tab}"]`);
@@ -228,7 +218,14 @@ function setActiveTab(tab) {
 }
 
 // Один обработчик на все клики по кнопкам
+let __lastTap = 0;
+
 document.addEventListener("click", (e) => {
+  // анти-дубль клика (iOS/webview иногда даёт двойной)
+  const now = Date.now();
+  if (now - __lastTap < 350) return;
+  __lastTap = now;
+
   const tabBtn = e.target.closest(".tab");
   if (tabBtn) {
     haptic("light");
@@ -240,6 +237,21 @@ document.addEventListener("click", (e) => {
   if (gameBtn) {
     haptic("medium");
     alert(`Открыть игру: ${gameBtn.dataset.game} (пока заглушка)`);
+    return;
+  }
+
+  const promoBtn = e.target.closest("#promoBtn");
+  if (promoBtn) {
+    haptic("light");
+    alert("Промокод (скоро)");
+    return;
+  }
+
+  const depQuick = e.target.closest("#depositQuickBtn");
+  const wdQuick = e.target.closest("#withdrawQuickBtn");
+  if (depQuick || wdQuick) {
+    haptic("light");
+    setActiveTab("wallet");
     return;
   }
 
@@ -300,26 +312,6 @@ document.addEventListener("click", (e) => {
       else alert("Закрытие доступно только внутри Telegram");
     });
   }
-
-document.querySelectorAll(".tab").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    haptic("light");
-    setActiveTab(btn.dataset.tab);
-
-    // переключаем экраны (если у тебя есть .screen блоки)
-    const tab = btn.dataset.tab;
-    document.querySelectorAll(".screen").forEach(s => {
-      s.classList.toggle("active", s.dataset.screen === tab);
-    });
-  });
-});
-
-document.querySelectorAll(".gameCard").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    haptic("medium");
-    alert(`Открыть игру: ${btn.dataset.game} (пока заглушка)`);
-  });
-});
 
   const depositBtn = document.getElementById("depositBtn");
   if (depositBtn) {
