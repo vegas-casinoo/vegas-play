@@ -517,10 +517,8 @@ button:disabled{ opacity: .5; }
   *{ animation: none !important; transition: none !important; }
 }
 
-/* ===== NEON QUICK BUTTONS (Promo / Withdraw / Deposit) ===== */
 /* ===== NEON QUICK BUTTONS (по твоему HTML: .quickBtn) ===== */
 
-/* базовый неон для всех быстрых кнопок */
 .quickRow .quickBtn{
   position: relative;
 
@@ -631,47 +629,4 @@ button:disabled{ opacity: .5; }
   background:
     radial-gradient(130px 80px at 25% 35%, rgba(99,242,182,.28), transparent 62%),
     radial-gradient(150px 90px at 80% 70%, rgba(90,215,255,.22), transparent 64%);
-}
-
-  border: none;
-
-  box-shadow:
-    0 0 0 rgba(0,0,0,0),
-    0 6px 20px rgba(179,108,255,.35),
-    0 0 28px rgba(90,215,255,.25);
-
-  transition:
-    transform .15s cubic-bezier(.2,.8,.2,1),
-    box-shadow .2s cubic-bezier(.2,.8,.2,1),
-    filter .2s;
-}
-
-/* иконка внутри */
-.quickRow .ghost span,
-.quickNeon span {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* нажатие */
-.quickRow .ghost:active,
-.quickNeon:active {
-  transform: scale(0.96);
-  filter: brightness(1.1);
-
-  box-shadow:
-    0 10px 30px rgba(179,108,255,.55),
-    0 0 40px rgba(90,215,255,.45);
-}
-
-/* индивидуальные акценты (если хочешь) */
-.quickNeon.deposit {
-  background: linear-gradient(135deg, #5ad7ff, #63f2b6);
-}
-.quickNeon.withdraw {
-  background: linear-gradient(135deg, #b36cff, #ff6fd8);
-}
-.quickNeon.promo {
-  background: linear-gradient(135deg, #ff6fd8, #ffd36a);
 }
