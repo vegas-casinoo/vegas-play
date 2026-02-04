@@ -873,10 +873,10 @@ body.switching *{ animation: none !important; }
   border-radius: 20px;
 
   border: 1px solid rgba(255,255,255,.12);
-  background: linear-gradient(
-    180deg,
-    rgba(179,108,255,.22),
-    rgba(90,215,255,.10)
+  background:
+    radial-gradient(220px 120px at 20% 10%, rgba(179,108,255,.22), transparent 60%),
+    radial-gradient(240px 140px at 90% 80%, rgba(90,215,255,.14), transparent 60%),
+    linear-gradient(180deg, rgba(18,20,28,.78), rgba(10,11,16,.68));
   );
 
   box-shadow:
@@ -943,9 +943,28 @@ body.switching *{ animation: none !important; }
 
 .globalFooter{
   padding: 16px 14px 24px;
-  margin-bottom: 110px; /* чтобы не залезал под таббар */
+  margin-bottom: 0px; /* чтобы не залезал под таббар */
 
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+/* ===== Games accents (Dice / Crash) ===== */
+.gameCard[data-game="dice"]{
+  border-color: rgba(90,215,255,.22);
+}
+.gameCard[data-game="dice"]::before{
+  background:
+    radial-gradient(260px 180px at 25% 30%, rgba(90,215,255,.22), transparent 66%),
+    radial-gradient(260px 200px at 85% 70%, rgba(179,108,255,.10), transparent 68%);
+}
+
+.gameCard[data-game="crash"]{
+  border-color: rgba(255,111,216,.22);
+}
+.gameCard[data-game="crash"]::before{
+  background:
+    radial-gradient(260px 180px at 25% 30%, rgba(255,111,216,.22), transparent 66%),
+    radial-gradient(260px 200px at 85% 70%, rgba(179,108,255,.12), transparent 68%);
 }
