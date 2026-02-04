@@ -360,18 +360,14 @@ if (elName) elName.textContent = [user.first_name, user.last_name].filter(Boolea
 
 // ✅ АВАТАР
 if (elAvatar) {
-  const photo = user.photo_url; // Telegram иногда не даёт фото — это нормально
+  const photo = user.photo_url;
 
   if (photo) {
-    elAvatar.style.backgroundImage = `url("${photo}")`;
-    elAvatar.style.backgroundSize = "cover";
-    elAvatar.style.backgroundPosition = "center";
-    elAvatar.style.backgroundRepeat = "no-repeat";
-    // на всякий случай уберём градиент, если он задан в CSS
-    elAvatar.style.backgroundColor = "transparent";
+    elAvatar.style.background = `url("${photo}") center / cover no-repeat`;
   } else {
-    // фолбэк: оставляем твой градиент/фон из CSS
-    elAvatar.style.backgroundImage = "";
+    // fallback — твой фирменный градиент
+    elAvatar.style.background =
+      "linear-gradient(135deg,#2b8cff,#3bb273)";
   }
 }
 
