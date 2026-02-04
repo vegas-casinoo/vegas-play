@@ -40,6 +40,24 @@
   const screens = Array.from(document.querySelectorAll(".screen"));
   const tabs = Array.from(document.querySelectorAll(".tab"));
 
+// ========= FAKE ONLINE (каждые 5 минут) =========
+function randInt(min, max) {
+  min = Math.ceil(min); max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function setFakeOnline() {
+  const els = document.querySelectorAll("[data-online]");
+  els.forEach(el => {
+    el.textContent = randInt(50, 2500).toLocaleString("ru-RU");
+  });
+}
+
+// первый раз сразу
+setFakeOnline();
+// потом каждые 5 минут
+setInterval(setFakeOnline, 5 * 60 * 1000);
+
   // ========= STATE =========
   let balance = 0;
   let currentUserId = null;
