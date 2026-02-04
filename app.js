@@ -20,19 +20,21 @@
   let balance = 0;
   let currentUserId = null;
 
-  let activeTab = (document.querySelector(".tab.active")?.dataset.tab) || "home";
+  let activeTab = document.querySelector(".tab.active")?.dataset.tab || "home";
   let switching = false;
-  let switchingKillTimer = null;
+  let killTimer = null;
 
-  // ========= RENDER =========
-  function money(v) {
-    return `${Number(v || 0).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
-  }
+  // тайминги ДОЛЖНЫ совпадать с CSS:
+  const OUT_MS = 180;  // .screen.leaving transition
+  const IN_MS  = 240;  // .screen transition
+
+  // ========= UI HELPERS =========
+  const money = (v) =>
+    `${Number(v || 0).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
 
   function renderBalance() {
     const txt = money(balance);
     if (elBalance) elBalance.textContent = txt;
-
     const heroAmount = document.getElementById("walletHeroAmount");
     if (heroAmount) heroAmount.textContent = txt;
   }
@@ -78,43 +80,10 @@
     }).join("");
   }
 
-  // ========= SWITCH PERF (важно для iOS WebView) =========
-  function setSwitching(on) {
-    if (on) {
-      switching = true;
-      document.body.classList.add("switching");
-      if (switchingKillTimer) clearTimeout(switchingKillTimer);
-      // страховка: если transitionend не прилетит
-      switchingKillTimer = setTimeout(() => {
-        document.body.classList.remove("switching");
-        switching = false;
-      }, 600);
-    } else {
-      document.body.classList.remove("switching");
-      switching = false;
-      if (switchingKillTimer) clearTimeout(switchingKillTimer);
-      switchingKillTimer = null;
-    }
+  function setActiveTabUI(tab) {
+    tabs.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
   }
 
-  function onceTransitionEnd(el, cb) {
-    let called = false;
-    const done = () => {
-      if (called) return;
-      called = true;
-      el.removeEventListener("transitionend", onEnd);
-      cb();
-    };
-    const onEnd = (e) => {
-      // ловим только opacity/transform, а не все подряд
-      if (e.propertyName === "opacity" || e.propertyName === "transform") done();
-    };
-    el.addEventListener("transitionend", onEnd);
-    // страховка на случай если transitionend не сработал
-    setTimeout(done, 420);
-  }
-
-  // ========= NAV =========
   function getScreen(tab) {
     return document.querySelector(`.screen[data-screen="${tab}"]`);
   }
@@ -123,61 +92,67 @@
     return document.querySelector(".screen.active");
   }
 
-  function setActiveTabUI(tab) {
-    tabs.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-  }
-
   function hardScrollTop() {
-    // smooth в iOS webview часто режет FPS
     try { window.scrollTo(0, 0); } catch (_) {}
   }
 
-  /**
-   * Главный фикс лагов:
-   * 1) включаем switching
-   * 2) на следующем кадре меняем классы экранов
-   * 3) выключаем switching по transitionend
-   */
-function setActiveTab(tab) {
-  if (switching) return;
-
-  const current = getActiveScreen();
-  const next = getScreen(tab);
-
-  if (!next || current === next) return;
-
-  setSwitching(true);
-  setActiveTabUI(tab);
-
-  // если текущего нет — просто включаем next
-  if (!current) {
-    screens.forEach(s => s.classList.remove("active", "leaving", "entering"));
-    next.classList.add("active");
-    hardScrollTop();
-    setSwitching(false);
-    activeTab = tab;
-    return;
+  function setSwitching(on) {
+    if (on) {
+      switching = true;
+      document.body.classList.add("switching");
+      if (killTimer) clearTimeout(killTimer);
+      killTimer = setTimeout(() => {
+        document.body.classList.remove("switching");
+        switching = false;
+        killTimer = null;
+      }, Math.max(OUT_MS, IN_MS) + 250);
+    } else {
+      document.body.classList.remove("switching");
+      switching = false;
+      if (killTimer) clearTimeout(killTimer);
+      killTimer = null;
+    }
   }
 
-  // 1) запускаем уход текущего
-  current.classList.add("leaving");
+  // ========= NAV (идеальный кроссфейд) =========
+  function setActiveTab(tab) {
+    if (switching) return;
 
-  // 2) ждём окончания transition у текущего и только потом включаем следующий
-  onceTransitionEnd(current, () => {
-    current.classList.remove("active", "leaving");
+    const next = getScreen(tab);
+    if (!next) return;
 
-    // на всякий — убрать active у остальных
-    screens.forEach(s => {
-      if (s !== next) s.classList.remove("active", "leaving", "entering");
-    });
+    const current = getActiveScreen();
+    if (current === next) return;
 
+    setSwitching(true);
+    setActiveTabUI(tab);
+
+    // если текущего нет — просто включаем следующий
+    if (!current) {
+      screens.forEach(s => s.classList.remove("active", "leaving"));
+      next.classList.add("active");
+      activeTab = tab;
+      hardScrollTop();
+      setSwitching(false);
+      return;
+    }
+
+    // 1) ВКЛЮЧАЕМ следующий сразу (он relative и даёт высоту, плавно появляется)
     next.classList.add("active");
+
+    // 2) Текущий делаем leaving, но НЕ снимаем active сразу:
+    //    active+leaving => станет absolute (z=2) и плавно исчезнет поверх.
+    current.classList.add("leaving");
 
     activeTab = tab;
     hardScrollTop();
-    setSwitching(false);
-  });
-}
+
+    // 3) После fade-out убираем старый экран полностью
+    setTimeout(() => {
+      current.classList.remove("active", "leaving");
+      setSwitching(false);
+    }, OUT_MS + 30);
+  }
 
   // ========= SUPABASE =========
   const SUPABASE_URL = "https://gtwozscjklqzegiwzqss.supabase.co";
@@ -210,17 +185,11 @@ function setActiveTab(tab) {
   }
 
   async function loadBalance(userId) {
-    const res = await supabase
-      .from("wallets")
-      .select("balance")
-      .eq("user_id", userId)
-      .single();
-
+    const res = await supabase.from("wallets").select("balance").eq("user_id", userId).single();
     if (res.error) {
       if (elDebug) elDebug.textContent += "\n\n❌ LOAD BALANCE ERROR:\n" + JSON.stringify(res.error, null, 2);
       return;
     }
-
     balance = Number(res.data?.balance || 0);
     renderBalance();
   }
@@ -237,19 +206,13 @@ function setActiveTab(tab) {
       if (elDebug) elDebug.textContent += "\n\n❌ LOAD TX ERROR:\n" + JSON.stringify(res.error, null, 2);
       return;
     }
-
     renderTxList(res.data || []);
   }
 
   async function testAdd100() {
     if (!currentUserId) return;
 
-    const getRes = await supabase
-      .from("wallets")
-      .select("balance")
-      .eq("user_id", currentUserId)
-      .single();
-
+    const getRes = await supabase.from("wallets").select("balance").eq("user_id", currentUserId).single();
     if (getRes.error) {
       if (elDebug) elDebug.textContent += "\n\n❌ GET WALLET ERROR:\n" + JSON.stringify(getRes.error, null, 2);
       return;
@@ -268,9 +231,11 @@ function setActiveTab(tab) {
       return;
     }
 
-    const txRes = await supabase
-      .from("transactions")
-      .insert({ user_id: currentUserId, type: "test_credit", amount: 100 });
+    const txRes = await supabase.from("transactions").insert({
+      user_id: currentUserId,
+      type: "test_credit",
+      amount: 100
+    });
 
     if (txRes.error && elDebug) {
       elDebug.textContent += "\n\n❌ INSERT TX ERROR:\n" + JSON.stringify(txRes.error, null, 2);
@@ -285,70 +250,25 @@ function setActiveTab(tab) {
   document.addEventListener("click", (e) => {
     const t = e.target;
 
-    // Tabs
     const tabBtn = t.closest(".tab");
-    if (tabBtn) {
-      haptic("light");
-      setActiveTab(tabBtn.dataset.tab);
-      return;
-    }
+    if (tabBtn) { haptic("light"); setActiveTab(tabBtn.dataset.tab); return; }
 
-    // Quick buttons
-    if (t.closest("#promoBtn")) {
-      haptic("light");
-      alert("Промокод (скоро)");
-      return;
-    }
-    if (t.closest("#depositQuickBtn") || t.closest("#withdrawQuickBtn")) {
-      haptic("light");
-      setActiveTab("wallet");
-      return;
-    }
+    if (t.closest("#promoBtn")) { haptic("light"); alert("Промокод (скоро)"); return; }
+    if (t.closest("#depositQuickBtn") || t.closest("#withdrawQuickBtn")) { haptic("light"); setActiveTab("wallet"); return; }
 
-    // Game cards
     const gameBtn = t.closest(".gameCard");
-    if (gameBtn) {
-      haptic("medium");
-      alert(`Открыть игру: ${gameBtn.dataset.game} (пока заглушка)`);
-      return;
-    }
+    if (gameBtn) { haptic("medium"); alert(`Открыть игру: ${gameBtn.dataset.game} (пока заглушка)`); return; }
 
-    // Wallet buttons
-    if (t.closest("#depositBtn") || t.closest("#walletHeroDeposit")) {
-      haptic("light");
-      alert("Пополнение (пока заглушка). Позже подключим провайдера и webhook.");
-      return;
-    }
-    if (t.closest("#withdrawBtn") || t.closest("#walletHeroWithdraw")) {
-      haptic("light");
-      alert("Вывод (пока заглушка). Позже подключим KYC/лимиты и провайдера.");
-      return;
-    }
+    if (t.closest("#depositBtn") || t.closest("#walletHeroDeposit")) { haptic("light"); alert("Пополнение (пока заглушка)."); return; }
+    if (t.closest("#withdrawBtn") || t.closest("#walletHeroWithdraw")) { haptic("light"); alert("Вывод (пока заглушка)."); return; }
 
-    // Test +100
-    if (t.closest("#testPlus100Btn")) {
-      haptic("light");
-      testAdd100();
-      return;
-    }
+    if (t.closest("#testPlus100Btn")) { haptic("light"); testAdd100(); return; }
+    if (t.closest("#spinBtn")) { haptic("light"); alert("Колесо фортуны (пока заглушка)"); return; }
 
-    // Spin
-    if (t.closest("#spinBtn")) {
-      haptic("light");
-      alert("Колесо фортуны (пока заглушка)");
-      return;
-    }
-
-    // Close
-    if (t.closest("#closeBtn")) {
-      haptic("light");
-      if (tg) tg.close();
-      else alert("Закрытие доступно только внутри Telegram");
-      return;
-    }
+    if (t.closest("#closeBtn")) { haptic("light"); if (tg) tg.close(); else alert("Закрытие доступно только внутри Telegram"); return; }
 
     if (t.closest("button")) haptic("light");
-  });
+  }, { passive: true });
 
   // ========= TELEGRAM INIT =========
   function initTelegram() {
@@ -371,27 +291,27 @@ function setActiveTab(tab) {
       }, null, 2);
     }
 
-    if (user) {
-      currentUserId = user.id;
-      if (elName) elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
+    if (!user) return;
 
-      (async () => {
-        try {
-          await upsertUser(user);
-          await loadBalance(user.id);
-          await loadTransactions(user.id);
-          if (elDebug) elDebug.textContent += "\n\n✅ Supabase OK";
-        } catch (e) {
-          if (elDebug) elDebug.textContent += "\n\n❌ " + (e?.message || String(e));
-        }
-      })();
-    }
+    currentUserId = user.id;
+    if (elName) elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
+
+    (async () => {
+      try {
+        await upsertUser(user);
+        await loadBalance(user.id);
+        await loadTransactions(user.id);
+        if (elDebug) elDebug.textContent += "\n\n✅ Supabase OK";
+      } catch (e) {
+        if (elDebug) elDebug.textContent += "\n\n❌ " + (e?.message || String(e));
+      }
+    })();
   }
 
-// ========= BOOT =========
-setActiveTabUI(activeTab);
-screens.forEach(s => s.classList.remove("active", "leaving", "entering"));
-getScreen(activeTab)?.classList.add("active");
-renderBalance();
-initTelegram();
+  // ========= BOOT =========
+  setActiveTabUI(activeTab);
+  screens.forEach(s => s.classList.remove("active", "leaving"));
+  getScreen(activeTab)?.classList.add("active");
+  renderBalance();
+  initTelegram();
 })();
