@@ -31,6 +31,7 @@
   }
 
   // ========= DOM =========
+  const elAvatar = document.getElementById("avatar");
   const elName = document.getElementById("name");
   const elBalance = document.getElementById("balance");
   const elTxList = document.getElementById("txList");
@@ -353,8 +354,26 @@ if (!user) {
   return;
 }
 
-    currentUserId = user.id;
-    if (elName) elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
+currentUserId = user.id;
+
+if (elName) elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
+
+// ✅ АВАТАР
+if (elAvatar) {
+  const photo = user.photo_url; // Telegram иногда не даёт фото — это нормально
+
+  if (photo) {
+    elAvatar.style.backgroundImage = `url("${photo}")`;
+    elAvatar.style.backgroundSize = "cover";
+    elAvatar.style.backgroundPosition = "center";
+    elAvatar.style.backgroundRepeat = "no-repeat";
+    // на всякий случай уберём градиент, если он задан в CSS
+    elAvatar.style.backgroundColor = "transparent";
+  } else {
+    // фолбэк: оставляем твой градиент/фон из CSS
+    elAvatar.style.backgroundImage = "";
+  }
+}
 
 (async () => {
   try {
