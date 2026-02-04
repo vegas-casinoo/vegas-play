@@ -366,17 +366,3 @@ if (testPlus100Btn) {
     });
   }
   
-  ["spinBtn","depositBtn","withdrawBtn","testPlus100Btn","promoBtn","depositQuickBtn","withdrawQuickBtn"].forEach(id=>{
-  const el = document.getElementById(id);
-  if (el) el.addEventListener("click", ()=> haptic("light"));
-});
-  
-  const promoBtn = document.getElementById("promoBtn");
-if (promoBtn) promoBtn.addEventListener("click", () => alert("Промокод (скоро)"));
-
-const depositQuickBtn = document.getElementById("depositQuickBtn");
-if (depositQuickBtn) depositQuickBtn.addEventListener("click", () => setActiveTab("wallet"));
-
-const withdrawQuickBtn = document.getElementById("withdrawQuickBtn");
-if (withdrawQuickBtn) withdrawQuickBtn.addEventListener("click", () => setActiveTab("wallet"));
-})();
