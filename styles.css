@@ -969,3 +969,23 @@ body.switching *{ animation: none !important; }
     radial-gradient(260px 180px at 25% 30%, rgba(255,111,216,.22), transparent 66%),
     radial-gradient(260px 200px at 85% 70%, rgba(179,108,255,.12), transparent 68%);
 }
+
+.sectionDivider{
+  height: 1px;
+  width: 100%;
+  margin: 22px 0 18px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(179,108,255,.55),
+    rgba(90,215,255,.45),
+    rgba(179,108,255,.55),
+    transparent
+  );
+
+  box-shadow:
+    0 0 10px rgba(179,108,255,.35),
+    0 0 18px rgba(90,215,255,.25);
+  border-radius: 999px;
+}
