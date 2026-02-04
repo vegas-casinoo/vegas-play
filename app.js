@@ -139,64 +139,35 @@
    * 3) выключаем switching по transitionend
    */
 function setActiveTab(tab) {
-  if (!tab || tab === activeTab) return;
-  if (switching) return;
+  if (isSwitching) return;
 
-  const current = getActiveScreen();
-  const next = getScreen(tab);
+  const current = document.querySelector(".screen.active");
+  const next = document.querySelector(`.screen[data-screen="${tab}"]`);
   if (!next || current === next) return;
 
-  activeTab = tab;
+  beginSwitchPerf();
 
-  setSwitching(true);
+  // подсветка табов
+  tabs.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      setActiveTabUI(tab);
+  // 1) уводим текущий (он остаётся active, но у него появится fade-out)
+  if (current) current.classList.add("leaving");
 
-      // фикс высоты, чтобы не прыгало
-      const content = document.querySelector(".content");
-      if (content && current) {
-        const h = current.getBoundingClientRect().height;
-        content.style.minHeight = Math.max(0, Math.ceil(h)) + "px";
-      }
+  // 2) показываем следующий ТОЛЬКО после ухода текущего
+  const OUT_MS = 260; // = var(--normal) (0.26s). Держи одинаково с CSS
 
-      // 1) уводим текущий
-      if (current) {
-        current.classList.add("leaving");
-        current.classList.remove("active");
-      }
+  setTimeout(() => {
+    if (current) {
+      current.classList.remove("active", "leaving");
+    }
 
-      hardScrollTop();
+    next.classList.add("active");
 
-      // 2) ждём завершения ухода текущего → показываем следующий
-      const afterLeave = () => {
-        if (current) current.classList.remove("leaving");
+    // без smooth — меньше дерготни в webview
+    window.scrollTo(0, 0);
 
-        // теперь включаем следующий (он сам сыграет screenIn)
-        next.classList.add("active");
-
-        // отпускаем minHeight после появления нового
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            if (content) content.style.minHeight = "";
-
-            // blur возвращаем уже после стабилизации
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => setSwitching(false));
-            });
-          });
-        });
-      };
-
-      if (current) {
-        onceTransitionEnd(current, afterLeave);
-      } else {
-        // если вдруг текущего нет — просто показываем
-        afterLeave();
-      }
-    });
-  });
+    endSwitchPerf(120); // можно чуть короче тут
+  }, OUT_MS);
 }
 
   // ========= SUPABASE =========
