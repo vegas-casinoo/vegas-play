@@ -1,73 +1,124 @@
 (function () {
   const tg = window.Telegram?.WebApp;
-  
+
+  // ========= HAPTIC =========
   function haptic(type = "light") {
-  try { tg?.HapticFeedback?.impactOccurred?.(type); return; } catch (_) {}
-  try { if (navigator.vibrate) navigator.vibrate(12); } catch (_) {}
-}
+    try { tg?.HapticFeedback?.impactOccurred?.(type); return; } catch (_) {}
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (_) {}
+  }
 
-
+  // ========= DOM =========
   const elName = document.getElementById("name");
   const elBalance = document.getElementById("balance");
   const elTxList = document.getElementById("txList");
   const elDebug = document.getElementById("debug");
   const closeBtn = document.getElementById("closeBtn");
 
-  // Баланс по умолчанию (потом подтянем из Supabase)
+  const screens = Array.from(document.querySelectorAll(".screen"));
+  const tabs = Array.from(document.querySelectorAll(".tab"));
+
+  // ========= STATE =========
   let balance = 0;
   let currentUserId = null;
+  let isSwitching = false;
+  let switchTimer = null;
 
-  function render() {
-    if (!elBalance) return;
-    elBalance.textContent =
-      `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
-      
-      const heroAmount = document.getElementById("walletHeroAmount");
-if (heroAmount) {
-  heroAmount.textContent =
-    `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
-}
+  // ========= RENDER =========
+  function renderBalance() {
+    const txt = `${balance.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽`;
+    if (elBalance) elBalance.textContent = txt;
+
+    const heroAmount = document.getElementById("walletHeroAmount");
+    if (heroAmount) heroAmount.textContent = txt;
   }
-  
+
   function formatDate(iso) {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
-  } catch {
-    return iso || "";
-  }
-}
-
-function renderTxList(items) {
-  if (!elTxList) return;
-
-  if (!items || items.length === 0) {
-    elTxList.innerHTML = `<div class="txDate">Пока нет операций</div>`;
-    return;
+    try {
+      const d = new Date(iso);
+      return d.toLocaleString("ru-RU", {
+        day: "2-digit", month: "2-digit", year: "2-digit",
+        hour: "2-digit", minute: "2-digit"
+      });
+    } catch {
+      return iso || "";
+    }
   }
 
-  elTxList.innerHTML = items.map(tx => {
-    const amt = Number(tx.amount || 0);
-    const signClass = amt >= 0 ? "plus" : "minus";
-    const sign = amt >= 0 ? "+" : "";
-    const type = tx.type || "unknown";
-    const when = formatDate(tx.created_at);
+  function renderTxList(items) {
+    if (!elTxList) return;
 
-    return `
-      <div class="txItem">
-        <div class="txLeft">
-          <div class="txType">${type}</div>
-          <div class="txDate">${when}</div>
+    if (!items || items.length === 0) {
+      elTxList.innerHTML = `<div class="txDate">Пока нет операций</div>`;
+      return;
+    }
+
+    elTxList.innerHTML = items.map(tx => {
+      const amt = Number(tx.amount || 0);
+      const signClass = amt >= 0 ? "plus" : "minus";
+      const sign = amt >= 0 ? "+" : "";
+      const type = tx.type || "unknown";
+      const when = formatDate(tx.created_at);
+
+      return `
+        <div class="txItem">
+          <div class="txLeft">
+            <div class="txType">${type}</div>
+            <div class="txDate">${when}</div>
+          </div>
+          <div class="txAmt ${signClass}">
+            ${sign}${amt.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽
+          </div>
         </div>
-        <div class="txAmt ${signClass}">
-          ${sign}${amt.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-  
-  // --- Supabase init ---
+      `;
+    }).join("");
+  }
+
+  // ========= TAB SWITCH PERF =========
+  function beginSwitchPerf() {
+    isSwitching = true;
+    document.body.classList.add("switching");
+    if (switchTimer) clearTimeout(switchTimer);
+  }
+
+  function endSwitchPerf(delay = 260) {
+    // delay чуть больше анимации screenIn (220ms) из CSS
+    switchTimer = setTimeout(() => {
+      document.body.classList.remove("switching");
+      isSwitching = false;
+    }, delay);
+  }
+
+  // ========= NAV =========
+  function setActiveTab(tab) {
+    if (isSwitching) return;
+
+    const current = document.querySelector(".screen.active");
+    const next = document.querySelector(`.screen[data-screen="${tab}"]`);
+    if (!next || current === next) return;
+
+    beginSwitchPerf();
+
+    // подсветка табов
+    tabs.forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+
+    // 1) текущий — уходим
+    if (current) {
+      current.classList.add("leaving");
+      current.classList.remove("active");
+      // после screenOut прячем
+      setTimeout(() => current.classList.remove("leaving"), 170);
+    }
+
+    // 2) следующий — показываем
+    next.classList.add("active");
+
+    // scroll без smooth — smooth в webview часто дёргает кадры
+    window.scrollTo(0, 0);
+
+    endSwitchPerf();
+  }
+
+  // ========= SUPABASE =========
   const SUPABASE_URL = "https://gtwozscjklqzegiwzqss.supabase.co";
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0d296c2Nqa2xxemVnaXd6cXNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMTIxMTUsImV4cCI6MjA4NTY4ODExNX0.yLr6jAl13KuA1OzHrnMkX4VAKH6l40fFVqNik6uBlP4";
@@ -75,7 +126,7 @@ function renderTxList(items) {
   if (!window.supabase) {
     if (elDebug) {
       elDebug.textContent =
-        "❌ Supabase SDK не подключён. Проверь, что в index.html есть:\n" +
+        "❌ Supabase SDK не подключён. Проверь index.html:\n" +
         "<script src=\"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2\"></script>";
     }
     return;
@@ -92,19 +143,10 @@ function renderTxList(items) {
       photo_url: tgUser.photo_url || null
     });
 
-    if (r1.error) {
-      throw new Error("USERS UPSERT ERROR: " + JSON.stringify(r1.error));
-    }
+    if (r1.error) throw new Error("USERS UPSERT ERROR: " + JSON.stringify(r1.error));
 
-    const r2 = await supabase.from("wallets").upsert({
-      user_id: tgUser.id
-    });
-
-    if (r2.error) {
-      throw new Error("WALLETS UPSERT ERROR: " + JSON.stringify(r2.error));
-    }
-
-    return true;
+    const r2 = await supabase.from("wallets").upsert({ user_id: tgUser.id });
+    if (r2.error) throw new Error("WALLETS UPSERT ERROR: " + JSON.stringify(r2.error));
   }
 
   async function loadBalance(userId) {
@@ -115,160 +157,145 @@ function renderTxList(items) {
       .single();
 
     if (res.error) {
-      if (elDebug) {
-        elDebug.textContent +=
-          "\n\n❌ LOAD BALANCE ERROR:\n" + JSON.stringify(res.error, null, 2);
-      }
+      if (elDebug) elDebug.textContent += "\n\n❌ LOAD BALANCE ERROR:\n" + JSON.stringify(res.error, null, 2);
       return;
     }
 
     balance = Number(res.data?.balance || 0);
-    render();
+    renderBalance();
+  }
 
-    if (elDebug) {
-      elDebug.textContent += "\n\n✅ Balance loaded: " + balance;
+  async function loadTransactions(userId) {
+    const res = await supabase
+      .from("transactions")
+      .select("type, amount, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (res.error) {
+      if (elDebug) elDebug.textContent += "\n\n❌ LOAD TX ERROR:\n" + JSON.stringify(res.error, null, 2);
+      return;
     }
+
+    renderTxList(res.data || []);
   }
 
-async function loadTransactions(userId) {
-  const res = await supabase
-    .from("transactions")
-    .select("type, amount, created_at")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(10);
+  async function testAdd100() {
+    if (!currentUserId) {
+      if (elDebug) elDebug.textContent += "\n\n❌ No currentUserId yet";
+      return;
+    }
 
-  if (res.error) {
-    if (elDebug) elDebug.textContent += "\n\n❌ LOAD TX ERROR:\n" + JSON.stringify(res.error, null, 2);
-    return;
+    const getRes = await supabase
+      .from("wallets")
+      .select("balance")
+      .eq("user_id", currentUserId)
+      .single();
+
+    if (getRes.error) {
+      if (elDebug) elDebug.textContent += "\n\n❌ GET WALLET ERROR:\n" + JSON.stringify(getRes.error, null, 2);
+      return;
+    }
+
+    const oldBalance = Number(getRes.data?.balance || 0);
+    const newBalance = oldBalance + 100;
+
+    const updRes = await supabase
+      .from("wallets")
+      .update({ balance: newBalance, updated_at: new Date().toISOString() })
+      .eq("user_id", currentUserId);
+
+    if (updRes.error) {
+      if (elDebug) elDebug.textContent += "\n\n❌ UPDATE WALLET ERROR:\n" + JSON.stringify(updRes.error, null, 2);
+      return;
+    }
+
+    // сначала пишем транзу, потом перерисовываем список
+    const txRes = await supabase
+      .from("transactions")
+      .insert({ user_id: currentUserId, type: "test_credit", amount: 100 });
+
+    if (txRes.error && elDebug) {
+      elDebug.textContent += "\n\n❌ INSERT TX ERROR:\n" + JSON.stringify(txRes.error, null, 2);
+    }
+
+    balance = newBalance;
+    renderBalance();
+    await loadTransactions(currentUserId);
   }
 
-  renderTxList(res.data || []);
-}
+  // ========= ONE CLICK HANDLER (EVENT DELEGATION) =========
+  document.addEventListener("click", (e) => {
+    const t = e.target;
 
-async function testAdd100() {
-  if (!currentUserId) {
-    if (elDebug) elDebug.textContent += "\n\n❌ No currentUserId yet";
-    return;
-  }
+    // Tabs
+    const tabBtn = t.closest(".tab");
+    if (tabBtn) {
+      haptic("light");
+      setActiveTab(tabBtn.dataset.tab);
+      return;
+    }
 
-  // 1) получаем текущий баланс
-  const getRes = await supabase
-    .from("wallets")
-    .select("balance")
-    .eq("user_id", currentUserId)
-    .single();
+    // Quick buttons
+    if (t.closest("#promoBtn")) {
+      haptic("light");
+      alert("Промокод (скоро)");
+      return;
+    }
+    if (t.closest("#depositQuickBtn") || t.closest("#withdrawQuickBtn")) {
+      haptic("light");
+      setActiveTab("wallet");
+      return;
+    }
 
-  if (getRes.error) {
-    if (elDebug) elDebug.textContent += "\n\n❌ GET WALLET ERROR:\n" + JSON.stringify(getRes.error, null, 2);
-    return;
-  }
+    // Game cards
+    const gameBtn = t.closest(".gameCard");
+    if (gameBtn) {
+      haptic("medium");
+      alert(`Открыть игру: ${gameBtn.dataset.game} (пока заглушка)`);
+      return;
+    }
 
-  const oldBalance = Number(getRes.data?.balance || 0);
-  const newBalance = oldBalance + 100;
+    // Wallet buttons
+    if (t.closest("#depositBtn") || t.closest("#walletHeroDeposit")) {
+      haptic("light");
+      alert("Пополнение (пока заглушка). Позже подключим провайдера и webhook.");
+      return;
+    }
+    if (t.closest("#withdrawBtn") || t.closest("#walletHeroWithdraw")) {
+      haptic("light");
+      alert("Вывод (пока заглушка). Позже подключим KYC/лимиты и провайдера.");
+      return;
+    }
 
-  // 2) обновляем баланс
-  const updRes = await supabase
-    .from("wallets")
-    .update({ balance: newBalance, updated_at: new Date().toISOString() })
-    .eq("user_id", currentUserId);
+    // Test +100
+    if (t.closest("#testPlus100Btn")) {
+      haptic("light");
+      testAdd100();
+      return;
+    }
 
-  if (updRes.error) {
-    if (elDebug) elDebug.textContent += "\n\n❌ UPDATE WALLET ERROR:\n" + JSON.stringify(updRes.error, null, 2);
-    return;
-  }
+    // Spin
+    if (t.closest("#spinBtn")) {
+      haptic("light");
+      alert("Колесо фортуны (пока заглушка)");
+      return;
+    }
 
-await loadTransactions(currentUserId);
+    // Close
+    if (t.closest("#closeBtn")) {
+      haptic("light");
+      if (tg) tg.close();
+      else alert("Закрытие доступно только внутри Telegram");
+      return;
+    }
 
-  // 3) пишем транзакцию (type можно назвать как угодно)
-  const txRes = await supabase
-    .from("transactions")
-    .insert({
-      user_id: currentUserId,
-      type: "test_credit",
-      amount: 100
-    });
+    // Any button -> light haptic
+    if (t.closest("button")) haptic("light");
+  }, { passive: true });
 
-  if (txRes.error) {
-    if (elDebug) elDebug.textContent += "\n\n❌ INSERT TX ERROR:\n" + JSON.stringify(txRes.error, null, 2);
-    // баланс уже обновили — не критично, просто логируем
-  }
-
-  // 4) обновляем UI
-  balance = newBalance;
-  render();
-  if (elDebug) elDebug.textContent += "\n\n✅ +100 added. New balance: " + newBalance;
-}
-
-function setActiveTab(tab) {
-  const current = document.querySelector(".screen.active");
-  const next = document.querySelector(`.screen[data-screen="${tab}"]`);
-  if (!next || current === next) return;
-
-  // табы
-  document.querySelectorAll(".tab").forEach(b => {
-    b.classList.toggle("active", b.dataset.tab === tab);
-  });
-
-  // плавный уход
-  if (current) {
-    current.classList.add("leaving");
-    current.classList.remove("active");
-    setTimeout(() => current.classList.remove("leaving"), 190);
-  }
-
-  // плавный вход
-  next.classList.add("active");
-
-document.body.classList.add("switching");
-setTimeout(() => document.body.classList.remove("switching"), 220);
-
-window.scrollTo(0, 0);
-}
-
-// Один обработчик на все клики по кнопкам
-let __lastTap = 0;
-
-document.addEventListener("click", (e) => {
-  // анти-дубль клика (iOS/webview иногда даёт двойной)
-  const now = Date.now();
-  if (now - __lastTap < 350) return;
-  __lastTap = now;
-
-  const tabBtn = e.target.closest(".tab");
-  if (tabBtn) {
-    haptic("light");
-    setActiveTab(tabBtn.dataset.tab);
-    return;
-  }
-
-  const gameBtn = e.target.closest(".gameCard");
-  if (gameBtn) {
-    haptic("medium");
-    alert(`Открыть игру: ${gameBtn.dataset.game} (пока заглушка)`);
-    return;
-  }
-
-  const promoBtn = e.target.closest("#promoBtn");
-  if (promoBtn) {
-    haptic("light");
-    alert("Промокод (скоро)");
-    return;
-  }
-
-  const depQuick = e.target.closest("#depositQuickBtn");
-  const wdQuick = e.target.closest("#withdrawQuickBtn");
-  if (depQuick || wdQuick) {
-    haptic("light");
-    setActiveTab("wallet");
-    return;
-  }
-
-  const anyBtn = e.target.closest("button");
-  if (anyBtn) haptic("light");
-});
-
-  // --- Telegram init ---
+  // ========= TELEGRAM INIT =========
   if (tg) {
     tg.ready();
     tg.expand();
@@ -276,93 +303,33 @@ document.addEventListener("click", (e) => {
     const user = tg.initDataUnsafe?.user;
 
     if (elDebug) {
-      elDebug.textContent = JSON.stringify(
-        {
-          platform: tg.platform,
-          version: tg.version,
-          user: user || null,
-          initDataLength: (tg.initData || "").length
-        },
-        null,
-        2
-      );
+      elDebug.textContent = JSON.stringify({
+        platform: tg.platform,
+        version: tg.version,
+        user: user || null,
+        initDataLength: (tg.initData || "").length
+      }, null, 2);
     }
 
     if (user) {
       currentUserId = user.id;
-      if (elName) {
-        elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
-      }
+      if (elName) elName.textContent = [user.first_name, user.last_name].filter(Boolean).join(" ");
 
-      // Важно: сначала upsert, потом loadBalance
       (async () => {
         try {
           await upsertUser(user);
-          if (elDebug) elDebug.textContent += "\n\n✅ Saved to Supabase (users + wallets)";
           await loadBalance(user.id);
           await loadTransactions(user.id);
+          if (elDebug) elDebug.textContent += "\n\n✅ Supabase OK (users + wallets + tx)";
         } catch (e) {
           if (elDebug) elDebug.textContent += "\n\n❌ " + (e?.message || String(e));
         }
       })();
     }
   } else {
-    if (elDebug) {
-      elDebug.textContent =
-        "Открой через Telegram Mini App, чтобы появился window.Telegram.WebApp";
-    }
+    if (elDebug) elDebug.textContent = "Открой через Telegram Mini App, чтобы появился window.Telegram.WebApp";
   }
 
-  render();
-
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      if (tg) tg.close();
-      else alert("Закрытие доступно только внутри Telegram");
-    });
-  }
-
-  const depositBtn = document.getElementById("depositBtn");
-  if (depositBtn) {
-    depositBtn.addEventListener("click", () => {
-      alert("Пополнение (пока заглушка). Позже подключим провайдера и webhook.");
-    });
-  }
-
-  const withdrawBtn = document.getElementById("withdrawBtn");
-  if (withdrawBtn) {
-    withdrawBtn.addEventListener("click", () => {
-      alert("Вывод (пока заглушка). Позже подключим KYC/лимиты и провайдера.");
-    });
-  }
-  
-  const walletHeroDeposit = document.getElementById("walletHeroDeposit");
-if (walletHeroDeposit) {
-  walletHeroDeposit.addEventListener("click", () => {
-    haptic("light");
-    alert("Пополнение (пока заглушка). Позже подключим провайдера и webhook.");
-  });
-}
-
-const walletHeroWithdraw = document.getElementById("walletHeroWithdraw");
-if (walletHeroWithdraw) {
-  walletHeroWithdraw.addEventListener("click", () => {
-    haptic("light");
-    alert("Вывод (пока заглушка). Позже подключим KYC/лимиты и провайдера.");
-  });
-}
-  
-  const testPlus100Btn = document.getElementById("testPlus100Btn");
-if (testPlus100Btn) {
-  testPlus100Btn.addEventListener("click", () => {
-    testAdd100();
-  });
-}
-
-  const spinBtn = document.getElementById("spinBtn");
-  if (spinBtn) {
-    spinBtn.addEventListener("click", () => {
-      alert("Колесо фортуны (пока заглушка)");
-    });
-  }
+  // initial render
+  renderBalance();
 })();
