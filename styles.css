@@ -867,6 +867,7 @@ body.switching *{ animation: none !important; }
 .supportCard{
   display: flex;
   align-items: center;
+  width: 100%;
   gap: 14px;
 
   padding: 16px;
