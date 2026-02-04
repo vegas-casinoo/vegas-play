@@ -105,13 +105,11 @@ button:disabled{ opacity: .5; }
   padding-bottom: calc(118px + env(safe-area-inset-bottom));
 }
 
-/* ========= Screens (NO display:none) ========= */
-/* Ключ: экраны всегда в DOM, переключаем только opacity/transform */
+/* ========= Screens (фикс наложения) ========= */
 .screen{
   position: absolute;
   inset: 0;
   width: 100%;
-
   opacity: 0;
   transform: translate3d(0,10px,0);
   pointer-events: none;
@@ -121,25 +119,27 @@ button:disabled{ opacity: .5; }
     transform var(--normal) var(--ease);
 
   will-change: opacity, transform;
+  z-index: 0;
 }
 
-/* активный экран участвует в высоте страницы -> скролл норм */
+/* активный экран */
 .screen.active{
   position: relative;
   inset: auto;
-
   opacity: 1;
   transform: translate3d(0,0,0);
   pointer-events: auto;
+  z-index: 1;
 }
 
-/* уходящий экран остаётся absolute, чтобы не ломать высоту */
+/* уходящий экран всегда сверху, чтобы “доиграл” анимацию */
 .screen.leaving{
   position: absolute;
   inset: 0;
   opacity: 0;
   transform: translate3d(0,6px,0);
   pointer-events: none;
+  z-index: 2;
 }
 
 /* ========= Cards ========= */
