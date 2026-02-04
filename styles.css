@@ -646,7 +646,7 @@ body.switching *{ animation: none !important; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
 
   padding: 22px 18px 20px;
   border-radius: 22px;
@@ -664,14 +664,10 @@ body.switching *{ animation: none !important; }
   width: 64px;
   height: 64px;
   object-fit: contain;
-
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,.10);
   background: rgba(255,255,255,.04);
-
-  box-shadow:
-    0 14px 34px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.08);
+  box-shadow: 0 14px 34px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
 }
 
 .bootSpinner{
