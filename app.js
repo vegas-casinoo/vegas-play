@@ -220,7 +220,10 @@ function setActiveTab(tab) {
   // плавный вход
   next.classList.add("active");
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+document.body.classList.add("switching");
+setTimeout(() => document.body.classList.remove("switching"), 220);
+
+window.scrollTo(0, 0);
 }
 
 // Один обработчик на все клики по кнопкам
