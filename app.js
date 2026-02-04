@@ -138,58 +138,66 @@
    * 2) на следующем кадре меняем классы экранов
    * 3) выключаем switching по transitionend
    */
-  function setActiveTab(tab) {
-    if (!tab || tab === activeTab) return;
-    if (switching) return;
+function setActiveTab(tab) {
+  if (!tab || tab === activeTab) return;
+  if (switching) return;
 
-    const current = getActiveScreen();
-    const next = getScreen(tab);
-    if (!next || current === next) return;
+  const current = getActiveScreen();
+  const next = getScreen(tab);
+  if (!next || current === next) return;
 
-    activeTab = tab;
+  activeTab = tab;
 
-    // Включаем "режим производительности" ДО любых изменений DOM
-    setSwitching(true);
+  setSwitching(true);
 
-    // Двойной rAF: Safari часто применяет classList не сразу
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setActiveTabUI(tab);
+      setActiveTabUI(tab);
 
-        // фиксируем высоту контейнера, чтобы не было “скачка” при absolute/relative
-        const content = document.querySelector(".content");
-        if (content && current) {
-          const h = current.getBoundingClientRect().height;
-          // маленький хак: даём высоту, потом отпустим
-          content.style.minHeight = Math.max(0, Math.ceil(h)) + "px";
-        }
+      // фикс высоты, чтобы не прыгало
+      const content = document.querySelector(".content");
+      if (content && current) {
+        const h = current.getBoundingClientRect().height;
+        content.style.minHeight = Math.max(0, Math.ceil(h)) + "px";
+      }
 
-        // уводим текущий
-        if (current) {
-          current.classList.add("leaving");
-          current.classList.remove("active");
-        }
+      // 1) уводим текущий
+      if (current) {
+        current.classList.add("leaving");
+        current.classList.remove("active");
+      }
 
-        // показываем следующий
+      hardScrollTop();
+
+      // 2) ждём завершения ухода текущего → показываем следующий
+      const afterLeave = () => {
+        if (current) current.classList.remove("leaving");
+
+        // теперь включаем следующий (он сам сыграет screenIn)
         next.classList.add("active");
 
-        hardScrollTop();
-
-        // когда следующий экран “встал”, выключаем perf-режим
-        onceTransitionEnd(next, () => {
-          if (current) current.classList.remove("leaving");
-
-          const content = document.querySelector(".content");
-          if (content) content.style.minHeight = "";
-
-          // выключаем switching на следующий кадр (чтобы blur вернулся уже после стабилизации)
+        // отпускаем minHeight после появления нового
+        requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => setSwitching(false));
+            if (content) content.style.minHeight = "";
+
+            // blur возвращаем уже после стабилизации
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => setSwitching(false));
+            });
           });
         });
-      });
+      };
+
+      if (current) {
+        onceTransitionEnd(current, afterLeave);
+      } else {
+        // если вдруг текущего нет — просто показываем
+        afterLeave();
+      }
     });
-  }
+  });
+}
 
   // ========= SUPABASE =========
   const SUPABASE_URL = "https://gtwozscjklqzegiwzqss.supabase.co";
