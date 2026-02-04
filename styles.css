@@ -661,23 +661,17 @@ body.switching *{ animation: none !important; }
 }
 
 .bootLogo{
-  width: min(72vw, 260px);
-  max-width: 260px;
-  height: auto;
-
+  width: 64px;
+  height: 64px;
   object-fit: contain;
 
-  /* убираем "квадратик" полностью */
-  border: none;
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
 
-  /* неоновое свечение под стиль VEGAS */
-  filter:
-    drop-shadow(0 10px 24px rgba(0,0,0,.45))
-    drop-shadow(0 0 22px rgba(179,108,255,.35))
-    drop-shadow(0 0 18px rgba(90,215,255,.22));
+  box-shadow:
+    0 14px 34px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.08);
 }
 
 .bootSpinner{
