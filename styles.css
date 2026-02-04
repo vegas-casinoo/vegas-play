@@ -39,25 +39,28 @@
 html,body{ height:100%; }
 
 body{
-  margin: 0;
-  min-height: 100%;
+  margin:0;
+  min-height:100%;
   background: var(--bg);
-  background-repeat: no-repeat;
-  color: var(--text);
+  background-repeat:no-repeat;
+  color:var(--text);
   font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* ВАЖНО: reset кнопок НЕ ломает классы */
+/* reset кнопок */
 button{
-  font-family: inherit;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-appearance: none;
-  appearance: none;
-  border: none;
-  margin: 0;
-  color: inherit;
+  font-family:inherit;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-appearance:none;
+  appearance:none;
+  border:none;
+  margin:0;
+  color:inherit;
+  background: transparent;
 }
-button:disabled{ opacity: .5; }
+button:disabled{ opacity:.5; }
 
 /* ========= Topbar ========= */
 .topbar{
@@ -99,7 +102,7 @@ button:disabled{ opacity: .5; }
 /* ========= Layout ========= */
 .content{
   padding:14px;
-  padding-top: 18px;
+  padding-top:18px;
   padding-bottom: calc(118px + env(safe-area-inset-bottom));
 }
 
@@ -109,11 +112,11 @@ button:disabled{ opacity: .5; }
   backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur);
 
-  border: 1px solid var(--stroke);
+  border:1px solid var(--stroke);
   border-radius: var(--radius-lg);
 
-  padding: 14px;
-  margin-bottom: 12px;
+  padding:14px;
+  margin-bottom:12px;
 
   box-shadow:
     0 10px 30px rgba(0,0,0,.35),
@@ -134,17 +137,17 @@ button:disabled{ opacity: .5; }
 /* ========= Primary ========= */
 .primary{
   background: var(--primary);
-  color: white;
+  color:#fff;
 
-  padding: 12px 16px;
-  border-radius: 14px;
-  font-weight: 800;
+  padding:12px 16px;
+  border-radius:14px;
+  font-weight:800;
 
   box-shadow: 0 0 24px rgba(120,120,255,.35);
-  transition: transform var(--fast) var(--ease), box-shadow var(--fast);
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
 }
 .primary:active{
-  transform: scale(0.97);
+  transform: scale(.97);
   box-shadow: 0 0 40px rgba(180,120,255,.55);
 }
 
@@ -153,40 +156,162 @@ button:disabled{ opacity: .5; }
   display:grid;
   grid-template-columns: repeat(3, 1fr);
   gap:10px;
-  margin: 12px 0 14px;
+  margin:12px 0 14px;
 }
 
 .quickBtn{
+  position: relative;
   display:flex;
   align-items:center;
   justify-content:center;
   gap:8px;
 
-  padding: 12px 10px;
-  border-radius: 16px;
+  padding:12px 10px;
+  border-radius:16px;
 
-  border: 1px solid rgba(255,255,255,.12);
-  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
+  /* iOS/Telegram fix: явный цвет */
+  background-color: rgba(18, 20, 28, .62);
 
-  color: var(--text);
-  font-weight: 900;
-  letter-spacing: .2px;
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
+    radial-gradient(160px 90px at 20% 10%, rgba(179,108,255,.22), transparent 60%),
+    radial-gradient(180px 110px at 90% 30%, rgba(90,215,255,.18), transparent 62%);
+
+  border:1px solid rgba(255,255,255,.14);
+
+  color:var(--text);
+  font-weight:900;
+  letter-spacing:.2px;
 
   box-shadow:
-    0 10px 28px rgba(0,0,0,.35),
+    0 12px 30px rgba(0,0,0,.42),
+    0 0 26px rgba(179,108,255,.14),
+    0 0 22px rgba(90,215,255,.10),
     inset 0 1px 0 rgba(255,255,255,.10);
 
-  transition: transform var(--fast) var(--ease), border-color var(--fast), background var(--fast);
+  transform: translateZ(0);
+  transition:
+    transform var(--fast) var(--ease),
+    box-shadow var(--normal) var(--ease),
+    filter var(--normal) var(--ease),
+    border-color var(--normal) var(--ease);
 }
+
+.quickBtn::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius: inherit;
+  pointer-events:none;
+
+  background:
+    radial-gradient(120px 70px at 25% 30%, rgba(179,108,255,.30), transparent 62%),
+    radial-gradient(140px 80px at 80% 70%, rgba(90,215,255,.24), transparent 64%);
+
+  filter: blur(10px);
+  opacity:.75;
+}
+
+.quickBtn::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius: inherit;
+  pointer-events:none;
+
+  background:
+    radial-gradient(240px 120px at 40% -30%, rgba(255,255,255,.16), transparent 60%),
+    linear-gradient(120deg, transparent 30%, rgba(255,255,255,.10) 48%, transparent 66%);
+
+  opacity:.16;
+  filter: blur(8px);
+}
+
 .quickBtn:active{
-  transform: scale(0.97);
-  border-color: rgba(179,108,255,.45);
-  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+  transform: scale(.97);
+  filter: saturate(1.06) brightness(1.05);
+
+  box-shadow:
+    0 16px 38px rgba(0,0,0,.52),
+    0 0 34px rgba(179,108,255,.26),
+    0 0 30px rgba(90,215,255,.20),
+    inset 0 1px 0 rgba(255,255,255,.10);
+
+  border-color: rgba(179,108,255,.40);
 }
-.qIcon{ font-size: 16px; opacity: .95; }
-.qText{ font-size: 13px; }
+
+.qIcon{ font-size:16px; opacity:.95; }
+.qText{ font-size:13px; }
+
+/* индивидуальные темы */
+#promoBtn{
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
+    radial-gradient(170px 100px at 20% 10%, rgba(255,111,216,.28), transparent 60%),
+    radial-gradient(170px 120px at 90% 35%, rgba(179,108,255,.18), transparent 62%);
+}
+#promoBtn::before{
+  background:
+    radial-gradient(130px 80px at 25% 35%, rgba(255,111,216,.34), transparent 62%),
+    radial-gradient(150px 90px at 80% 70%, rgba(179,108,255,.22), transparent 64%);
+}
+
+#withdrawQuickBtn{
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
+    radial-gradient(170px 100px at 20% 10%, rgba(90,215,255,.30), transparent 60%),
+    radial-gradient(170px 120px at 90% 35%, rgba(179,108,255,.16), transparent 62%);
+}
+#withdrawQuickBtn::before{
+  background:
+    radial-gradient(130px 80px at 25% 35%, rgba(90,215,255,.34), transparent 62%),
+    radial-gradient(150px 90px at 80% 70%, rgba(179,108,255,.18), transparent 64%);
+}
+
+#depositQuickBtn{
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
+    radial-gradient(170px 100px at 20% 10%, rgba(99,242,182,.22), transparent 60%),
+    radial-gradient(170px 120px at 90% 35%, rgba(90,215,255,.18), transparent 62%);
+}
+#depositQuickBtn::before{
+  background:
+    radial-gradient(130px 80px at 25% 35%, rgba(99,242,182,.28), transparent 62%),
+    radial-gradient(150px 90px at 80% 70%, rgba(90,215,255,.22), transparent 64%);
+}
+
+/* мягкое мерцание (лёгкое, без opacity-анимаций на блоках) */
+@keyframes quickGlow {
+  0%   { filter: saturate(1) brightness(1); }
+  50%  { filter: saturate(1.06) brightness(1.05); }
+  100% { filter: saturate(1) brightness(1); }
+}
+@keyframes quickShine {
+  0%   { transform: translateX(-30%) rotate(10deg); opacity:0; }
+  20%  { opacity:.18; }
+  60%  { opacity:.10; }
+  100% { transform: translateX(30%) rotate(10deg); opacity:0; }
+}
+
+.quickBtn{
+  overflow:hidden;
+  animation: quickGlow 3.2s var(--ease) infinite;
+}
+.quickBtn::after{
+  /* оставляем твой shine + добавляем проходящий блик */
+  background:
+    radial-gradient(240px 120px at 40% -30%, rgba(255,255,255,.16), transparent 60%),
+    linear-gradient(120deg, transparent 30%, rgba(255,255,255,.10) 48%, transparent 66%),
+    linear-gradient(90deg, transparent 35%, rgba(255,255,255,.18) 50%, transparent 65%);
+  opacity: 0;
+  animation: quickShine 4.6s var(--ease) infinite;
+}
+#promoBtn{ animation-delay: 0s; }
+#withdrawQuickBtn{ animation-delay: .25s; }
+#depositQuickBtn{ animation-delay: .45s; }
+#promoBtn::after{ animation-delay: .10s; }
+#withdrawQuickBtn::after{ animation-delay: .45s; }
+#depositQuickBtn::after{ animation-delay: .80s; }
 
 /* ========= Games grid ========= */
 .grid{
@@ -198,14 +323,14 @@ button:disabled{ opacity: .5; }
 
 /* ========= Game Cards ========= */
 @keyframes gc-float{
-  0%{ transform: translateY(0); }
-  50%{ transform: translateY(-2px); }
-  100%{ transform: translateY(0); }
+  0%{ transform: translate3d(0,0,0); }
+  50%{ transform: translate3d(0,-2px,0); }
+  100%{ transform: translate3d(0,0,0); }
 }
 @keyframes gc-pulse{
-  0%{ opacity:.55; }
-  50%{ opacity:.85; }
-  100%{ opacity:.55; }
+  0%{ opacity:.58; }
+  50%{ opacity:.86; }
+  100%{ opacity:.58; }
 }
 
 .gameCard{
@@ -217,11 +342,11 @@ button:disabled{ opacity: .5; }
   display:flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 10px;
+  gap:10px;
 
-  overflow: hidden;
+  overflow:hidden;
 
-  border: 1px solid rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.12);
   background:
     radial-gradient(260px 160px at 15% 10%, rgba(255,111,216,.14), transparent 62%),
     radial-gradient(260px 180px at 95% 15%, rgba(90,215,255,.12), transparent 64%),
@@ -235,45 +360,54 @@ button:disabled{ opacity: .5; }
     inset 0 1px 0 rgba(255,255,255,.12);
 
   transform: translateZ(0);
-  transition: transform .28s var(--ease), box-shadow .28s var(--ease), border-color .28s var(--ease), filter .28s var(--ease);
+  transition:
+    transform .28s var(--ease),
+    box-shadow .28s var(--ease),
+    border-color .28s var(--ease),
+    filter .28s var(--ease);
 
+  /* только float — без дополнительных “edgePulse”, чтобы не бледнело */
   animation: gc-float 4.2s ease-in-out infinite;
+  opacity: 1;
 }
 
 .gameCard::before{
   content:"";
   position:absolute;
-  inset: 0;
+  inset:0;
   border-radius: inherit;
   pointer-events:none;
-  animation: gc-pulse 2.8s ease-in-out infinite !important;
 
   background:
     radial-gradient(260px 180px at 25% 30%, rgba(179,108,255,.22), transparent 66%),
     radial-gradient(260px 200px at 85% 70%, rgba(90,215,255,.16), transparent 68%);
+
   filter: blur(18px);
-  opacity: .70;
-  z-index: 0;
+  opacity:.70;
+  z-index:0;
+
+  /* только opacity внутри псевдо-элемента — ок */
   animation: gc-pulse 2.8s ease-in-out infinite;
 }
 
 .gameCard::after{
   content:"";
   position:absolute;
-  inset: 0;
+  inset:0;
   border-radius: inherit;
   pointer-events:none;
 
   background:
     radial-gradient(280px 160px at 45% -20%, rgba(255,255,255,.14), transparent 60%),
     linear-gradient(120deg, transparent 28%, rgba(255,255,255,.10) 46%, transparent 62%);
-  opacity: .18;
+
+  opacity:.18;
   filter: blur(10px);
-  z-index: 1;
+  z-index:1;
   transition: opacity .28s var(--ease);
 }
 
-.gameCard > *{ position: relative; z-index: 2; }
+.gameCard > *{ position: relative; z-index:2; }
 
 .gameCard:nth-child(2){ animation-delay: .12s; }
 .gameCard:nth-child(3){ animation-delay: .24s; }
@@ -288,26 +422,25 @@ button:disabled{ opacity: .5; }
     inset 0 1px 0 rgba(255,255,255,.10);
   filter: saturate(1.06);
 }
-.gameCard:active::after{ opacity: .28; }
+.gameCard:active::after{ opacity:.28; }
 
-/* Top row (icon + badge) */
+/* Top row */
 .gTop{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap: 10px;
-  margin-bottom: 4px;
+  gap:10px;
+  margin-bottom:4px;
 }
 
 .gIcon{
-  width: 46px;
-  height: 46px;
+  width:46px; height:46px;
   display:flex;
   align-items:center;
   justify-content:center;
 
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.12);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
 
   background:
     radial-gradient(26px 26px at 30% 20%, rgba(255,255,255,.16), transparent 60%),
@@ -317,39 +450,50 @@ button:disabled{ opacity: .5; }
     0 10px 26px rgba(0,0,0,.32),
     inset 0 1px 0 rgba(255,255,255,.10);
 
-  font-size: 22px;
-  line-height: 1;
+  font-size:22px;
+  line-height:1;
 }
 
-/* ✅ ФИКС “синеет только на одной” — бейдж НЕ зависит от фона карты */
 .gBadge{
-  font-size: 11px;
-  font-weight: 900;
+  position: relative;
+  overflow:hidden;
+
+  font-size:11px;
+  font-weight:900;
   color: rgba(255,255,255,.92);
 
-  padding: 6px 10px;
-  border-radius: 999px;
+  padding:6px 10px;
+  border-radius:999px;
 
-  border: 1px solid rgba(255,255,255,.12);
-  background:
-    linear-gradient(135deg, rgba(25,28,40,.72), rgba(18,20,30,.62));
+  border:1px solid rgba(255,255,255,.14);
+  background: linear-gradient(135deg, rgba(22,24,34,.72), rgba(16,18,26,.60));
+
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.10),
-    0 10px 22px rgba(0,0,0,.22);
+    0 10px 22px rgba(0,0,0,.22),
+    0 0 18px rgba(90,215,255,.10),
+    0 0 18px rgba(179,108,255,.10);
 
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
-.gTitle{
-  font-weight: 900;
-  letter-spacing: .2px;
+.gBadge::after{
+  content:"";
+  position:absolute;
+  inset:-40% -20%;
+  pointer-events:none;
+  background: radial-gradient(120px 60px at 40% 25%, rgba(255,255,255,.22), transparent 60%);
+  opacity:.22;
+  filter: blur(8px);
 }
+
+.gTitle{ font-weight:900; letter-spacing:.2px; }
 .gSub{
   color: var(--muted);
-  font-size: 12px;
-  margin-top: 6px;
-  line-height: 1.2;
+  font-size:12px;
+  margin-top:6px;
+  line-height:1.2;
 }
 
 /* ========= Wallet buttons ========= */
@@ -357,27 +501,30 @@ button:disabled{ opacity: .5; }
 .btnRow{ display:flex; gap:8px; flex-wrap: wrap; }
 
 .ghost{
-  border: 1px solid rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.12);
   background: rgba(20, 22, 30, 0.55);
   color: var(--text);
 
   /* iOS webview bug */
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
 
-  padding: 10px 12px;
-  border-radius: 14px;
-  font-weight: 800;
-  white-space: nowrap;
+  padding:10px 12px;
+  border-radius:14px;
+  font-weight:800;
+  white-space:nowrap;
 
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.08),
     0 10px 20px rgba(0,0,0,.25);
 
-  transition: transform var(--fast) var(--ease), border-color var(--fast), background var(--fast);
+  transition:
+    transform var(--fast) var(--ease),
+    border-color var(--fast) var(--ease),
+    background var(--fast) var(--ease);
 }
 .ghost:active{
-  transform: scale(0.96);
+  transform: scale(.96);
   border-color: rgba(179,108,255,.6);
   background: rgba(25, 27, 38, 0.70);
 }
@@ -400,10 +547,11 @@ button:disabled{ opacity: .5; }
   justify-content:space-between;
   align-items:flex-start;
   gap:10px;
+
   padding:10px 12px;
   border:1px solid var(--stroke);
   border-radius:14px;
-  background:rgba(255,255,255,.03);
+  background: rgba(255,255,255,.03);
 }
 .txLeft{ min-width:0; }
 .txType{ font-weight:800; }
@@ -412,20 +560,19 @@ button:disabled{ opacity: .5; }
 .txAmt.plus{ color:#7ee2a8; }
 .txAmt.minus{ color:#ffb4b4; }
 
-/* ========= Screens transitions ========= */
+/* ========= Screens transitions (NO BLUR) ========= */
 .screen{ display:none; }
-.screen.active{ display:block; animation: screenIn 240ms var(--ease) both; }
-.screen.leaving{ display:block; animation: screenOut 180ms var(--ease) both; }
+.screen.active{ display:block; animation: screenIn 220ms var(--ease) both; }
+.screen.leaving{ display:block; animation: screenOut 160ms var(--ease) both; }
 
 @keyframes screenIn{
-  from { opacity: 0; transform: translate3d(0,10px,0); }
-  to   { opacity: 1; transform: translate3d(0,0,0); }
+  from { opacity:0; transform: translate3d(0,10px,0); }
+  to   { opacity:1; transform: translate3d(0,0,0); }
 }
 @keyframes screenOut{
-  from { opacity: 1; transform: translate3d(0,0,0); }
-  to   { opacity: 0; transform: translate3d(0,6px,0); }
+  from { opacity:1; transform: translate3d(0,0,0); }
+  to   { opacity:0; transform: translate3d(0,6px,0); }
 }
-
 .screen{
   will-change: transform, opacity;
   transform: translateZ(0);
@@ -448,9 +595,9 @@ button:disabled{ opacity: .5; }
   border-top: 1px solid rgba(255,255,255,.10);
   box-shadow: 0 -10px 30px rgba(0,0,0,.40);
 
-  display: grid;
+  display:grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap:10px;
 }
 
 .tabbar::before{
@@ -465,28 +612,39 @@ button:disabled{ opacity: .5; }
 
 .tab{
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
 
-  padding: 10px 8px;
-  border-radius: 16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
 
-  border: 1px solid rgba(255,255,255,.10);
+  padding:10px 8px;
+  border-radius:16px;
+
+  border:1px solid rgba(255,255,255,.10);
   background: rgba(255,255,255,.03);
 
   color: rgba(245,247,251,.68);
-  font-weight: 900;
+  font-weight:900;
 
-  transition: transform var(--fast) var(--ease), background var(--normal) var(--ease),
-              border-color var(--normal) var(--ease), color var(--normal) var(--ease),
-              box-shadow var(--normal) var(--ease);
+  transform: translateZ(0);
+  transition:
+    transform var(--fast) var(--ease),
+    background var(--normal) var(--ease),
+    border-color var(--normal) var(--ease),
+    color var(--normal) var(--ease),
+    box-shadow var(--normal) var(--ease);
 }
-.tabIcon{ font-size: 20px; line-height: 1; transform: translateY(1px); filter: saturate(1.1); }
-.tabLabel{ font-size: 11px; opacity: .9; }
-.tab:active{ transform: scale(0.97); }
+
+.tabIcon{
+  font-size:20px;
+  line-height:1;
+  transform: translateY(1px);
+  filter: saturate(1.1);
+}
+.tabLabel{ font-size:11px; opacity:.9; }
+.tab:active{ transform: scale(.97); }
 
 .tab.active{
   color: var(--text);
@@ -515,309 +673,18 @@ button:disabled{ opacity: .5; }
   opacity: .9;
 }
 
-/* perf */
-.card, .gameCard, .quickBtn, .ghost, .primary, .tab{ will-change: transform; }
-
-/* accessibility */
-@media (prefers-reduced-motion: reduce){
-  *{ animation: none !important; transition: none !important; }
-}
-
-/* ===== NEON QUICK BUTTONS (по твоему HTML: .quickBtn) ===== */
-
-.quickRow .quickBtn{
-  position: relative;
-
-  /* iOS/Telegram fix: явный цвет фона, чтобы не становилось “чёрным” */
-  background-color: rgba(18, 20, 28, .62);
-
-  background-image:
-    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
-    radial-gradient(160px 90px at 20% 10%, rgba(179,108,255,.22), transparent 60%),
-    radial-gradient(180px 110px at 90% 30%, rgba(90,215,255,.18), transparent 62%);
-
-  border: 1px solid rgba(255,255,255,.14);
-
-  box-shadow:
-    0 12px 30px rgba(0,0,0,.42),
-    0 0 26px rgba(179,108,255,.14),
-    0 0 22px rgba(90,215,255,.10),
-    inset 0 1px 0 rgba(255,255,255,.10);
-
-  transition:
-    transform var(--fast) var(--ease),
-    box-shadow var(--normal) var(--ease),
-    filter var(--normal) var(--ease),
-    border-color var(--normal) var(--ease);
-}
-
-/* неоновый ореол */
-.quickRow .quickBtn::before{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  border-radius: inherit;
-  pointer-events:none;
-
-  background:
-    radial-gradient(120px 70px at 25% 30%, rgba(179,108,255,.30), transparent 62%),
-    radial-gradient(140px 80px at 80% 70%, rgba(90,215,255,.24), transparent 64%);
-
-  filter: blur(10px);
-  opacity: .75;
-}
-
-/* лёгкий блик */
-.quickRow .quickBtn::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius: inherit;
-  pointer-events:none;
-
-  background:
-    radial-gradient(240px 120px at 40% -30%, rgba(255,255,255,.16), transparent 60%),
-    linear-gradient(120deg, transparent 30%, rgba(255,255,255,.10) 48%, transparent 66%);
-
-  opacity: .16;
-  filter: blur(8px);
-}
-
-.quickRow .quickBtn:active{
-  transform: scale(.97);
-  filter: saturate(1.06) brightness(1.05);
-
-  box-shadow:
-    0 16px 38px rgba(0,0,0,.52),
-    0 0 34px rgba(179,108,255,.26),
-    0 0 30px rgba(90,215,255,.20),
-    inset 0 1px 0 rgba(255,255,255,.10);
-
-  border-color: rgba(179,108,255,.40);
-}
-
-/* ===== индивидуальные темы по id ===== */
-
-/* 🎁 Промокод */
-#promoBtn{
-  background-image:
-    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
-    radial-gradient(170px 100px at 20% 10%, rgba(255,111,216,.28), transparent 60%),
-    radial-gradient(170px 120px at 90% 35%, rgba(179,108,255,.18), transparent 62%);
-}
-#promoBtn::before{
-  background:
-    radial-gradient(130px 80px at 25% 35%, rgba(255,111,216,.34), transparent 62%),
-    radial-gradient(150px 90px at 80% 70%, rgba(179,108,255,.22), transparent 64%);
-}
-
-/* ↗️ Вывести */
-#withdrawQuickBtn{
-  background-image:
-    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
-    radial-gradient(170px 100px at 20% 10%, rgba(90,215,255,.30), transparent 60%),
-    radial-gradient(170px 120px at 90% 35%, rgba(179,108,255,.16), transparent 62%);
-}
-#withdrawQuickBtn::before{
-  background:
-    radial-gradient(130px 80px at 25% 35%, rgba(90,215,255,.34), transparent 62%),
-    radial-gradient(150px 90px at 80% 70%, rgba(179,108,255,.18), transparent 64%);
-}
-
-/* ⚡ Депозит */
-#depositQuickBtn{
-  background-image:
-    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
-    radial-gradient(170px 100px at 20% 10%, rgba(99,242,182,.22), transparent 60%),
-    radial-gradient(170px 120px at 90% 35%, rgba(90,215,255,.18), transparent 62%);
-}
-#depositQuickBtn::before{
-  background:
-    radial-gradient(130px 80px at 25% 35%, rgba(99,242,182,.28), transparent 62%),
-    radial-gradient(150px 90px at 80% 70%, rgba(90,215,255,.22), transparent 64%);
-}
-
-/* =========================
-   POLISH PACK (soft neon)
-   Добавь в КОНЕЦ styles.css
-   ========================= */
-
-/* 1) Быстрые кнопки (Промо/Вывести/Депозит) — мягкое мерцание */
-@keyframes quickGlow {
-  0%   { filter: saturate(1) brightness(1); }
-  50%  { filter: saturate(1.08) brightness(1.06); }
-  100% { filter: saturate(1) brightness(1); }
-}
-@keyframes quickShine {
-  0%   { transform: translateX(-30%) rotate(10deg); opacity:.0; }
-  20%  { opacity:.20; }
-  60%  { opacity:.10; }
-  100% { transform: translateX(30%) rotate(10deg); opacity:0; }
-}
-
-.quickRow .quickBtn{
-  position: relative;
-  overflow: hidden;
-  transform: translateZ(0);
-  animation: quickGlow 3.2s var(--ease) infinite;
-}
-
-/* “блик” сверху, который медленно проходит */
-.quickRow .quickBtn::after{
-  content:"";
-  position:absolute;
-  inset:-30%;
-  pointer-events:none;
-  background: linear-gradient(
-    90deg,
-    transparent 35%,
-    rgba(255,255,255,.18) 50%,
-    transparent 65%
-  );
-  filter: blur(6px);
-  opacity: 0;
-  animation: quickShine 4.6s var(--ease) infinite;
-}
-
-/* разнесём по времени, чтобы не мигали синхронно */
-#promoBtn{ animation-delay: .00s; }
-#withdrawQuickBtn{ animation-delay: .25s; }
-#depositQuickBtn{ animation-delay: .45s; }
-
-#promoBtn::after{ animation-delay: .10s; }
-#withdrawQuickBtn::after{ animation-delay: .45s; }
-#depositQuickBtn::after{ animation-delay: .80s; }
-
-/* нажатие — “дорогой” прожим */
-.quickRow .quickBtn:active{
-  transform: scale(.975);
-}
-
-/* 2) Бейджи “до 50x” — единый стеклянный стиль + лёгкий неон */
-.gBadge{
-  position: relative;
-  overflow: hidden;
-  background:
-    linear-gradient(135deg, rgba(22,24,34,.72), rgba(16,18,26,.60)) !important;
-
-  border: 1px solid rgba(255,255,255,.14) !important;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.10),
-    0 10px 22px rgba(0,0,0,.22),
-    0 0 18px rgba(90,215,255,.10),
-    0 0 18px rgba(179,108,255,.10) !important;
-}
-
-/* маленький “блик” внутри бейджа */
-.gBadge::after{
-  content:"";
-  position:absolute;
-  inset:-40% -20%;
-  pointer-events:none;
-  background: radial-gradient(
-    120px 60px at 40% 25%,
-    rgba(255,255,255,.22),
-    transparent 60%
-  );
-  opacity:.22;
-  filter: blur(8px);
-}
-
-/* 3) Game cards — аккуратный неон-край + “tilt” на нажатии */
-@keyframes cardEdgePulse{
-  0%   { opacity:.35; }
-  50%  { opacity:.60; }
-  100% { opacity:.35; }
-}
-
-.gameCard{
-  position: relative;
-  transform: translateZ(0);
-}
-
-/* неоновая окантовка (очень мягко) */
-.gameCard .edgeGlow{ display:none; } /* на всякий, если где-то появится */
-
-.gameCard::marker{ content:""; } /* noop, чтобы iOS не чудил */
-
-.gameCard::before{
-  /* твой слой glow оставляем, не ломаем */
-}
-
-/* добавим отдельную “рамку” поверх */
-.gameCard::after{
-  /* у тебя ::after уже есть как shine — мы его не трогаем */
-}
-
-/* рамка отдельным псевдо-слоем через outline/box-shadow */
-.gameCard{
-  box-shadow:
-    0 14px 40px rgba(0,0,0,.42),
-    inset 0 1px 0 rgba(255,255,255,.12),
-    0 0 0 1px rgba(255,255,255,.08);
-}
-
-.gameCard::selection{ background: transparent; } /* noop */
-
-/* ещё один слой через background-clip, чтобы был “неон-край” */
-.gameCard{
-  background-clip: padding-box;
-}
-
-/* нажатие: лёгкий tilt + усиление края */
-.gameCard:active{
-  transform: scale(.985) rotateX(1.2deg) rotateY(-1.2deg);
-  box-shadow:
-    0 18px 55px rgba(0,0,0,.50),
-    0 0 32px rgba(179,108,255,.18),
-    0 0 28px rgba(90,215,255,.14),
-    inset 0 1px 0 rgba(255,255,255,.10),
-    0 0 0 1px rgba(179,108,255,.22);
-}
-
-/* чуть “дышащая” подсветка края (без синхрона по всем) */
-.gameCard{
-  animation: gc-float 4.2s ease-in-out infinite, cardEdgePulse 3.4s var(--ease) infinite;
-}
-.gameCard:nth-child(2){ animation-delay: .12s, .30s; }
-.gameCard:nth-child(3){ animation-delay: .24s, .55s; }
-.gameCard:nth-child(4){ animation-delay: .36s, .80s; }
-
-/* accessibility */
-@media (prefers-reduced-motion: reduce){
-  .quickRow .quickBtn,
-  .quickRow .quickBtn::after,
-  .gameCard{
-    animation: none !important;
-  }
-}
-
-/* FIX: gameCard стали бледными из-за animation, где менялась opacity */
-.gameCard{
-  opacity: 1 !important;
-  animation: gc-float 4.2s ease-in-out infinite !important; /* убрали cardEdgePulse */
-}
-
-/* на всякий: если где-то осталось */
-@keyframes cardEdgePulse{
-  0%,100% { filter: none; }
-  50% { filter: none; }
-}
-
-/* ===== WALLET HERO (ref-like) ===== */
-
+/* ========= Wallet hero (ref-like) ========= */
 .walletHero{
-  margin: 10px 0 16px;
-  padding: 18px;
-  border-radius: 22px;
+  margin:10px 0 16px;
+  padding:18px;
+  border-radius:22px;
 
   background:
     radial-gradient(240px 120px at 20% 10%, rgba(90,215,255,.28), transparent 60%),
     radial-gradient(260px 140px at 90% 80%, rgba(99,242,182,.26), transparent 60%),
     linear-gradient(180deg, rgba(18,22,32,.92), rgba(12,14,20,.92));
 
-  border: 1px solid rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.14);
 
   box-shadow:
     0 18px 50px rgba(0,0,0,.55),
@@ -829,59 +696,56 @@ button:disabled{ opacity: .5; }
 }
 
 .walletHeroLabel{
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: .2px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.2px;
 }
-
 .walletHeroAmount{
-  margin-top: 6px;
-  font-size: 34px;
-  font-weight: 900;
-  letter-spacing: .3px;
-  color: #fff;
-
+  margin-top:6px;
+  font-size:34px;
+  font-weight:900;
+  letter-spacing:.3px;
+  color:#fff;
   text-shadow:
     0 0 18px rgba(90,215,255,.25),
     0 0 26px rgba(99,242,182,.18);
 }
-
 .walletHeroActions{
-  margin-top: 16px;
-  display: grid;
+  margin-top:16px;
+  display:grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap:12px;
 }
-
 .walletPrimary{
-  padding: 14px 12px;
-  border-radius: 16px;
-  font-weight: 900;
-  font-size: 15px;
-  color: #fff;
-
-  border: none;
+  padding:14px 12px;
+  border-radius:16px;
+  font-weight:900;
+  font-size:15px;
+  color:#fff;
 
   display:flex;
   align-items:center;
   justify-content:center;
   gap:8px;
 
+  border:none;
+
   box-shadow:
     0 12px 30px rgba(0,0,0,.45),
     inset 0 1px 0 rgba(255,255,255,.18);
 
-  transition: transform .15s var(--ease), box-shadow .2s var(--ease), filter .2s var(--ease);
+  transition:
+    transform .15s var(--ease),
+    box-shadow .2s var(--ease),
+    filter .2s var(--ease);
 }
-
 .walletPrimary.withdraw{
   background: linear-gradient(135deg, rgba(90,215,255,.95), rgba(70,165,255,.95));
 }
 .walletPrimary.deposit{
   background: linear-gradient(135deg, rgba(99,242,182,.95), rgba(55,220,150,.95));
 }
-
 .walletPrimary:active{
   transform: scale(.97);
   filter: brightness(1.05);
@@ -890,11 +754,44 @@ button:disabled{ opacity: .5; }
     0 0 34px rgba(90,215,255,.22);
 }
 
-body.switching .card,
+/* ========= Perf mode during switching =========
+   Включай через JS: document.body.classList.add("switching")
+*/
 body.switching .topbar,
 body.switching .tabbar,
+body.switching .card,
+body.switching .walletHero,
 body.switching .quickBtn,
 body.switching .gameCard{
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+
+body.switching .quickBtn,
+body.switching .gameCard{
+  animation: none !important; /* убираем постоянные анимации на время */
+}
+
+body.switching .quickBtn::before,
+body.switching .quickBtn::after,
+body.switching .gameCard::before,
+body.switching .gameCard::after{
+  opacity: 0 !important; /* убираем glow слои на 200мс */
+}
+
+body.switching .card,
+body.switching .walletHero,
+body.switching .quickBtn,
+body.switching .gameCard{
+  box-shadow: none !important;
+}
+
+/* perf hints */
+.card, .gameCard, .quickBtn, .ghost, .primary, .tab, .screen{
+  will-change: transform;
+}
+
+/* accessibility */
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
 }
