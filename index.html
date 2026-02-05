@@ -200,14 +200,69 @@
     </section>
   </section>
 
-  <!-- BONUSES -->
-  <section class="screen" data-screen="bonuses">
-    <section class="card">
-      <div class="title">Бонусы</div>
-      <div class="subtitle">Скоро: ежедневный бонус, промокоды, задания</div>
-    </section>
+<!-- BONUSES -->
+<section class="screen" data-screen="bonuses">
+  <section class="bonusList">
+
+    <button class="bonusItem" id="dailyBonusBtn">
+      <div class="bonusStripe stripeBlue"></div>
+
+      <div class="bonusIcon" aria-hidden="true">🎁</div>
+
+      <div class="bonusInfo">
+        <div class="bonusTitle" id="dailyBonusTitle">Ежедневный бонус</div>
+        <div class="bonusSub" id="dailyBonusSub">День <span id="dailyDay">1</span> • <span id="dailyReward">100 ₽</span></div>
+      </div>
+
+      <div class="bonusRight">
+        <div class="bonusBadge" id="dailyBadge">🔥 <span id="dailyStreak">1</span></div>
+        <div class="bonusAction" id="dailyAction">Забрать</div>
+      </div>
+    </button>
+
   </section>
+</section>
 </main>
+
+<!-- DAILY BONUS MODAL -->
+<div class="modal" id="dailyModal" aria-hidden="true">
+  <div class="modalBackdrop" data-close="daily"></div>
+
+  <div class="modalSheet" role="dialog" aria-modal="true" aria-labelledby="dailyModalTitle">
+    <div class="modalHandle"></div>
+
+    <button class="modalClose" id="dailyModalClose" aria-label="Закрыть">✕</button>
+
+    <div class="confettiLayer" id="confettiLayer" aria-hidden="true"></div>
+
+    <div class="modalHeader">
+      <div class="modalIcon">💰</div>
+      <div class="modalTitle" id="dailyModalTitle">Прогресс бонусов</div>
+      <div class="modalSub">Текущая серия: <b id="modalStreak">1</b> дней</div>
+    </div>
+
+    <div class="dailyTrack" id="dailyTrack"></div>
+
+    <div class="dailyCard">
+      <div class="dailyCardLeft">
+        <div class="dailyCardLabel">Текущая серия</div>
+        <div class="dailyCardValue"><span id="modalStreakBig">1</span> день</div>
+      </div>
+      <button class="dailyHelp" aria-label="Инфо">?</button>
+    </div>
+
+    <div class="nextReward">
+      <div class="nextRewardLabel">Следующая награда</div>
+      <div class="nextRewardValue" id="nextRewardValue">200 ₽</div>
+      <div class="nextRewardSub" id="nextRewardSub">День 2: 200 монет</div>
+    </div>
+
+    <button class="dailyClaim" id="dailyClaimBtn">Забрать</button>
+  </div>
+</div>
+
+<!-- TOP TOAST -->
+<div class="toast" id="toast" aria-hidden="true"></div>
 
 <nav class="tabbar">
   <button class="tab active" data-tab="home">
