@@ -203,6 +203,22 @@
 <!-- BONUSES -->
 <section class="screen" data-screen="bonuses">
   <button class="bonusCard" id="dailyBonusBtn" type="button">
+    <button class="bonusCard" id="promoBtn" type="button">
+  <div class="bonusBar"></div>
+
+  <div class="bonusIconWrap">
+    <div class="bonusIcon">🎟️</div>
+  </div>
+
+  <div class="bonusMain">
+    <div class="bonusTitle">Промокоды</div>
+    <div class="bonusSub">Активируйте коды для бонусов</div>
+  </div>
+
+  <div class="bonusRight">
+    <div class="bonusAction">Ввести</div>
+  </div>
+</button>
     <div class="bonusBar"></div>
 
     <div class="bonusIconWrap">
@@ -279,6 +295,41 @@
     </div>
 
     <button class="dailyClaim" id="dailyClaimBtn">Забрать</button>
+  </div>
+</div>
+
+<div class="modal" id="promoModal" aria-hidden="true">
+  <div class="modalBackdrop" data-close="promo"></div>
+
+  <div class="modalSheet" role="dialog" aria-modal="true">
+    <div class="modalHandle"></div>
+
+    <button class="modalClose" id="promoModalClose" aria-label="Закрыть">✕</button>
+
+    <div class="modalHeader" style="text-align:left">
+      <div style="display:flex; gap:12px; align-items:center;">
+        <div class="bonusIcon" style="width:44px;height:44px;border-radius:14px;display:grid;place-items:center;">🎁</div>
+        <div>
+          <div class="modalTitle">Активировать промокод</div>
+          <div class="modalSub">Введите код для получения бонуса</div>
+        </div>
+      </div>
+    </div>
+
+    <input
+      id="promoInput"
+      class="promoInput"
+      type="text"
+      placeholder="Введите промокод"
+      autocomplete="off"
+      autocapitalize="characters"
+    />
+
+    <button class="promoActivate" id="promoActivateBtn">
+      🎁 Активировать
+    </button>
+
+    <div class="promoHint">Следите за уведомлениями в боте</div>
   </div>
 </div>
 
