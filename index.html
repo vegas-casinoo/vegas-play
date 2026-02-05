@@ -211,11 +211,14 @@
 
       <div class="bonusInfo">
         <div class="bonusTitle" id="dailyBonusTitle">Ежедневный бонус</div>
-        <div class="bonusSub" id="dailyBonusSub">День <span id="dailyDay">1</span> • <span id="dailyReward">100 ₽</span></div>
-      </div>
+          <div class="bonusSub" id="dailyBonusSub">
+            Награда: <span id="dailyReward">100 ₽</span>
+          </div>
 
       <div class="bonusRight">
-        <div class="bonusBadge" id="dailyBadge">🔥 <span id="dailyStreak">1</span></div>
+<div class="bonusBadge" id="dailyBadge">
+  ⏳ <span id="dailyTimer">24:00:00</span>
+</div>
         <div class="bonusAction" id="dailyAction">Забрать</div>
       </div>
     </button>
@@ -238,18 +241,18 @@
     <div class="modalHeader">
       <div class="modalIcon">💰</div>
       <div class="modalTitle" id="dailyModalTitle">Прогресс бонусов</div>
-      <div class="modalSub">Текущая серия: <b id="modalStreak">1</b> дней</div>
+      <div class="modalSub">Следующий бонус через <b id="modalTimer">24:00:00</b></div>
     </div>
 
     <div class="dailyTrack" id="dailyTrack"></div>
 
-    <div class="dailyCard">
-      <div class="dailyCardLeft">
-        <div class="dailyCardLabel">Текущая серия</div>
-        <div class="dailyCardValue"><span id="modalStreakBig">1</span> день</div>
-      </div>
-      <button class="dailyHelp" aria-label="Инфо">?</button>
-    </div>
+<div class="dailyCard">
+  <div class="dailyCardLeft">
+    <div class="dailyCardLabel">До следующего бонуса</div>
+    <div class="dailyCardValue" id="modalTimerBig">24:00:00</div>
+  </div>
+  <button class="dailyHelp" aria-label="Инфо">?</button>
+</div>
 
     <div class="nextReward">
       <div class="nextRewardLabel">Следующая награда</div>
