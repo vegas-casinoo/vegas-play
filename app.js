@@ -505,7 +505,11 @@ function renderTrack(state) {
 
   for (let i = 0; i < DAILY_REWARDS.length; i++) {
     const dayNum = i + 1;
+
+    // done = уже пройденные дни (меньше текущего индекса)
     const done = i < state.index;
+
+    // active = текущий "следующий бонус", который получишь при следующем клике
     const active = i === state.index;
 
     const item = document.createElement("div");
@@ -522,10 +526,19 @@ function renderTrack(state) {
 function renderDailyUI() {
   const state = loadDailyState();
   const available = canClaim(state);
+
+  // reward = награда, которую получишь при ближайшем "Забрать"
   const reward = DAILY_REWARDS[state.index] ?? DAILY_REWARDS[0];
 
+  // nextReward = награда, которая будет ПОСЛЕ того, как ты заберёшь текущую
+  const nextIndex = (state.index + 1) % DAILY_REWARDS.length;
+  const nextReward = DAILY_REWARDS[nextIndex] ?? DAILY_REWARDS[0];
+
+  // Внутри модалки/карточки: "Награда" = то, что получишь сейчас
   if (elDailyReward) elDailyReward.textContent = `${reward} ₽`;
-  if (elNextRewardValue) elNextRewardValue.textContent = `${(DAILY_REWARDS[Math.min(state.index + 1, DAILY_REWARDS.length - 1)])} ₽`;
+
+  // "Следующая награда" = то, что будет доступно после получения текущей (на следующий раз)
+  if (elNextRewardValue) elNextRewardValue.textContent = `${nextReward} ₽`;
   if (elNextRewardSub) elNextRewardSub.textContent = `Следующая награда`;
 
   // кнопка
@@ -552,6 +565,7 @@ function openDailyModal() {
   dailyModal.classList.add("open");
   dailyModal.setAttribute("aria-hidden", "false");
 }
+
 function closeDailyModal() {
   if (!dailyModal) return;
   dailyModal.classList.remove("open");
@@ -564,9 +578,12 @@ function claimDailyBonus() {
 
   const reward = DAILY_REWARDS[state.index] ?? DAILY_REWARDS[0];
 
-  // TODO: позже заменим на реальное начисление в Supabase
+  // фиксируем получение
   state.lastClaimTs = nowMs();
+
+  // сдвигаем на следующий день (по кругу)
   state.index = (state.index + 1) % DAILY_REWARDS.length;
+
   saveDailyState(state);
 
   spawnConfetti();
@@ -584,7 +601,7 @@ if (dailyClaimBtn) dailyClaimBtn.addEventListener("click", () => { haptic("mediu
 
 // тик таймера
 setInterval(renderDailyUI, 1000);
-renderDailyUI();  
+renderDailyUI();
 
   // ========= TELEGRAM INIT =========
   function initTelegram() {
