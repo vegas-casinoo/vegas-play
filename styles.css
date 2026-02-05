@@ -604,27 +604,25 @@ button:disabled{ opacity:.5; }
   z-index:3000;
 
   padding: 10px 12px calc(18px + env(safe-area-inset-bottom));
-  background: rgba(12, 13, 18, 0.55);
 
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  /* сделаем фон чуть плотнее */
+  background: rgba(12, 13, 18, 0.78);
+
+  /* оставим blur, но ограничим */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
   border-top: 1px solid rgba(255,255,255,.10);
-  box-shadow: 0 -10px 30px rgba(0,0,0,.40);
+
+  /* ВОТ ЭТО ДАЁТ "ЧЁРНУЮ ПОЛОСУ" — уменьшаем */
+  box-shadow: 0 -6px 14px rgba(0,0,0,.28);
 
   display:grid;
   grid-template-columns: repeat(4, 1fr);
   gap:10px;
-}
 
-.tabbar::before{
-  content:"";
-  position:absolute;
-  left:0; right:0;
-  top:-10px;
-  height:10px;
-  background: linear-gradient(to top, rgba(12,13,18,0), rgba(12,13,18,.18));
-  pointer-events:none;
+  /* чтобы блюр/смешивание не “растекалось” */
+  isolation: isolate;
 }
 
 .tab{
