@@ -349,14 +349,6 @@ if (t.closest("#promoBtn") || t.closest("#promoCardBtn")) {
     if (t.closest("button")) haptic("light");
   }, { passive: true });
 
-// Назад из текстовых экранов
-const backBtn = t.closest("[data-back]");
-if (backBtn) {
-  haptic("light");
-  setActiveTab(backBtn.dataset.back);
-  return;
-}
-
 // ===== DAILY BONUS (SUPABASE STATE, TIMER + 24H CLAIM WINDOW + RESET) =====
 const dailyModal = document.getElementById("dailyModal");
 const dailyModalClose = document.getElementById("dailyModalClose");
