@@ -39,7 +39,7 @@
 
   const screens = Array.from(document.querySelectorAll(".screen"));
   const tabs = Array.from(document.querySelectorAll(".tab"));
-  
+
 // ========= FAKE ONLINE (каждые 5 минут) =========
 function randInt(min, max) {
   min = Math.ceil(min); max = Math.floor(max);
