@@ -365,6 +365,58 @@ const elModalTimerBig = document.getElementById("modalTimerBig");
 const elNextRewardValue = document.getElementById("nextRewardValue");
 const elNextRewardSub = document.getElementById("nextRewardSub");
 
+// ===== DAILY HELP POPOVER =====
+const dailyHelpBtn = document.getElementById("dailyHelpBtn");
+const dailyHelpPopover = document.getElementById("dailyHelpPopover");
+const dailyHelpClose = document.getElementById("dailyHelpClose");
+
+function openDailyHelp() {
+  if (!dailyHelpPopover) return;
+  dailyHelpPopover.classList.add("open");
+  dailyHelpPopover.setAttribute("aria-hidden", "false");
+}
+
+function closeDailyHelp() {
+  if (!dailyHelpPopover) return;
+  dailyHelpPopover.classList.remove("open");
+  dailyHelpPopover.setAttribute("aria-hidden", "true");
+}
+
+if (dailyHelpBtn) {
+  dailyHelpBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    haptic("light");
+    if (dailyHelpPopover?.classList.contains("open")) closeDailyHelp();
+    else openDailyHelp();
+  });
+}
+
+if (dailyHelpClose) {
+  dailyHelpClose.addEventListener("click", (e) => {
+    e.stopPropagation();
+    haptic("light");
+    closeDailyHelp();
+  });
+}
+
+// закрывать по клику вне окна (внутри модалки)
+if (dailyModal) {
+  dailyModal.addEventListener("click", (e) => {
+    if (!dailyHelpPopover?.classList.contains("open")) return;
+
+    const inside = e.target.closest("#dailyHelpPopover") || e.target.closest("#dailyHelpBtn");
+    if (!inside) closeDailyHelp();
+  });
+}
+
+// когда закрываешь модалку — закрыть и помощь
+function closeDailyModal() {
+  if (!dailyModal) return;
+  dailyModal.classList.remove("open");
+  dailyModal.setAttribute("aria-hidden", "true");
+  closeDailyHelp();
+}
+
 // награды по дням (можешь любые суммы)
 const DAILY_REWARDS = [100, 200, 350, 500, 750, 1000, 1500];
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 часа
