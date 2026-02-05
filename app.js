@@ -345,6 +345,199 @@ document.addEventListener("click", (e) => {
     if (t.closest("button")) haptic("light");
   }, { passive: true });
 
+// ===== DAILY BONUS (local state) =====
+const dailyModal = document.getElementById("dailyModal");
+const dailyModalClose = document.getElementById("dailyModalClose");
+const dailyClaimBtn = document.getElementById("dailyClaimBtn");
+const dailyBonusBtn = document.getElementById("dailyBonusBtn");
+const toast = document.getElementById("toast");
+
+const dailyTrack = document.getElementById("dailyTrack");
+const confettiLayer = document.getElementById("confettiLayer");
+
+const elDailyDay = document.getElementById("dailyDay");
+const elDailyReward = document.getElementById("dailyReward");
+const elDailyStreak = document.getElementById("dailyStreak");
+const elDailyAction = document.getElementById("dailyAction");
+
+const elModalStreak = document.getElementById("modalStreak");
+const elModalStreakBig = document.getElementById("modalStreakBig");
+const elNextRewardValue = document.getElementById("nextRewardValue");
+const elNextRewardSub = document.getElementById("nextRewardSub");
+
+// простая сетка наград (можешь поменять суммы)
+const DAILY_REWARDS = [100, 200, 350, 500, 750, 1000, 1500]; // 7 дней
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function yesterdayKey() {
+  const d = new Date(Date.now() - 86400000);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function loadDailyState() {
+  const raw = localStorage.getItem("dailyBonusState");
+  if (!raw) return { streak: 1, lastClaim: null };
+  try {
+    const s = JSON.parse(raw);
+    return {
+      streak: Math.max(1, Math.min(DAILY_REWARDS.length, Number(s.streak || 1))),
+      lastClaim: s.lastClaim || null
+    };
+  } catch {
+    return { streak: 1, lastClaim: null };
+  }
+}
+
+function saveDailyState(state) {
+  localStorage.setItem("dailyBonusState", JSON.stringify(state));
+}
+
+function canClaimToday(state) {
+  return state.lastClaim !== todayKey();
+}
+
+function normalizeStreakIfMissed(state) {
+  // если пропустили день — серия сбрасывается
+  if (state.lastClaim && state.lastClaim !== todayKey() && state.lastClaim !== yesterdayKey()) {
+    state.streak = 1;
+  }
+  return state;
+}
+
+function currentReward(state) {
+  return DAILY_REWARDS[(state.streak - 1) % DAILY_REWARDS.length];
+}
+function nextReward(state) {
+  const idx = Math.min(state.streak, DAILY_REWARDS.length - 1);
+  return DAILY_REWARDS[idx];
+}
+
+function renderDailyUI() {
+  const state = normalizeStreakIfMissed(loadDailyState());
+  saveDailyState(state);
+
+  const reward = currentReward(state);
+  elDailyDay.textContent = String(state.streak);
+  elDailyReward.textContent = `${reward} ₽`;
+  elDailyStreak.textContent = String(state.streak);
+
+  const available = canClaimToday(state);
+  elDailyAction.textContent = available ? "Забрать" : "Получено";
+  elDailyAction.classList.toggle("disabled", !available);
+
+  // modal header
+  elModalStreak.textContent = String(state.streak);
+  elModalStreakBig.textContent = String(state.streak);
+
+  elNextRewardValue.textContent = `${nextReward(state)} ₽`;
+  elNextRewardSub.textContent = `День ${Math.min(state.streak + 1, DAILY_REWARDS.length)}: ${nextReward(state)} монет`;
+
+  // track
+  if (dailyTrack) {
+    dailyTrack.innerHTML = "";
+    for (let i = 0; i < DAILY_REWARDS.length; i++) {
+      const dayNum = i + 1;
+      const done = dayNum < state.streak;
+      const active = dayNum === state.streak;
+
+      const item = document.createElement("div");
+      item.className = "dayItem";
+      item.innerHTML = `
+        <div class="dayIcon ${done ? "done" : ""} ${active ? "active" : ""}">${dayNum}</div>
+        <div class="dayLabel">День ${dayNum}</div>
+        <div class="dayReward">${DAILY_REWARDS[i]} ₽</div>
+      `;
+      dailyTrack.appendChild(item);
+    }
+  }
+
+  // claim btn
+  if (dailyClaimBtn) dailyClaimBtn.disabled = !available;
+}
+
+function openDailyModal() {
+  if (!dailyModal) return;
+  renderDailyUI();
+  dailyModal.classList.add("open");
+  dailyModal.setAttribute("aria-hidden", "false");
+}
+
+function closeDailyModal() {
+  if (!dailyModal) return;
+  dailyModal.classList.remove("open");
+  dailyModal.setAttribute("aria-hidden", "true");
+}
+
+function showToast(text) {
+  if (!toast) return;
+  toast.textContent = text;
+  toast.classList.add("show");
+  toast.setAttribute("aria-hidden", "false");
+  setTimeout(() => {
+    toast.classList.remove("show");
+    toast.setAttribute("aria-hidden", "true");
+  }, 2600);
+}
+
+function spawnConfetti() {
+  if (!confettiLayer) return;
+  confettiLayer.innerHTML = "";
+
+  const colors = ["#5ad7ff", "#b36cff", "#ff5adc", "#63f2b6", "#ffd166"];
+  const count = 60;
+
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement("div");
+    p.className = "confettiPiece";
+
+    const left = Math.random() * 100;
+    const dx = (Math.random() * 160 - 80).toFixed(0) + "px";
+    const rot = (Math.random() * 540 - 270).toFixed(0) + "deg";
+
+    p.style.left = left + "%";
+    p.style.background = colors[(Math.random() * colors.length) | 0];
+    p.style.setProperty("--dx", dx);
+    p.style.setProperty("--rot", rot);
+    p.style.animationDelay = (Math.random() * 0.25).toFixed(2) + "s";
+    p.style.opacity = (0.6 + Math.random() * 0.4).toFixed(2);
+
+    confettiLayer.appendChild(p);
+  }
+
+  setTimeout(() => { if (confettiLayer) confettiLayer.innerHTML = ""; }, 2000);
+}
+
+function claimDailyBonus() {
+  const state = normalizeStreakIfMissed(loadDailyState());
+  if (!canClaimToday(state)) return;
+
+  const reward = currentReward(state);
+
+  // тут потом заменишь на реальное начисление в Supabase
+  // сейчас только UI/серия
+  state.lastClaim = todayKey();
+  state.streak = Math.min(state.streak + 1, DAILY_REWARDS.length);
+  saveDailyState(state);
+
+  spawnConfetti();
+  showToast(`✅ Ежедневный бонус получен! На баланс зачислено +${reward} ₽`);
+  renderDailyUI();
+}
+
+// events
+if (dailyBonusBtn) dailyBonusBtn.addEventListener("click", () => { haptic("light"); openDailyModal(); });
+if (dailyModalClose) dailyModalClose.addEventListener("click", () => { haptic("light"); closeDailyModal(); });
+if (dailyModal) dailyModal.addEventListener("click", (e) => {
+  if (e.target && e.target.matches('[data-close="daily"]')) closeDailyModal();
+});
+if (dailyClaimBtn) dailyClaimBtn.addEventListener("click", () => { haptic("medium"); claimDailyBonus(); });
+
+// обновлять подписи раз в минуту (на всякий)
+setInterval(renderDailyUI, 60000);
+renderDailyUI();
 
   // ========= TELEGRAM INIT =========
   function initTelegram() {
