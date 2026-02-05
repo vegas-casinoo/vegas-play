@@ -202,28 +202,29 @@
 
 <!-- BONUSES -->
 <section class="screen" data-screen="bonuses">
-  <section class="bonusList">
+  <button class="bonusCard" id="dailyBonusBtn" type="button">
+    <div class="bonusBar"></div>
 
-    <button class="bonusItem" id="dailyBonusBtn">
-      <div class="bonusStripe stripeBlue"></div>
+    <div class="bonusIconWrap">
+      <div class="bonusIcon">🎁</div>
+    </div>
 
-      <div class="bonusIcon" aria-hidden="true">🎁</div>
-
-      <div class="bonusInfo">
-        <div class="bonusTitle" id="dailyBonusTitle">Ежедневный бонус</div>
-          <div class="bonusSub" id="dailyBonusSub">
-            Награда: <span id="dailyReward">100 ₽</span>
-          </div>
-
-      <div class="bonusRight">
-<div class="bonusBadge" id="dailyBadge">
-  ⏳ <span id="dailyTimer">24:00:00</span>
-</div>
-        <div class="bonusAction" id="dailyAction">Забрать</div>
+    <div class="bonusMain">
+      <div class="bonusTitle">Ежедневный бонус</div>
+      <div class="bonusSub">
+        Награда: <span id="dailyReward">100 ₽</span>
       </div>
-    </button>
+    </div>
 
-  </section>
+    <div class="bonusRight">
+      <div class="bonusTimerPill" aria-label="До следующего бонуса">
+        <span class="bonusClock">⏳</span>
+        <span id="dailyTimer">23:59:59</span>
+      </div>
+
+      <div class="bonusAction" id="dailyAction">Забрать</div>
+    </div>
+  </button>
 </section>
 </main>
 
