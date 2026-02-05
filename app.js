@@ -314,10 +314,10 @@ document.addEventListener("click", (e) => {
     const tabBtn = t.closest(".tab");
     if (tabBtn) { haptic("light"); setActiveTab(tabBtn.dataset.tab); return; }
 
-if (t.closest("#promoBtn")) { 
-  haptic("light"); 
+if (t.closest("#promoBtn") || t.closest("#promoCardBtn")) {
+  haptic("light");
   openPromoModal();
-  return; 
+  return;
 }
     if (t.closest("#depositQuickBtn") || t.closest("#withdrawQuickBtn")) { haptic("light"); setActiveTab("wallet"); return; }
     
@@ -370,6 +370,7 @@ const elNextRewardValue = document.getElementById("nextRewardValue");
 const elNextRewardSub = document.getElementById("nextRewardSub");
 
 const promoBtn = document.getElementById("promoBtn");
+const promoCardBtn = document.getElementById("promoCardBtn");
 const promoModal = document.getElementById("promoModal");
 const promoModalClose = document.getElementById("promoModalClose");
 const promoInput = document.getElementById("promoInput");
@@ -802,7 +803,7 @@ function closePromoModal(){
   promoModal.setAttribute("aria-hidden", "true");
 }
 
-if (promoBtn) promoBtn.addEventListener("click", () => { haptic("light"); openPromoModal(); });
+if (promoCardBtn) promoCardBtn.addEventListener("click", () => { haptic("light"); openPromoModal(); });
 if (promoModalClose) promoModalClose.addEventListener("click", () => { haptic("light"); closePromoModal(); });
 if (promoModal) promoModal.addEventListener("click", (e) => {
   if (e.target && e.target.matches('[data-close="promo"]')) closePromoModal();
