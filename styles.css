@@ -877,7 +877,7 @@ body.switching *{ animation: none !important; }
   background:
     radial-gradient(220px 120px at 20% 10%, rgba(179,108,255,.22), transparent 60%),
     radial-gradient(240px 140px at 90% 80%, rgba(90,215,255,.14), transparent 60%),
-    linear-gradient(180deg, rgba(18,20,28,.78), rgba(10,11,16,.68));
+    linear-gradient(180deg, rgba(18,20,28,.78), rgba(10,11,16,.68);
   );
 
   box-shadow:
@@ -1090,7 +1090,12 @@ body.switching *{ animation: none !important; }
 }
 
 /* ===== BONUSES LIST ===== */
-.bonusList{ display:flex; flex-direction:column; gap:12px; }
+/* было .bonusList — удалить/не использовать */
+.bonusesList{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
 
 .bonusItem{
   position: relative;
