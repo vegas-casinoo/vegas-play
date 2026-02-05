@@ -303,13 +303,25 @@ document.addEventListener("click", (e) => {
     return;
   }
 
-  // Footer links (пока заглушки)
-  const footerBtn = t.closest(".footerLink");
-  if (footerBtn) {
-    haptic("light");
-    alert("Скоро добавим этот раздел 🙂");
-    return;
-  }
+// Footer links -> инфо-экраны (О нас / Правила / Конфиденциальность / Ответственная игра)
+const footerBtn = t.closest(".footerLink");
+if (footerBtn) {
+  haptic("light");
+
+  // в HTML у кнопок должен быть data-go="about|rules|privacy|responsible"
+  const go = footerBtn.dataset.go;
+  if (go) setActiveTab(go);
+
+  return;
+}
+
+// Назад с инфо-экранов
+const backBtn = t.closest("[data-back]");
+if (backBtn) {
+  haptic("light");
+  setActiveTab("home"); // или куда ты хочешь возвращать
+  return;
+}
 
     const tabBtn = t.closest(".tab");
     if (tabBtn) { haptic("light"); setActiveTab(tabBtn.dataset.tab); return; }
