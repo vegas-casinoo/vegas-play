@@ -314,7 +314,11 @@ document.addEventListener("click", (e) => {
     const tabBtn = t.closest(".tab");
     if (tabBtn) { haptic("light"); setActiveTab(tabBtn.dataset.tab); return; }
 
-    if (t.closest("#promoBtn")) { haptic("light"); alert("Промокод (скоро)"); return; }
+if (t.closest("#promoBtn")) { 
+  haptic("light"); 
+  openPromoModal();
+  return; 
+}
     if (t.closest("#depositQuickBtn") || t.closest("#withdrawQuickBtn")) { haptic("light"); setActiveTab("wallet"); return; }
     
     // Topbar PLUS => как депозит
