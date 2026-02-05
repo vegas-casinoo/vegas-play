@@ -418,7 +418,7 @@ function closeDailyModal() {
 }
 
 // награды по дням (можешь любые суммы)
-const DAILY_REWARDS = [100, 200, 350, 500, 750, 1000, 1500];
+const DAILY_REWARDS = [10, 20, 40, 50, 60, 70, 100];
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 часа
 
 function loadDailyState() {
