@@ -252,7 +252,24 @@
     <div class="dailyCardLabel">До следующего бонуса</div>
     <div class="dailyCardValue" id="modalTimerBig">24:00:00</div>
   </div>
-  <button class="dailyHelp" aria-label="Инфо">?</button>
+<button class="dailyHelp" id="dailyHelpBtn" type="button">?</button>
+
+<!-- HELP POPOVER -->
+<div class="helpPopover" id="dailyHelpPopover" aria-hidden="true">
+  <div class="helpEmoji" aria-hidden="true">🎁</div>
+
+  <div class="helpTitle">Ежедневный бонус</div>
+
+  <ul class="helpList">
+    <li>Нажимай «Забрать» — получаешь награду на баланс.</li>
+    <li>Следующий бонус доступен через <b>24 часа</b>.</li>
+    <li>Если бонус недоступен — увидишь таймер до следующего.</li>
+    <li>Награды идут по кругу (1 → 7 → 1).</li>
+  </ul>
+
+  <button class="helpClose" id="dailyHelpClose" type="button">Понятно</button>
+</div>
+
 </div>
 
     <div class="nextReward">
