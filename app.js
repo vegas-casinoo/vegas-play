@@ -345,7 +345,7 @@ document.addEventListener("click", (e) => {
     if (t.closest("button")) haptic("light");
   }, { passive: true });
 
-// ===== DAILY BONUS (NO STREAK, WITH TIMER) =====
+// ===== DAILY BONUS (NO STREAK, WITH TIMER + 24H CLAIM WINDOW + RESET) =====
 const dailyModal = document.getElementById("dailyModal");
 const dailyModalClose = document.getElementById("dailyModalClose");
 const dailyClaimBtn = document.getElementById("dailyClaimBtn");
@@ -375,7 +375,6 @@ function openDailyHelp() {
   dailyHelpPopover.classList.add("open");
   dailyHelpPopover.setAttribute("aria-hidden", "false");
 }
-
 function closeDailyHelp() {
   if (!dailyHelpPopover) return;
   dailyHelpPopover.classList.remove("open");
@@ -390,7 +389,6 @@ if (dailyHelpBtn) {
     else openDailyHelp();
   });
 }
-
 if (dailyHelpClose) {
   dailyHelpClose.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -403,33 +401,40 @@ if (dailyHelpClose) {
 if (dailyModal) {
   dailyModal.addEventListener("click", (e) => {
     if (!dailyHelpPopover?.classList.contains("open")) return;
-
     const inside = e.target.closest("#dailyHelpPopover") || e.target.closest("#dailyHelpBtn");
     if (!inside) closeDailyHelp();
   });
 }
 
-// когда закрываешь модалку — закрыть и помощь
-function closeDailyModal() {
-  if (!dailyModal) return;
-  dailyModal.classList.remove("open");
-  dailyModal.setAttribute("aria-hidden", "true");
-  closeDailyHelp();
-}
+// ===== LOGIC =====
 
-// награды по дням (можешь любые суммы)
+// награды по дням
 const DAILY_REWARDS = [10, 20, 40, 50, 60, 70, 100];
-const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 часа
-const CLAIM_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 часа на забрать (без таймера)
 
+// 24ч таймер до доступности
+const COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+// 24ч окно чтобы забрать (таймер НЕ показываем)
+const CLAIM_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+// новый ключ, чтобы старые данные не ломали награды
+const STORAGE_KEY = "dailyBonusStateV3";
+
+function nowMs() { return Date.now(); }
+
+// state.index = индекс НАГРАДЫ, которую получишь при следующем клике "Забрать"
 function loadDailyState() {
-  const raw = localStorage.getItem("dailyBonusStateV2");
+  // опционально: снести старый ключ, если он был
+  try { localStorage.removeItem("dailyBonusStateV2"); } catch (_) {}
+
+  const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return { index: 0, lastClaimTs: 0 };
+
   try {
     const s = JSON.parse(raw);
     return {
-      index: Math.max(0, Math.min(DAILY_REWARDS.length - 1, Number(s.index || 0))),
-      lastClaimTs: Number(s.lastClaimTs || 0)
+      index: Math.max(0, Math.min(DAILY_REWARDS.length - 1, Number(s.index ?? 0))),
+      lastClaimTs: Number(s.lastClaimTs ?? 0)
     };
   } catch {
     return { index: 0, lastClaimTs: 0 };
@@ -437,20 +442,20 @@ function loadDailyState() {
 }
 
 function saveDailyState(state) {
-  localStorage.setItem("dailyBonusStateV2", JSON.stringify(state));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function nowMs() { return Date.now(); }
-
+// когда станет доступно после клима
 function nextAvailableTs(state) {
-  if (!state.lastClaimTs) return 0;                 // если ещё не забирал — доступно сразу
-  return state.lastClaimTs + COOLDOWN_MS;           // когда станет доступно
+  if (!state.lastClaimTs) return 0;              // если ещё не забирал — доступно сразу
+  return state.lastClaimTs + COOLDOWN_MS;        // конец cooldown
 }
 
+// когда “сгорит” окно забрать и надо сбросить прогресс
 function expireTs(state) {
   const a = nextAvailableTs(state);
   if (!a) return 0;
-  return a + CLAIM_WINDOW_MS;                       // когда сгорит и надо сбросить
+  return a + CLAIM_WINDOW_MS;
 }
 
 // 3 состояния: "cooldown" | "available" | "expired"
@@ -461,13 +466,13 @@ function dailyPhase(state) {
   const a = nextAvailableTs(state);
   const e = expireTs(state);
 
-  if (now < a) return "cooldown";
-  if (now < e) return "available";
-  return "expired";
+  if (now < a) return "cooldown";   // таймер тикает
+  if (now < e) return "available";  // можно забрать (без таймера)
+  return "expired";                 // не забрал — сброс
 }
 
+// таймер показываем ТОЛЬКО на cooldown
 function msLeft(state) {
-  // таймер показываем ТОЛЬКО на cooldown
   if (dailyPhase(state) !== "cooldown") return 0;
   return Math.max(0, nextAvailableTs(state) - nowMs());
 }
@@ -535,12 +540,8 @@ function renderTrack(state) {
 
   for (let i = 0; i < DAILY_REWARDS.length; i++) {
     const dayNum = i + 1;
-
-    // done = уже пройденные дни (меньше текущего индекса)
-    const done = i < state.index;
-
-    // active = текущий "следующий бонус", который получишь при следующем клике
-    const active = i === state.index;
+    const done = i < state.index;      // пройденные
+    const active = i === state.index;  // текущая “следующая к получению”
 
     const item = document.createElement("div");
     item.className = "dayItem";
@@ -557,7 +558,7 @@ function renderDailyUI() {
   let state = loadDailyState();
   let phase = dailyPhase(state);
 
-  // 🔥 если не забрал за 24ч после доступности — сброс
+  // если пропустил окно забрать — сброс
   if (phase === "expired") {
     state = resetDailyProgress();
     phase = dailyPhase(state); // станет available (день 1)
@@ -566,10 +567,10 @@ function renderDailyUI() {
   const available = (phase === "available");
   const reward = DAILY_REWARDS[state.index] ?? DAILY_REWARDS[0];
 
-  // текущая награда
+  // текущая награда (та, что дастся при нажатии "Забрать")
   if (elDailyReward) elDailyReward.textContent = `${reward} ₽`;
 
-  // "следующая награда" — показываем ту, что будет ПОСЛЕ забора
+  // следующая награда (после успешного клима)
   const nextIdx = (state.index + 1) % DAILY_REWARDS.length;
   const nextReward = DAILY_REWARDS[nextIdx];
   if (elNextRewardValue) elNextRewardValue.textContent = `${nextReward} ₽`;
@@ -577,25 +578,28 @@ function renderDailyUI() {
 
   // кнопка
   if (elDailyAction) {
-    elDailyAction.textContent = available ? "Забрать" : "Ожидание";
+    elDailyAction.textContent = available ? "Забрать" : "Получено";
     elDailyAction.classList.toggle("disabled", !available);
   }
   if (dailyClaimBtn) dailyClaimBtn.disabled = !available;
 
   // таймер:
-  // cooldown -> показываем отсчет
-  // available -> НЕ показываем (пустая строка)
-  const t = (phase === "cooldown") ? fmt(msLeft(state)) : "";
+  // cooldown -> показываем
+  // available -> НЕ показываем
+  const timerText = (phase === "cooldown") ? fmt(msLeft(state)) : "";
 
-  if (elDailyTimer) elDailyTimer.textContent = t;
-  if (elModalTimer) elModalTimer.textContent = t;
-  if (elModalTimerBig) elModalTimerBig.textContent = t;
-
-  // если хочешь прям скрывать блоки таймера целиком:
-  // (если элементы у тебя отдельными контейнерами — скажи, подстрою под твой HTML)
-  if (elDailyTimer) elDailyTimer.style.display = (phase === "cooldown") ? "" : "none";
-  if (elModalTimer) elModalTimer.style.display = (phase === "cooldown") ? "" : "none";
-  if (elModalTimerBig) elModalTimerBig.style.display = (phase === "cooldown") ? "" : "none";
+  if (elDailyTimer) {
+    elDailyTimer.textContent = timerText;
+    elDailyTimer.style.display = (phase === "cooldown") ? "" : "none";
+  }
+  if (elModalTimer) {
+    elModalTimer.textContent = timerText;
+    elModalTimer.style.display = (phase === "cooldown") ? "" : "none";
+  }
+  if (elModalTimerBig) {
+    elModalTimerBig.textContent = timerText;
+    elModalTimerBig.style.display = (phase === "cooldown") ? "" : "none";
+  }
 
   renderTrack(state);
 }
@@ -611,6 +615,7 @@ function closeDailyModal() {
   if (!dailyModal) return;
   dailyModal.classList.remove("open");
   dailyModal.setAttribute("aria-hidden", "true");
+  closeDailyHelp();
 }
 
 function claimDailyBonus() {
