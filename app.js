@@ -558,12 +558,16 @@ function renderDailyUI() {
 
   const currentReward = DAILY_REWARDS[idx];
 
-  // ✅ “Следующая награда” ВСЕГДА = награда следующего дня (после клима)
-  const nextIdx = (idx + 1) % len;
-  const nextReward = DAILY_REWARDS[nextIdx];
+// ✅ Следующая награда:
+// - если можно забрать сейчас -> показываем награду ПОСЛЕ клима (idx+1)
+// - если таймер/ожидание -> показываем ближайшую награду (idx), которая станет доступна после таймера
+const nextRewardToShow =
+  (phase === "available")
+    ? DAILY_REWARDS[(idx + 1) % len]
+    : DAILY_REWARDS[idx];
 
-  if (elDailyReward) elDailyReward.textContent = `${currentReward} ₽`;
-  if (elNextRewardValue) elNextRewardValue.textContent = `${nextReward} ₽`;
+if (elNextRewardValue) elNextRewardValue.textContent = `${nextRewardToShow} ₽`;
+if (elNextRewardSub) elNextRewardSub.textContent = `Следующая награда`;
   if (elNextRewardSub) elNextRewardSub.textContent = `Следующая награда`;
 
   const available = (phase === "available");
