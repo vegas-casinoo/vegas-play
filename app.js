@@ -555,51 +555,44 @@ function renderTrack(state) {
 }
 
 function renderDailyUI() {
-  let state = loadDailyState();
-  let phase = dailyPhase(state);
+  const state = loadDailyState();
+  const available = canClaim(state);
 
-  // если пропустил окно забрать — сброс
-  if (phase === "expired") {
-    state = resetDailyProgress();
-    phase = dailyPhase(state); // станет available (день 1)
-  }
+  const len = DAILY_REWARDS.length;
 
-  const available = (phase === "available");
-  const reward = DAILY_REWARDS[state.index] ?? DAILY_REWARDS[0];
+  // state.index = НАГРАДА, которую получишь при следующем климе
+  const currentIdx = ((state.index % len) + len) % len;
+  const currentReward = DAILY_REWARDS[currentIdx];
 
-  // текущая награда (та, что дастся при нажатии "Забрать")
-  if (elDailyReward) elDailyReward.textContent = `${reward} ₽`;
+  // "после клима" (нужно только если бонус доступен прямо сейчас)
+  const afterClaimIdx = (currentIdx + 1) % len;
+  const afterClaimReward = DAILY_REWARDS[afterClaimIdx];
 
-  // следующая награда (после успешного клима)
-  const nextIdx = (state.index + 1) % DAILY_REWARDS.length;
-  const nextReward = DAILY_REWARDS[nextIdx];
-  if (elNextRewardValue) elNextRewardValue.textContent = `${nextReward} ₽`;
+  // Текущая награда (то, что будет зачислено)
+  if (elDailyReward) elDailyReward.textContent = `${currentReward} ₽`;
+
+  // Следующая награда:
+  // - если можно забрать сейчас -> показываем, что будет ПОСЛЕ того как заберёшь
+  // - если нельзя (таймер) -> показываем награду, которая будет доступна после таймера (то есть currentReward)
+  const nextRewardToShow = available ? afterClaimReward : currentReward;
+
+  if (elNextRewardValue) elNextRewardValue.textContent = `${nextRewardToShow} ₽`;
   if (elNextRewardSub) elNextRewardSub.textContent = `Следующая награда`;
 
-  // кнопка
+  // Кнопка
   if (elDailyAction) {
     elDailyAction.textContent = available ? "Забрать" : "Получено";
     elDailyAction.classList.toggle("disabled", !available);
   }
   if (dailyClaimBtn) dailyClaimBtn.disabled = !available;
 
-  // таймер:
-  // cooldown -> показываем
-  // available -> НЕ показываем
-  const timerText = (phase === "cooldown") ? fmt(msLeft(state)) : "";
+  // Таймер
+  const left = msLeft(state);
+  const t = available ? "00:00:00" : fmt(left);
 
-  if (elDailyTimer) {
-    elDailyTimer.textContent = timerText;
-    elDailyTimer.style.display = (phase === "cooldown") ? "" : "none";
-  }
-  if (elModalTimer) {
-    elModalTimer.textContent = timerText;
-    elModalTimer.style.display = (phase === "cooldown") ? "" : "none";
-  }
-  if (elModalTimerBig) {
-    elModalTimerBig.textContent = timerText;
-    elModalTimerBig.style.display = (phase === "cooldown") ? "" : "none";
-  }
+  if (elDailyTimer) elDailyTimer.textContent = t;
+  if (elModalTimer) elModalTimer.textContent = t;
+  if (elModalTimerBig) elModalTimerBig.textContent = t;
 
   renderTrack(state);
 }
