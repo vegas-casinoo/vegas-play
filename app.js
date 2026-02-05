@@ -376,6 +376,15 @@ const promoModalClose = document.getElementById("promoModalClose");
 const promoInput = document.getElementById("promoInput");
 const promoActivateBtn = document.getElementById("promoActivateBtn");
 
+const promoSuccessModal = document.getElementById("promoSuccessModal");
+const promoSuccessClose = document.getElementById("promoSuccessClose");
+const promoSuccessOk = document.getElementById("promoSuccessOk");
+const promoSuccessAmount = document.getElementById("promoSuccessAmount");
+const promoSuccessSub = document.getElementById("promoSuccessSub");
+
+const promoFxLayer = document.getElementById("promoFxLayer");
+const promoFlash = document.getElementById("promoFlash");
+
 // ===== DAILY HELP POPOVER =====
 const dailyHelpBtn = document.getElementById("dailyHelpBtn");
 const dailyHelpPopover = document.getElementById("dailyHelpPopover");
@@ -801,6 +810,176 @@ function closePromoModal(){
   if (!promoModal) return;
   promoModal.classList.remove("open");
   promoModal.setAttribute("aria-hidden", "true");
+}
+
+function openPromoSuccess(amount, codeUpper) {
+  if (!promoSuccessModal) return;
+
+  if (promoSuccessAmount) promoSuccessAmount.textContent = `+${Number(amount || 0)} ₽`;
+  if (promoSuccessSub) promoSuccessSub.textContent = `Промокод ${codeUpper} активирован`;
+
+  promoSuccessModal.classList.add("open");
+  promoSuccessModal.setAttribute("aria-hidden", "false");
+
+  // FLASH
+  if (promoFlash) {
+    promoFlash.classList.add("on");
+    setTimeout(() => promoFlash.classList.remove("on"), 120);
+    setTimeout(() => promoFlash.classList.add("on"), 90);
+    setTimeout(() => promoFlash.classList.remove("on"), 140);
+  }
+
+  spawnMegaConfetti(promoFxLayer);
+  try { tg?.HapticFeedback?.notificationOccurred?.("success"); } catch(_) {}
+}
+
+function closePromoSuccess() {
+  if (!promoSuccessModal) return;
+  promoSuccessModal.classList.remove("open");
+  promoSuccessModal.setAttribute("aria-hidden", "true");
+  if (promoFxLayer) promoFxLayer.innerHTML = "";
+}
+
+function spawnMegaConfetti(layer) {
+  if (!layer) return;
+  layer.innerHTML = "";
+
+  const colors = ["#5ad7ff", "#b36cff", "#ff5adc", "#63f2b6", "#ffd166", "#ffffff"];
+  const count = 140;
+
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement("div");
+    p.className = "confettiPiece";
+
+    p.style.left = (Math.random() * 100) + "%";
+    p.style.background = colors[(Math.random() * colors.length) | 0];
+    p.style.setProperty("--dx", (Math.random() * 240 - 120).toFixed(0) + "px");
+    p.style.setProperty("--rot", (Math.random() * 720 - 360).toFixed(0) + "deg");
+    p.style.animationDuration = (1.2 + Math.random() * 0.9).toFixed(2) + "s";
+    p.style.animationDelay = (Math.random() * 0.12).toFixed(2) + "s";
+    p.style.opacity = (0.65 + Math.random() * 0.35).toFixed(2);
+    p.style.width = (6 + Math.random() * 6).toFixed(0) + "px";
+    p.style.height = (10 + Math.random() * 10).toFixed(0) + "px";
+
+    layer.appendChild(p);
+  }
+
+  setTimeout(() => { if (layer) layer.innerHTML = ""; }, 2400);
+}
+
+async function redeemPromo(codeRaw) {
+  if (!currentUserId) throw new Error("no_user");
+
+  const code = String(codeRaw || "").trim();
+  if (!code) return { ok: false, reason: "empty" };
+
+  // Supabase function: redeem_promo(p_code text, p_user_id bigint) -> jsonb
+  const { data, error } = await supabase.rpc("redeem_promo", {
+    p_code: code,
+    p_user_id: currentUserId
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+async function creditWalletPromo(userId, amount) {
+  const getRes = await supabase.from("wallets").select("balance").eq("user_id", userId).single();
+  if (getRes.error) throw new Error("GET WALLET ERROR: " + getRes.error.message);
+
+  const oldBalance = Number(getRes.data?.balance || 0);
+  const add = Number(amount || 0);
+  const newBalance = oldBalance + add;
+
+  const updRes = await supabase
+    .from("wallets")
+    .update({ balance: newBalance, updated_at: new Date().toISOString() })
+    .eq("user_id", userId);
+
+  if (updRes.error) throw new Error("UPDATE WALLET ERROR: " + updRes.error.message);
+
+  // фиксируем транзакцию (если у тебя только type/amount — так и пишем)
+  const txRes = await supabase.from("transactions").insert({
+    user_id: userId,
+    type: "promo_bonus",
+    amount: add
+  });
+
+  // не валим всё если tx не вставилась
+  if (txRes.error) {}
+
+  // обновим UI
+  try {
+    balance = newBalance;
+    renderBalance();
+    await loadTransactions(userId);
+  } catch (_) {}
+}
+
+// открыть промо-модалку и с HOME-кнопки, и с карточки в "Бонусы"
+if (promoBtn) promoBtn.addEventListener("click", () => { haptic("light"); openPromoModal(); });
+if (promoCardBtn) promoCardBtn.addEventListener("click", () => { haptic("light"); openPromoModal(); });
+
+if (promoModalClose) promoModalClose.addEventListener("click", () => { haptic("light"); closePromoModal(); });
+
+if (promoModal) promoModal.addEventListener("click", (e) => {
+  if (e.target && e.target.matches('[data-close="promo"]')) closePromoModal();
+});
+
+if (promoInput) {
+  promoInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") promoActivateBtn?.click();
+  });
+}
+
+// SUCCESS modal close
+if (promoSuccessClose) promoSuccessClose.addEventListener("click", () => { haptic("light"); closePromoSuccess(); });
+if (promoSuccessOk) promoSuccessOk.addEventListener("click", () => { haptic("light"); closePromoSuccess(); });
+if (promoSuccessModal) promoSuccessModal.addEventListener("click", (e) => {
+  if (e.target && e.target.matches('[data-close="promoSuccess"]')) closePromoSuccess();
+});
+
+// ACTIVATE
+if (promoActivateBtn) {
+  promoActivateBtn.addEventListener("click", async () => {
+    haptic("medium");
+
+    const raw = promoInput?.value || "";
+    const codeUpper = String(raw).trim().toUpperCase();
+
+    if (!codeUpper) {
+      showToast("Введите промокод");
+      return;
+    }
+
+    promoActivateBtn.disabled = true;
+
+    try {
+      const res = await redeemPromo(codeUpper);
+
+      if (!res?.ok) {
+        // если хочешь строго одну фразу — оставляем так:
+        showToast("Промокод не верный");
+        promoActivateBtn.disabled = false;
+        return;
+      }
+
+      const amount = Number(res.amount || 0);
+
+      // начисляем в кошелек + транзакция
+      await creditWalletPromo(currentUserId, amount);
+
+      // UI
+      closePromoModal();
+      if (promoInput) promoInput.value = "";
+      openPromoSuccess(amount, codeUpper);
+
+    } catch (e) {
+      showToast("Промокод не верный");
+    } finally {
+      promoActivateBtn.disabled = false;
+    }
+  });
 }
 
 if (promoCardBtn) promoCardBtn.addEventListener("click", () => { haptic("light"); openPromoModal(); });
