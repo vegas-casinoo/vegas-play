@@ -420,6 +420,7 @@ function closeDailyModal() {
 // награды по дням (можешь любые суммы)
 const DAILY_REWARDS = [10, 20, 40, 50, 60, 70, 100];
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 часа
+const CLAIM_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 часа на забрать (без таймера)
 
 function loadDailyState() {
   const raw = localStorage.getItem("dailyBonusStateV2");
@@ -441,15 +442,38 @@ function saveDailyState(state) {
 
 function nowMs() { return Date.now(); }
 
-function canClaim(state) {
-  if (!state.lastClaimTs) return true;
-  return (nowMs() - state.lastClaimTs) >= COOLDOWN_MS;
+function nextAvailableTs(state) {
+  if (!state.lastClaimTs) return 0;                 // если ещё не забирал — доступно сразу
+  return state.lastClaimTs + COOLDOWN_MS;           // когда станет доступно
+}
+
+function expireTs(state) {
+  const a = nextAvailableTs(state);
+  if (!a) return 0;
+  return a + CLAIM_WINDOW_MS;                       // когда сгорит и надо сбросить
+}
+
+// 3 состояния: "cooldown" | "available" | "expired"
+function dailyPhase(state) {
+  if (!state.lastClaimTs) return "available";
+
+  const now = nowMs();
+  const a = nextAvailableTs(state);
+  const e = expireTs(state);
+
+  if (now < a) return "cooldown";
+  if (now < e) return "available";
+  return "expired";
 }
 
 function msLeft(state) {
-  if (!state.lastClaimTs) return 0;
-  const left = COOLDOWN_MS - (nowMs() - state.lastClaimTs);
-  return Math.max(0, left);
+  // таймер показываем ТОЛЬКО на cooldown
+  if (dailyPhase(state) !== "cooldown") return 0;
+  return Math.max(0, nextAvailableTs(state) - nowMs());
+}
+
+function canClaim(state) {
+  return dailyPhase(state) === "available";
 }
 
 function fmt(ms) {
@@ -458,6 +482,12 @@ function fmt(ms) {
   const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
   const s = String(total % 60).padStart(2, "0");
   return `${h}:${m}:${s}`;
+}
+
+function resetDailyProgress() {
+  const reset = { index: 0, lastClaimTs: 0 };
+  saveDailyState(reset);
+  return reset;
 }
 
 function showToast(text) {
@@ -524,44 +554,48 @@ function renderTrack(state) {
 }
 
 function renderDailyUI() {
-  const state = loadDailyState();
-  const available = canClaim(state);
+  let state = loadDailyState();
+  let phase = dailyPhase(state);
 
-  const len = DAILY_REWARDS.length;
+  // 🔥 если не забрал за 24ч после доступности — сброс
+  if (phase === "expired") {
+    state = resetDailyProgress();
+    phase = dailyPhase(state); // станет available (день 1)
+  }
 
-  // state.index = НАГРАДА, которую получишь при следующем климе
-  const currentIdx = ((state.index % len) + len) % len;
-  const currentReward = DAILY_REWARDS[currentIdx];
+  const available = (phase === "available");
+  const reward = DAILY_REWARDS[state.index] ?? DAILY_REWARDS[0];
 
-  // "после клима" (нужно только если бонус доступен прямо сейчас)
-  const afterClaimIdx = (currentIdx + 1) % len;
-  const afterClaimReward = DAILY_REWARDS[afterClaimIdx];
+  // текущая награда
+  if (elDailyReward) elDailyReward.textContent = `${reward} ₽`;
 
-  // Текущая награда (то, что будет зачислено)
-  if (elDailyReward) elDailyReward.textContent = `${currentReward} ₽`;
-
-  // Следующая награда:
-  // - если можно забрать сейчас -> показываем, что будет ПОСЛЕ того как заберёшь
-  // - если нельзя (таймер) -> показываем награду, которая будет доступна после таймера (то есть currentReward)
-  const nextRewardToShow = available ? afterClaimReward : currentReward;
-
-  if (elNextRewardValue) elNextRewardValue.textContent = `${nextRewardToShow} ₽`;
+  // "следующая награда" — показываем ту, что будет ПОСЛЕ забора
+  const nextIdx = (state.index + 1) % DAILY_REWARDS.length;
+  const nextReward = DAILY_REWARDS[nextIdx];
+  if (elNextRewardValue) elNextRewardValue.textContent = `${nextReward} ₽`;
   if (elNextRewardSub) elNextRewardSub.textContent = `Следующая награда`;
 
-  // Кнопка
+  // кнопка
   if (elDailyAction) {
-    elDailyAction.textContent = available ? "Забрать" : "Получено";
+    elDailyAction.textContent = available ? "Забрать" : "Ожидание";
     elDailyAction.classList.toggle("disabled", !available);
   }
   if (dailyClaimBtn) dailyClaimBtn.disabled = !available;
 
-  // Таймер
-  const left = msLeft(state);
-  const t = available ? "00:00:00" : fmt(left);
+  // таймер:
+  // cooldown -> показываем отсчет
+  // available -> НЕ показываем (пустая строка)
+  const t = (phase === "cooldown") ? fmt(msLeft(state)) : "";
 
   if (elDailyTimer) elDailyTimer.textContent = t;
   if (elModalTimer) elModalTimer.textContent = t;
   if (elModalTimerBig) elModalTimerBig.textContent = t;
+
+  // если хочешь прям скрывать блоки таймера целиком:
+  // (если элементы у тебя отдельными контейнерами — скажи, подстрою под твой HTML)
+  if (elDailyTimer) elDailyTimer.style.display = (phase === "cooldown") ? "" : "none";
+  if (elModalTimer) elModalTimer.style.display = (phase === "cooldown") ? "" : "none";
+  if (elModalTimerBig) elModalTimerBig.style.display = (phase === "cooldown") ? "" : "none";
 
   renderTrack(state);
 }
@@ -585,16 +619,13 @@ function claimDailyBonus() {
 
   const reward = DAILY_REWARDS[state.index] ?? DAILY_REWARDS[0];
 
-  // фиксируем получение
+  // фиксируем факт забора
   state.lastClaimTs = nowMs();
-
-  // сдвигаем на следующий день (по кругу)
   state.index = (state.index + 1) % DAILY_REWARDS.length;
-
   saveDailyState(state);
 
   spawnConfetti();
-  showToast(`✅ Ежедневный бонус получен! На баланс зачислено +${reward} ₽`);
+  showToast(`✅ Ежедневный бонус получен! +${reward} ₽`);
   renderDailyUI();
 }
 
