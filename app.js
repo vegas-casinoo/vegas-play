@@ -537,6 +537,13 @@ function setTimerTextAndVisibility(phase, state) {
   }
 }
 
+function animateTimer(el) {
+  if (!el) return;
+  el.classList.remove("timerAnim");
+  void el.offsetWidth; // принудительный reflow
+  el.classList.add("timerAnim");
+}
+
 function renderDailyUI() {
   if (!dailyUserId) return;
 
@@ -573,7 +580,12 @@ if (elNextRewardSub) elNextRewardSub.textContent = `Следующая нагр�
   const available = (phase === "available");
 
   if (elDailyAction) {
-    elDailyAction.textContent = available ? "Забрать" : "Ожидание";
+if (available) {
+    elDailyAction.textContent = "Забрать";
+  } else {
+    elDailyAction.textContent = "Доступно сегодня";
+  }
+
     elDailyAction.classList.toggle("disabled", !available);
     elDailyAction.classList.toggle("ready", available);
   }
