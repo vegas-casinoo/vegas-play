@@ -39,6 +39,8 @@
 
   const screens = Array.from(document.querySelectorAll(".screen"));
   const tabs = Array.from(document.querySelectorAll(".tab"));
+  const tb = document.querySelector(".tabbar");
+  if (tb) document.documentElement.style.setProperty("--tabbar-h", tb.offsetHeight + "px");
 
 // ========= FAKE ONLINE (каждые 5 минут) =========
 function randInt(min, max) {
