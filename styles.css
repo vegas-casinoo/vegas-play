@@ -1000,8 +1000,8 @@ body.switching *{ animation: none !important; }
 /* сама плашка */
 .gOnline{
   position: absolute;
-  top: -14px;        /* ВЫШЕ */
-  right: -33px;      /* ПРАВЕЕ */
+  top: -12px;        /* ВЫШЕ */
+  right: -43px;      /* ПРАВЕЕ */
   z-index: 3;
 
   display:inline-flex;
