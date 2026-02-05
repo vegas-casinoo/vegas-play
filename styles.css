@@ -196,7 +196,7 @@ button:disabled{ opacity:.5; }
   position: relative;
   padding: 14px;
   padding-top: 18px;
-  padding-bottom: calc(118px + env(safe-area-inset-bottom));
+  padding-bottom: calc(84px + env(safe-area-inset-bottom));
 }
 
 /* ========= Screens (переключение вкладок) ========= */
