@@ -1492,7 +1492,7 @@ body.switching *{ animation: none !important; }
 .helpPopover{
   position:absolute;
   right: 14px;
-  top: 330px; /* если поедет — подвинь на +/− 20px */
+  bottom: clamp(120px, 30vh, 220px);
   width: min(320px, calc(100% - 28px));
   z-index: 20;
 
