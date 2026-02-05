@@ -10,6 +10,8 @@
   --text: #f5f7fb;
   --muted: #9aa3b2;
 
+  --tabbar-h: 90px; 
+
   --stroke: rgba(255,255,255,.12);
 
   --neon-purple: #b36cff;
@@ -196,7 +198,7 @@ button:disabled{ opacity:.5; }
   position: relative;
   padding: 14px;
   padding-top: 18px;
-  padding-bottom: calc(84px + env(safe-area-inset-bottom));
+padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 12px);
 }
 
 /* ========= Screens (переключение вкладок) ========= */
