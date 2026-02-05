@@ -1676,3 +1676,9 @@ grid-column: 4;
   font-weight: 850;
   font-size: 13px;
 }
+
+.bonusesList{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
