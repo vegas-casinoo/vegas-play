@@ -575,6 +575,7 @@ if (elNextRewardSub) elNextRewardSub.textContent = `Следующая нагр�
   if (elDailyAction) {
     elDailyAction.textContent = available ? "Забрать" : "Ожидание";
     elDailyAction.classList.toggle("disabled", !available);
+    elDailyAction.classList.toggle("ready", available);
   }
   if (dailyClaimBtn) dailyClaimBtn.disabled = !available;
 
