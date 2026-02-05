@@ -201,46 +201,52 @@
   </section>
 
 <!-- BONUSES -->
+<!-- BONUSES -->
 <section class="screen" data-screen="bonuses">
-  <button class="bonusCard" id="dailyBonusBtn" type="button">
-    <button class="bonusCard" id="promoBtn" type="button">
-  <div class="bonusBar"></div>
+  <div class="bonusesList">
 
-  <div class="bonusIconWrap">
-    <div class="bonusIcon">🎟️</div>
-  </div>
+    <!-- 1) DAILY (сверху) -->
+    <button class="bonusCard" id="dailyBonusBtn" type="button">
+      <div class="bonusBar"></div>
 
-  <div class="bonusMain">
-    <div class="bonusTitle">Промокоды</div>
-    <div class="bonusSub">Активируйте коды для бонусов</div>
-  </div>
-
-  <div class="bonusRight">
-    <div class="bonusAction">Ввести</div>
-  </div>
-</button>
-    <div class="bonusBar"></div>
-
-    <div class="bonusIconWrap">
-      <div class="bonusIcon">🎁</div>
-    </div>
-
-    <div class="bonusMain">
-      <div class="bonusTitle">Ежедневный бонус</div>
-      <div class="bonusSub">
-        Награда: <span id="dailyReward">100 ₽</span>
-      </div>
-    </div>
-
-    <div class="bonusRight">
-      <div class="bonusTimerPill" aria-label="До следующего бонуса">
-        <span class="bonusClock">⏳</span>
-        <span id="dailyTimer">23:59:59</span>
+      <div class="bonusIconWrap">
+        <div class="bonusIcon">🎁</div>
       </div>
 
-      <div class="bonusAction" id="dailyAction">Забрать</div>
-    </div>
-  </button>
+      <div class="bonusMain">
+        <div class="bonusTitle">Ежедневный бонус</div>
+        <div class="bonusSub">
+          Награда: <span id="dailyReward">100 ₽</span>
+        </div>
+      </div>
+
+      <div class="bonusRight">
+        <div class="bonusTimerPill" aria-label="До следующего бонуса">
+          <span class="bonusClock">⏳</span>
+          <span id="dailyTimer">23:59:59</span>
+        </div>
+
+        <div class="bonusAction" id="dailyAction">Забрать</div>
+      </div>
+    </button>
+
+    <!-- 2) PROMO (ниже daily) -->
+    <button class="promoCard" id="promoCardBtn" type="button">
+      <div class="promoIconWrap">
+        <div class="promoIcon">🎟️</div>
+      </div>
+
+      <div class="promoMain">
+        <div class="promoTitle">Промокоды</div>
+        <div class="promoSub">Активируйте коды для бонусов</div>
+      </div>
+
+      <div class="promoRight">
+        <div class="promoPill">Ввести</div>
+      </div>
+    </button>
+
+  </div>
 </section>
 </main>
 
