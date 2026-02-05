@@ -345,7 +345,7 @@ document.addEventListener("click", (e) => {
     if (t.closest("button")) haptic("light");
   }, { passive: true });
 
-// ===== DAILY BONUS (local state) =====
+// ===== DAILY BONUS (NO STREAK, WITH TIMER) =====
 const dailyModal = document.getElementById("dailyModal");
 const dailyModalClose = document.getElementById("dailyModalClose");
 const dailyClaimBtn = document.getElementById("dailyClaimBtn");
@@ -355,87 +355,186 @@ const toast = document.getElementById("toast");
 const dailyTrack = document.getElementById("dailyTrack");
 const confettiLayer = document.getElementById("confettiLayer");
 
-const elDailyDay = document.getElementById("dailyDay");
 const elDailyReward = document.getElementById("dailyReward");
-const elDailyStreak = document.getElementById("dailyStreak");
 const elDailyAction = document.getElementById("dailyAction");
+const elDailyTimer = document.getElementById("dailyTimer");
 
-const elModalStreak = document.getElementById("modalStreak");
-const elModalStreakBig = document.getElementById("modalStreakBig");
+const elModalTimer = document.getElementById("modalTimer");
+const elModalTimerBig = document.getElementById("modalTimerBig");
+
 const elNextRewardValue = document.getElementById("nextRewardValue");
 const elNextRewardSub = document.getElementById("nextRewardSub");
 
-// простая сетка наград (можешь поменять суммы)
-const DAILY_REWARDS = [100, 200, 350, 500, 750, 1000, 1500]; // 7 дней
-
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-function yesterdayKey() {
-  const d = new Date(Date.now() - 86400000);
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
+// награды по дням (можешь любые суммы)
+const DAILY_REWARDS = [100, 200, 350, 500, 750, 1000, 1500];
+const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 часа
 
 function loadDailyState() {
-  const raw = localStorage.getItem("dailyBonusState");
-  if (!raw) return { streak: 1, lastClaim: null };
+  const raw = localStorage.getItem("dailyBonusStateV2");
+  if (!raw) return { index: 0, lastClaimTs: 0 };
   try {
     const s = JSON.parse(raw);
     return {
-      streak: Math.max(1, Math.min(DAILY_REWARDS.length, Number(s.streak || 1))),
-      lastClaim: s.lastClaim || null
+      index: Math.max(0, Math.min(DAILY_REWARDS.length - 1, Number(s.index || 0))),
+      lastClaimTs: Number(s.lastClaimTs || 0)
     };
   } catch {
-    return { streak: 1, lastClaim: null };
+    return { index: 0, lastClaimTs: 0 };
   }
 }
 
 function saveDailyState(state) {
-  localStorage.setItem("dailyBonusState", JSON.stringify(state));
+  localStorage.setItem("dailyBonusStateV2", JSON.stringify(state));
 }
 
-function canClaimToday(state) {
-  return state.lastClaim !== todayKey();
+function nowMs() { return Date.now(); }
+
+function canClaim(state) {
+  if (!state.lastClaimTs) return true;
+  return (nowMs() - state.lastClaimTs) >= COOLDOWN_MS;
 }
 
-function normalizeStreakIfMissed(state) {
-  // если пропустили день — серия сбрасывается
-  if (state.lastClaim && state.lastClaim !== todayKey() && state.lastClaim !== yesterdayKey()) {
-    state.streak = 1;
+function msLeft(state) {
+  if (!state.lastClaimTs) return 0;
+  const left = COOLDOWN_MS - (nowMs() - state.lastClaimTs);
+  return Math.max(0, left);
+}
+
+function fmt(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = String(Math.floor(total / 3600)).padStart(2, "0");
+  const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+  const s = String(total % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
+function showToast(text) {
+  if (!toast) return;
+  toast.textContent = text;
+  toast.classList.add("show");
+  toast.setAttribute("aria-hidden", "false");
+  setTimeout(() => {
+    toast.classList.remove("show");
+    toast.setAttribute("aria-hidden", "true");
+  }, 2600);
+}
+
+function spawnConfetti() {
+  if (!confettiLayer) return;
+  confettiLayer.innerHTML = "";
+
+  const colors = ["#5ad7ff", "#b36cff", "#ff5adc", "#63f2b6", "#ffd166"];
+  const count = 60;
+
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement("div");
+    p.className = "confettiPiece";
+
+    const left = Math.random() * 100;
+    const dx = (Math.random() * 160 - 80).toFixed(0) + "px";
+    const rot = (Math.random() * 540 - 270).toFixed(0) + "deg";
+
+    p.style.left = left + "%";
+    p.style.background = colors[(Math.random() * colors.length) | 0];
+    p.style.setProperty("--dx", dx);
+    p.style.setProperty("--rot", rot);
+    p.style.animationDelay = (Math.random() * 0.25).toFixed(2) + "s";
+    p.style.opacity = (0.6 + Math.random() * 0.4).toFixed(2);
+
+    confettiLayer.appendChild(p);
   }
-  return state;
+
+  setTimeout(() => { if (confettiLayer) confettiLayer.innerHTML = ""; }, 2000);
 }
 
-function currentReward(state) {
-  return DAILY_REWARDS[(state.streak - 1) % DAILY_REWARDS.length];
-}
-function nextReward(state) {
-  const idx = Math.min(state.streak, DAILY_REWARDS.length - 1);
-  return DAILY_REWARDS[idx];
+function renderTrack(state) {
+  if (!dailyTrack) return;
+  dailyTrack.innerHTML = "";
+
+  for (let i = 0; i < DAILY_REWARDS.length; i++) {
+    const dayNum = i + 1;
+    const done = i < state.index;
+    const active = i === state.index;
+
+    const item = document.createElement("div");
+    item.className = "dayItem";
+    item.innerHTML = `
+      <div class="dayIcon ${done ? "done" : ""} ${active ? "active" : ""}">${dayNum}</div>
+      <div class="dayLabel">День ${dayNum}</div>
+      <div class="dayReward">${DAILY_REWARDS[i]} ₽</div>
+    `;
+    dailyTrack.appendChild(item);
+  }
 }
 
 function renderDailyUI() {
-  const state = normalizeStreakIfMissed(loadDailyState());
+  const state = loadDailyState();
+  const available = canClaim(state);
+  const reward = DAILY_REWARDS[state.index] ?? DAILY_REWARDS[0];
+
+  if (elDailyReward) elDailyReward.textContent = `${reward} ₽`;
+  if (elNextRewardValue) elNextRewardValue.textContent = `${(DAILY_REWARDS[Math.min(state.index + 1, DAILY_REWARDS.length - 1)])} ₽`;
+  if (elNextRewardSub) elNextRewardSub.textContent = `Следующая награда`;
+
+  // кнопка
+  if (elDailyAction) {
+    elDailyAction.textContent = available ? "Забрать" : "Получено";
+    elDailyAction.classList.toggle("disabled", !available);
+  }
+  if (dailyClaimBtn) dailyClaimBtn.disabled = !available;
+
+  // таймер
+  const left = msLeft(state);
+  const t = available ? "00:00:00" : fmt(left);
+
+  if (elDailyTimer) elDailyTimer.textContent = t;
+  if (elModalTimer) elModalTimer.textContent = t;
+  if (elModalTimerBig) elModalTimerBig.textContent = t;
+
+  renderTrack(state);
+}
+
+function openDailyModal() {
+  if (!dailyModal) return;
+  renderDailyUI();
+  dailyModal.classList.add("open");
+  dailyModal.setAttribute("aria-hidden", "false");
+}
+function closeDailyModal() {
+  if (!dailyModal) return;
+  dailyModal.classList.remove("open");
+  dailyModal.setAttribute("aria-hidden", "true");
+}
+
+function claimDailyBonus() {
+  const state = loadDailyState();
+  if (!canClaim(state)) return;
+
+  const reward = DAILY_REWARDS[state.index] ?? DAILY_REWARDS[0];
+
+  // TODO: позже заменим на реальное начисление в Supabase
+  state.lastClaimTs = nowMs();
+  state.index = (state.index + 1) % DAILY_REWARDS.length;
   saveDailyState(state);
 
-  const reward = currentReward(state);
-  elDailyDay.textContent = String(state.streak);
-  elDailyReward.textContent = `${reward} ₽`;
-  elDailyStreak.textContent = String(state.streak);
+  spawnConfetti();
+  showToast(`✅ Ежедневный бонус получен! На баланс зачислено +${reward} ₽`);
+  renderDailyUI();
+}
 
-  const available = canClaimToday(state);
-  elDailyAction.textContent = available ? "Забрать" : "Получено";
-  elDailyAction.classList.toggle("disabled", !available);
+// events
+if (dailyBonusBtn) dailyBonusBtn.addEventListener("click", () => { haptic("light"); openDailyModal(); });
+if (dailyModalClose) dailyModalClose.addEventListener("click", () => { haptic("light"); closeDailyModal(); });
+if (dailyModal) dailyModal.addEventListener("click", (e) => {
+  if (e.target && e.target.matches('[data-close="daily"]')) closeDailyModal();
+});
+if (dailyClaimBtn) dailyClaimBtn.addEventListener("click", () => { haptic("medium"); claimDailyBonus(); });
 
-  // modal header
-  elModalStreak.textContent = String(state.streak);
-  elModalStreakBig.textContent = String(state.streak);
+// тик таймера
+setInterval(renderDailyUI, 1000);
+renderDailyUI();  
 
-  elNextRewardValue.textContent = `${nextReward(state)} ₽`;
-  elNextRewardSub.textContent = `День ${Math.min(state.streak + 1, DAILY_REWARDS.length)}: ${nextReward(state)} монет`;
-
-  // track
+// track
   if (dailyTrack) {
     dailyTrack.innerHTML = "";
     for (let i = 0; i < DAILY_REWARDS.length; i++) {
