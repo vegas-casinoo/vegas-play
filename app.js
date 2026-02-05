@@ -324,14 +324,6 @@ if (soonBtn) {
   return;
 }
 
-// Назад с инфо-экранов
-const backBtn = t.closest("[data-back]");
-if (backBtn) {
-  haptic("light");
-  setActiveTab("home"); // или куда ты хочешь возвращать
-  return;
-}
-
     const tabBtn = t.closest(".tab");
     if (tabBtn) { haptic("light"); setActiveTab(tabBtn.dataset.tab); return; }
 
