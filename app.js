@@ -527,28 +527,35 @@ function renderDailyUI() {
   const state = loadDailyState();
   const available = canClaim(state);
 
-  // reward = награда, которую получишь при ближайшем "Забрать"
-  const reward = DAILY_REWARDS[state.index] ?? DAILY_REWARDS[0];
+  const len = DAILY_REWARDS.length;
 
-  // nextReward = награда, которая будет ПОСЛЕ того, как ты заберёшь текущую
-  const nextIndex = (state.index + 1) % DAILY_REWARDS.length;
-  const nextReward = DAILY_REWARDS[nextIndex] ?? DAILY_REWARDS[0];
+  // state.index = НАГРАДА, которую получишь при следующем климе
+  const currentIdx = ((state.index % len) + len) % len;
+  const currentReward = DAILY_REWARDS[currentIdx];
 
-  // Внутри модалки/карточки: "Награда" = то, что получишь сейчас
-  if (elDailyReward) elDailyReward.textContent = `${reward} ₽`;
+  // "после клима" (нужно только если бонус доступен прямо сейчас)
+  const afterClaimIdx = (currentIdx + 1) % len;
+  const afterClaimReward = DAILY_REWARDS[afterClaimIdx];
 
-  // "Следующая награда" = то, что будет доступно после получения текущей (на следующий раз)
-  if (elNextRewardValue) elNextRewardValue.textContent = `${nextReward} ₽`;
+  // Текущая награда (то, что будет зачислено)
+  if (elDailyReward) elDailyReward.textContent = `${currentReward} ₽`;
+
+  // Следующая награда:
+  // - если можно забрать сейчас -> показываем, что будет ПОСЛЕ того как заберёшь
+  // - если нельзя (таймер) -> показываем награду, которая будет доступна после таймера (то есть currentReward)
+  const nextRewardToShow = available ? afterClaimReward : currentReward;
+
+  if (elNextRewardValue) elNextRewardValue.textContent = `${nextRewardToShow} ₽`;
   if (elNextRewardSub) elNextRewardSub.textContent = `Следующая награда`;
 
-  // кнопка
+  // Кнопка
   if (elDailyAction) {
     elDailyAction.textContent = available ? "Забрать" : "Получено";
     elDailyAction.classList.toggle("disabled", !available);
   }
   if (dailyClaimBtn) dailyClaimBtn.disabled = !available;
 
-  // таймер
+  // Таймер
   const left = msLeft(state);
   const t = available ? "00:00:00" : fmt(left);
 
