@@ -310,3 +310,91 @@
 <script src="/app.js?v=22"></script>
   </body>
 </html>
+
+/* ===== BONUS CARD (Daily) ===== */
+.bonusCard{
+  position: relative;
+  overflow: hidden;
+
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 22px;
+
+  background: linear-gradient(180deg, rgba(18,20,28,.78), rgba(10,11,16,.62));
+  box-shadow: 0 18px 44px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08);
+
+  /* ВАЖНО: раскладка */
+  display: grid;
+  grid-template-columns: 6px 64px 1fr auto;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px 14px;
+}
+
+/* левая полоска — НЕ absolute, а честная колонка */
+.bonusBar{
+  grid-column: 1;
+  width: 6px;
+  align-self: stretch;
+  border-radius: 22px 0 0 22px;
+
+  background: linear-gradient(180deg, rgba(90,215,255,.95), rgba(80,140,255,.75));
+}
+
+/* контейнер иконки */
+.bonusIconWrap{
+  grid-column: 2;
+
+  width: 56px;
+  height: 56px;
+
+  display: grid;
+  place-items: center;
+}
+
+/* сама иконка */
+.bonusIcon{
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+
+  display: grid;
+  place-items: center;
+
+  background: rgba(90,215,255,.16);
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 12px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.10);
+
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* текстовая часть */
+.bonusMain{
+  grid-column: 3;
+  min-width: 0;
+}
+
+.bonusTitle{
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bonusSub{
+  margin-top: 4px;
+  color: rgba(154,163,178,.85);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* правая часть */
+.bonusRight{
+  grid-column: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
