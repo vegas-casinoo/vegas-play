@@ -365,6 +365,12 @@ const elModalTimerBig = document.getElementById("modalTimerBig");
 const elNextRewardValue = document.getElementById("nextRewardValue");
 const elNextRewardSub = document.getElementById("nextRewardSub");
 
+const promoBtn = document.getElementById("promoBtn");
+const promoModal = document.getElementById("promoModal");
+const promoModalClose = document.getElementById("promoModalClose");
+const promoInput = document.getElementById("promoInput");
+const promoActivateBtn = document.getElementById("promoActivateBtn");
+
 // ===== DAILY HELP POPOVER =====
 const dailyHelpBtn = document.getElementById("dailyHelpBtn");
 const dailyHelpPopover = document.getElementById("dailyHelpPopover");
@@ -778,6 +784,25 @@ async function initDailyBonus(userId) {
 
   renderDailyUI();
 }
+
+function openPromoModal(){
+  if (!promoModal) return;
+  promoModal.classList.add("open");
+  promoModal.setAttribute("aria-hidden", "false");
+  setTimeout(() => promoInput?.focus(), 50);
+}
+
+function closePromoModal(){
+  if (!promoModal) return;
+  promoModal.classList.remove("open");
+  promoModal.setAttribute("aria-hidden", "true");
+}
+
+if (promoBtn) promoBtn.addEventListener("click", () => { haptic("light"); openPromoModal(); });
+if (promoModalClose) promoModalClose.addEventListener("click", () => { haptic("light"); closePromoModal(); });
+if (promoModal) promoModal.addEventListener("click", (e) => {
+  if (e.target && e.target.matches('[data-close="promo"]')) closePromoModal();
+});
 
   // ========= TELEGRAM INIT =========
   function initTelegram() {
