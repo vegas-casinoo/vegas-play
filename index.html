@@ -236,14 +236,12 @@
 </section>
 
 <!-- ABOUT / RULES / PRIVACY / RESPONSIBLE -->
-<button class="footerLink" data-go="about">
+<section class="screen" data-screen="about">
   <div class="staticPage">
-
     <div class="staticHeader">
       <button class="staticBack" data-back="home">← Назад</button>
       <div class="staticTitle">О нас</div>
     </div>
-
     <div class="staticContent">
 <h1>О нас</h1>
 
@@ -307,14 +305,12 @@
   </div>
 </section>
 <!-- ABOUT / RULES / PRIVACY / RESPONSIBLE -->
-<button class="footerLink" data-go="rules">
+<section class="screen" data-screen="rules">
   <div class="staticPage">
-
     <div class="staticHeader">
       <button class="staticBack" data-back="home">← Назад</button>
-      <div class="staticTitle">О нас</div>
+      <div class="staticTitle">Правила</div>
     </div>
-
     <div class="staticContent">
 <h1>Правила VEGAS</h1>
 
@@ -439,14 +435,13 @@
   </div>
 </section>
 <!-- ABOUT / RULES / PRIVACY / RESPONSIBLE -->
-<button class="footerLink" data-go="privacy">
-  <div class="staticPage">
 
+<section class="screen" data-screen="privacy">
+  <div class="staticPage">
     <div class="staticHeader">
       <button class="staticBack" data-back="home">← Назад</button>
-      <div class="staticTitle">О нас</div>
+      <div class="staticTitle">Конфиденциальность</div>
     </div>
-
     <div class="staticContent">
 <h1>Конфиденциальность</h1>
 
@@ -546,14 +541,12 @@ VEGAS не продаёт и не передаёт информацию о по�
   </div>
 </section>
 <!-- ABOUT / RULES / PRIVACY / RESPONSIBLE -->
-<button class="footerLink" data-go="responsible">
+section class="screen" data-screen="responsible">
   <div class="staticPage">
-
     <div class="staticHeader">
       <button class="staticBack" data-back="home">← Назад</button>
-      <div class="staticTitle">О нас</div>
+      <div class="staticTitle">Ответственная игра</div>
     </div>
-
     <div class="staticContent">
 <h1>Ответственная игра</h1>
 
@@ -646,15 +639,20 @@ VEGAS предлагает инструменты, которые помогаю
 
 <footer class="globalFooter">
   <div class="footerLinks">
-    <button class="footerLink">О нас</button>
-    <button class="footerLink">Партнёрская программа</button>
-    <button class="footerLink">Правила</button>
-    <button class="footerLink">Поддержка</button>
-    <button class="footerLink">Конфиденциальность</button>
-    <button class="footerLink">FAQ</button>
-    <button class="footerLink">Ответственная игра</button>
-    <button class="footerLink">Отзывы</button>
+    <button class="footerLink" data-go="about">О нас</button>
+    <button class="footerLink" data-go="rules">Правила</button>
+    <button class="footerLink" data-go="privacy">Конфиденциальность</button>
+    <button class="footerLink" data-go="responsible">Ответственная игра</button>
+
+    <!-- остальные можно пока без data-go -->
+    <button class="footerLink" data-soon>Партнёрская программа</button>
+    <button class="footerLink" data-soon>FAQ</button>
+    <button class="footerLink" data-soon>Отзывы</button>
+    <button class="footerLink" data-soon>Поддержка</button>
   </div>
+
+  <div class="footerCopy">© 2026 VEGAS. Все права защищены.</div>
+</footer>
 
   <div class="footerCopy">
     © 2026 VEGAS. Все права защищены.
