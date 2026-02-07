@@ -1901,3 +1901,17 @@ grid-column: 4;
   box-shadow: 0 0 10px rgba(179,108,255,.25), 0 0 16px rgba(90,215,255,.18);
   border-radius: 999px;
 }
+
+/* ===== HOME: footer всегда у низа ===== */
+.screen.active[data-screen="home"]{
+  display: flex;
+  flex-direction: column;
+
+  /* высота видимой области минус topbar и tabbar */
+  min-height: calc(100dvh - var(--topbar-h, 0px) - var(--tabbar-h) - env(safe-area-inset-bottom));
+}
+
+/* футер уезжает вниз, когда контента мало */
+.screen.active[data-screen="home"] .globalFooter{
+  margin-top: auto;
+}
