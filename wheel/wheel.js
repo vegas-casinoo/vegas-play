@@ -1,104 +1,178 @@
-// wheel/wheel.js
-
-let wheelModal, wheelCircle, spinBtn, closeBtn, backdrop;
+let wheelOverlay, wheelEl, wheelLabelsEl;
+let spinMainBtn, centerBtn, closeBtn;
 let spinning = false;
 
-function bindWheelDom() {
-  wheelModal   = document.getElementById("wheelModal");
-  wheelCircle  = document.getElementById("wheelCircle");
-  spinBtn      = document.getElementById("wheelSpinMain");
-  closeBtn     = document.getElementById("wheelClose");
-  backdrop     = document.getElementById("wheelBackdrop");
+// временные призы (пока не пришлёшь свои)
+const PRIZES = [
+  { label: "+10₽" },
+  { label: "+20₽" },
+  { label: "+50₽" },
+  { label: "+100₽" },
+  { label: "+200₽" },
+  { label: "+500₽" },
+];
+
+// базовые цвета по кругу (чтобы не выглядело “дёшево”)
+const SEG_COLORS = ["#ffd166","#06d6a0","#118ab2","#ef476f","#8338ec","#ffa6d6"];
+
+function buildWheelGradient() {
+  const n = PRIZES.length;
+  const step = 360 / n;
+
+  const parts = [];
+  for (let i = 0; i < n; i++) {
+    const a0 = i * step;
+    const a1 = (i + 1) * step;
+    const c = SEG_COLORS[i % SEG_COLORS.length];
+    parts.push(`${c} ${a0}deg ${a1}deg`);
+  }
+  wheelEl.style.background = `conic-gradient(${parts.join(",")})`;
 }
 
-function ensureWheelInjected() {
-  bindWheelDom();
-  if (wheelModal) return Promise.resolve(true);
+function renderLabels() {
+  const n = PRIZES.length;
+  const step = 360 / n;
 
-  return fetch("/wheel/wheel.html")
-    .then(r => {
-      if (!r.ok) throw new Error("wheel.html not found");
-      return r.text();
-    })
+  wheelLabelsEl.innerHTML = "";
+
+  for (let i = 0; i < n; i++) {
+    const angle = i * step + step / 2; // центр сектора
+
+    const item = document.createElement("div");
+    item.className = "wheelLabel";
+    // ставим текст радиально: сначала поворачиваем, потом смещаем вправо
+    item.style.transform = `rotate(${angle}deg) translateX(8px)`;
+
+    const text = document.createElement("div");
+    text.className = "wheelLabelText";
+    text.textContent = PRIZES[i].label;
+
+    // чтобы текст не был “вверх ногами” на левой стороне:
+    // если угол в диапазоне 90..270 — разворачиваем на 180
+    if (angle > 90 && angle < 270) {
+      text.style.transform = "rotate(180deg)";
+    }
+
+    item.appendChild(text);
+    wheelLabelsEl.appendChild(item);
+  }
+}
+
+function ensureInjected(cb) {
+  wheelOverlay = document.getElementById("wheelOverlay");
+  if (wheelOverlay) return cb();
+
+  fetch("/wheel/wheel.html")
+    .then(r => r.text())
     .then(html => {
       document.body.insertAdjacentHTML("beforeend", html);
       bindWheelDom();
-
-      if (!wheelModal) throw new Error("wheelModal missing after inject");
-
-      // кнопки закрытия
-      closeBtn?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        closeWheel();
-      });
-
-      backdrop?.addEventListener("click", () => closeWheel());
-
-      // кнопка крутить в модалке
-      spinBtn?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        spinWheel();
-      });
-
-      return true;
+      cb();
     })
-    .catch(err => {
-      alert("❌ Колесо: не могу загрузить /wheel/wheel.html");
-      console.error(err);
-      return false;
+    .catch(() => {
+      alert("Не смог загрузить wheel.html (проверь путь /wheel/wheel.html)");
     });
 }
 
+function bindWheelDom() {
+  wheelOverlay = document.getElementById("wheelOverlay");
+  wheelEl = document.getElementById("wheel");
+  wheelLabelsEl = document.getElementById("wheelLabels");
+
+  spinMainBtn = document.getElementById("wheelSpinMain");
+  centerBtn = document.getElementById("wheelCenterBtn");
+  closeBtn = document.getElementById("wheelClose");
+
+  if (!wheelOverlay || !wheelEl || !wheelLabelsEl) {
+    console.error("wheel DOM not found");
+    return;
+  }
+
+  buildWheelGradient();
+  renderLabels();
+
+  closeBtn?.addEventListener("click", closeWheel);
+
+  // закрытие по клику мимо
+  wheelOverlay.addEventListener("click", (e) => {
+    if (e.target === wheelOverlay) closeWheel();
+  });
+
+  spinMainBtn?.addEventListener("click", spinWheel);
+  centerBtn?.addEventListener("click", spinWheel);
+}
+
 function openWheel() {
-  ensureWheelInjected().then(ok => {
-    if (!ok) return;
-    wheelModal.classList.add("open");
-    wheelModal.setAttribute("aria-hidden", "false");
+  ensureInjected(() => {
+    wheelOverlay.classList.add("open");
+    wheelOverlay.setAttribute("aria-hidden", "false");
   });
 }
 
 function closeWheel() {
-  if (!wheelModal) return;
-  wheelModal.classList.remove("open");
-  wheelModal.setAttribute("aria-hidden", "true");
+  if (!wheelOverlay) return;
+  wheelOverlay.classList.remove("open");
+  wheelOverlay.setAttribute("aria-hidden", "true");
+}
+
+function pickIndex() {
+  // пока просто random; потом ты дашь шансы — сделаем weighted
+  return Math.floor(Math.random() * PRIZES.length);
 }
 
 function spinWheel() {
-  if (!wheelCircle || spinning) return;
-  spinning = true;
+  if (spinning || !wheelEl) return;
 
-  const angle = 360 * 6 + Math.floor(Math.random() * 360);
-  wheelCircle.style.transition = "transform 3.6s cubic-bezier(.15,.85,.2,1)";
-  wheelCircle.style.transform = `rotate(${angle}deg)`;
+  spinning = true;
+  spinMainBtn && (spinMainBtn.disabled = true);
+
+  const n = PRIZES.length;
+  const step = 360 / n;
+
+  const index = pickIndex();
+
+  // ВАЖНО:
+  // стрелка сверху (0deg). Нам нужно, чтобы выигрышный сектор пришёл под стрелку.
+  // центр сектора = index*step + step/2
+  // значит вращаем так, чтобы этот угол оказался на 0deg => вращение = 360 - centerAngle
+  const centerAngle = index * step + step / 2;
+  const target = 360 - centerAngle;
+
+  const spins = 6; // сколько полных оборотов
+  const finalDeg = spins * 360 + target;
+
+  // сброс transition для чистого повторного спина
+  wheelEl.style.transition = "none";
+  wheelEl.style.transform = "rotate(0deg)";
+  // reflow
+  void wheelEl.offsetWidth;
+
+  wheelEl.style.transition = "transform 3.8s cubic-bezier(.12,.85,.18,1)";
+  wheelEl.style.transform = `rotate(${finalDeg}deg)`;
+
+  // лёгкая вибрация
+  try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.("medium"); } catch (_) {}
+  try { navigator.vibrate?.(18); } catch (_) {}
 
   setTimeout(() => {
     spinning = false;
-    alert("🎉 Тут будет результат + анимации");
-  }, 3600);
+    spinMainBtn && (spinMainBtn.disabled = false);
+
+    const prize = PRIZES[index]?.label || "Приз";
+    // пока просто алерт — дальше подключим твою “плашку выигрыша” + конфетти
+    alert(`Вы выиграли: ${prize}`);
+  }, 3900);
 }
 
-// экспортируем глобально (если захочешь дергать из app.js)
+// делаем глобально доступным (app.js вызывает window.openWheel?.())
 window.openWheel = openWheel;
-window.closeWheel = closeWheel;
 
-// ВАЖНО: вешаем клики на карточку и кнопку в карточке САМИ
+// также повесим на карточку, если она есть
 document.addEventListener("click", (e) => {
   const t = e.target;
-
-  // карточка целиком
-  if (t.closest("#wheelOpenBtn")) {
-    // если кликнули по "Крутить" внутри — тоже ок
+  if (t.closest("#wheelCard") || t.closest("#wheelOpenBtn") || t.closest("#wheelSpinBtn")) {
+    // если нажали на маленькую кнопку — не даём кликнуть “насквозь”
+    if (t.closest("#wheelSpinBtn")) e.stopPropagation();
     openWheel();
-    return;
   }
-
-  // на всякий: если где-то отдельно есть wheelSpinBtn
-  if (t.closest("#wheelSpinBtn")) {
-    e.preventDefault();
-    e.stopPropagation();
-    openWheel();
-    return;
-  }
-});
+}, { passive: false });
