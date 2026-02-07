@@ -1916,8 +1916,3 @@ grid-column: 4;
 .screen.active[data-screen="home"] .globalFooter{
   margin-top: auto;
 }
-
-.content { outline: 2px solid lime !important; }
-.screen.active { outline: 2px solid cyan !important; }
-.globalFooter { outline: 2px solid yellow !important; }
-.tabbar { outline: 2px solid magenta !important; }
