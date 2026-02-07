@@ -124,35 +124,37 @@ function canSpinFromState(lastSpinTs){
 
 function setSpinEnabled(can, leftMs){
   // modal button
-  if (spinBtn){
-    spinBtn.disabled = !can;
-  }
+  if (spinBtn) spinBtn.disabled = !can;
+
   if (timerEl){
     timerEl.style.display = can ? "none" : "";
     timerEl.textContent = can ? "" : `Доступно через ${fmt(leftMs)}`;
   }
 
-  // HOME elements
   const homeBtn = document.getElementById("wheelSpinBtn");
   const pill = document.getElementById("wheelTimerPill");
   const pillTxt = pill?.querySelector(".wheelTimerTxt");
   const metaTop = document.getElementById("wheelMetaTop");
 
   if (metaTop){
-    metaTop.textContent = can ? "Осталось 1 спин" : "1 прокрутка в день";
+    metaTop.textContent = can ? "1 прокрутка в день" : "1 прокрутка в день";
   }
 
-  if (homeBtn && pill){
-    if (can){
-      homeBtn.hidden = false;
-      homeBtn.disabled = false;
-      homeBtn.classList.add("active");
-      pill.hidden = true;
-    } else {
-      homeBtn.hidden = true;               // ✅ ВАЖНО: скрываем кнопку полностью
-      pill.hidden = false;                 // ✅ показываем плашку
-      if (pillTxt) pillTxt.textContent = fmt(leftMs);
-    }
+  if (!homeBtn || !pill) return;
+
+  if (can){
+    pill.hidden = true;
+    homeBtn.hidden = false;
+    homeBtn.disabled = false;
+
+    // 🔥 гарантируем active класс (чтобы была зелёная)
+    homeBtn.classList.add("active");
+    homeBtn.textContent = ""; // чтобы не было мусора если кто-то перебивал
+    homeBtn.innerHTML = `<span class="wheelBtnDot">◎</span><span class="wheelBtnTxt">Крутить</span>`;
+  } else {
+    homeBtn.hidden = true;
+    pill.hidden = false;
+    if (pillTxt) pillTxt.textContent = fmt(leftMs);
   }
 }
 
