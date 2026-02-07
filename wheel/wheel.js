@@ -47,6 +47,18 @@ function setLastSpin(ts) {
   localStorage.setItem(userKey(), String(ts));
 }
 
+function setSpinDisabled(disabled, timerText = "") {
+  spinMainBtn.classList.toggle("disabled", disabled);
+  spinMainBtn.disabled = disabled;
+
+  if (disabled) {
+    wheelTimer.style.display = "block";
+    wheelTimer.textContent = timerText;
+  } else {
+    wheelTimer.style.display = "none";
+  }
+}
+
 function canSpin() {
   const last = getLastSpin();
   if (!last) return true;
@@ -156,6 +168,19 @@ function openWheel() {
   });
 }
 
+function buildWheelGradient() {
+  wheelEl.style.background = `
+    conic-gradient(
+      from 0deg,
+      #6a5cff,
+      #3fa9f5,
+      #7b5cff,
+      #ff5ad6,
+      #6a5cff
+    )
+  `;
+}
+
 function closeWheel() {
   if (!wheelOverlay) return;
   wheelOverlay.classList.remove("open");
@@ -168,7 +193,14 @@ function closeWheel() {
 }
 
 function pickIndex() {
-  return Math.floor(Math.random() * PRIZES.length);
+  const total = PRIZES.reduce((s,p)=>s+p.weight,0);
+  let r = Math.random() * total;
+
+  for (let i = 0; i < PRIZES.length; i++) {
+    r -= PRIZES[i].weight;
+    if (r <= 0) return i;
+  }
+  return 0;
 }
 
 function spinWheel() {
