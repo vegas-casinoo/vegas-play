@@ -337,16 +337,15 @@ if (t.closest("#promoBtn") || t.closest("#promoCardBtn")) {
   return;
 }
 
-// Wheel of Fortune
-if (t.closest("#wheelEntryBtn")) {
-  haptic("light");
-  // если у тебя wheel.js экспортирует openWheel() глобально:
-  if (window.openWheel) {
-    window.openWheel();
-    return;
-  }
-  // если пока нет — хотя бы покажем, что клик дошёл
-  alert("Открыть колесо (пока не подключено)");
+// Wheel of Fortune (открытие модалки)
+if (
+  t.closest("#wheelEntryBtn") ||   // если у тебя есть такой id
+  t.closest("#wheelOpenBtn")  ||   // если кнопку так назвал wheel.js / html
+  t.closest("#wheelSpinBtn")  ||   // кнопка внутри модалки
+  t.closest("#spinBtn")            // старый hero "Крутить" (если ещё есть)
+) {
+  haptic("medium");
+  window.openWheel?.();
   return;
 }
 
