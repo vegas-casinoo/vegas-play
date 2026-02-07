@@ -1916,3 +1916,33 @@ grid-column: 4;
 .screen.active[data-screen="home"] .globalFooter{
   margin-top: auto;
 }
+
+/* ===== GLOBAL FOOTER FIXED (виден на всех экранах) ===== */
+.globalFooterFixed{
+  position: fixed;
+  left: 0;
+  right: 0;
+
+  /* ставим футер прямо над таббаром */
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  z-index: 2500;
+
+  /* фон как у стекла */
+  background: rgba(12, 13, 18, 0.62);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(255,255,255,.10);
+
+  /* чтобы футер не был слишком высоким */
+  padding: 12px 14px;
+}
+
+/* чтобы сетка ссылок была компактнее в фикс-режиме */
+.globalFooterFixed .footerLinks{
+  margin-top: 0;
+}
+
+/* копирайт можно чуть компактнее */
+.globalFooterFixed .footerCopy{
+  margin: 10px 4px 0;
+}
