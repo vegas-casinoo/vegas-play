@@ -133,17 +133,19 @@ function setSpinEnabled(can, leftMs){
   }
 
   // HOME-кнопка (на карточке) — если есть
-  const homeBtn = document.getElementById("wheelSpinBtn");
-  if (homeBtn){
-    homeBtn.disabled = !can;
-    if (can){
-      homeBtn.classList.remove("disabled");
-      homeBtn.textContent = "Крутить";
-    } else {
-      homeBtn.classList.add("disabled");
-      homeBtn.textContent = fmt(leftMs);
-    }
+const homeBtn = document.getElementById("wheelSpinBtn");
+if (homeBtn){
+  homeBtn.disabled = !can;
+
+  homeBtn.classList.toggle("active", can);
+  homeBtn.classList.toggle("disabled", !can);
+
+  if (can){
+    homeBtn.textContent = "Крутить";
+  } else {
+    homeBtn.textContent = fmt(leftMs);
   }
+}
 }
 
 async function refreshAvailabilityUI(){
