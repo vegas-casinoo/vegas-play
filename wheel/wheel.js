@@ -132,20 +132,28 @@ function setSpinEnabled(can, leftMs){
     timerEl.textContent = can ? "" : `Доступно через ${fmt(leftMs)}`;
   }
 
-  // HOME-кнопка (на карточке) — если есть
-const homeBtn = document.getElementById("wheelSpinBtn");
-if (homeBtn){
-  homeBtn.disabled = !can;
+  // HOME elements
+  const homeBtn = document.getElementById("wheelSpinBtn");
+  const pill = document.getElementById("wheelTimerPill");
+  const pillTxt = pill?.querySelector(".wheelTimerTxt");
+  const metaTop = document.getElementById("wheelMetaTop");
 
-  homeBtn.classList.toggle("active", can);
-  homeBtn.classList.toggle("disabled", !can);
-
-  if (can){
-    homeBtn.textContent = "Крутить";
-  } else {
-    homeBtn.textContent = fmt(leftMs);
+  if (metaTop){
+    metaTop.textContent = can ? "Осталось 1 спин" : "1 прокрутка в день";
   }
-}
+
+  if (homeBtn && pill){
+    if (can){
+      homeBtn.hidden = false;
+      homeBtn.disabled = false;
+      homeBtn.classList.add("active");
+      pill.hidden = true;
+    } else {
+      homeBtn.hidden = true;               // ✅ ВАЖНО: скрываем кнопку полностью
+      pill.hidden = false;                 // ✅ показываем плашку
+      if (pillTxt) pillTxt.textContent = fmt(leftMs);
+    }
+  }
 }
 
 async function refreshAvailabilityUI(){
