@@ -211,6 +211,10 @@ setInterval(setFakeOnline, 5 * 60 * 1000);
   }
 
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // ===== BRIDGE FOR MODULES =====
+window.VEGAS = window.VEGAS || {};
+window.VEGAS.supabase = supabase;
+window.VEGAS.getUserId = () => currentUserId;
 
   async function upsertUser(tgUser) {
     const r1 = await supabase.from("users").upsert({
