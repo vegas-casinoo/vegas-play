@@ -198,7 +198,7 @@ button:disabled{ opacity:.5; }
   position: relative;
   padding: 14px;
   padding-top: 18px;
-padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 12px);
+  padding-bottom: 12px; /* ✅ убрали постоянный огромный отступ */
 }
 
 /* ========= Screens (переключение вкладок) ========= */
@@ -943,8 +943,8 @@ body.switching *{ animation: none !important; }
 }
 
 .globalFooter{
-  padding: 16px 14px 24px;
-  margin-bottom: 0px; /* чтобы не залезал под таббар */
+  padding: 16px 14px calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 12px);
+  margin-bottom: 0px;
 
   display: flex;
   flex-direction: column;
