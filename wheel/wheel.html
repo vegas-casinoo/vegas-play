@@ -1,22 +1,14 @@
 <div class="wheelOverlay" id="wheelOverlay" aria-hidden="true">
   <div class="wheelModal" role="dialog" aria-modal="true">
-    <button class="wheelClose" id="wheelClose" aria-label="Закрыть">✕</button>
+    <button class="wheelBack" id="wheelClose" aria-label="Назад">Закрыть</button>
 
-    <div class="wheelTopRow">
-      <div class="wheelMiniIcon">🎡</div>
-      <div class="wheelTopText">
-        <div class="wheelTopTitle">Колесо Фортуны</div>
-        <div class="wheelTopSub" id="wheelTopSub">1 прокрутка в день</div>
-      </div>
-    </div>
-
-    <div class="wheelWrap">
+    <div class="wheelStage">
       <div class="wheelPointer" aria-hidden="true"></div>
 
       <div class="wheelRim">
-        <div class="wheel" id="wheel" aria-label="Колесо">
-          <div class="wheelGloss" aria-hidden="true"></div>
-          <div class="wheelTicks" aria-hidden="true"></div>
+        <div class="wheelDisc" id="wheel">
+          <div class="wheelGlow" aria-hidden="true"></div>
+          <div class="wheelSpokes" aria-hidden="true"></div>
           <div class="wheelHub" aria-hidden="true"></div>
         </div>
       </div>
@@ -24,17 +16,17 @@
 
     <button class="wheelSpinMain" id="wheelSpinMain" type="button">Крутить</button>
     <div class="wheelTimer" id="wheelTimer" style="display:none">Доступно через 23:59:59</div>
+  </div>
 
-    <!-- WIN TOAST (плашка выигрыша) -->
-    <div class="wheelWinToast" id="wheelWinToast" aria-hidden="true">
-      <div class="wheelWinToastInner">
-        <div class="wheelWinEmoji">🎉</div>
-        <div class="wheelWinText">
-          <div class="wheelWinTitle">Вы выиграли</div>
-          <div class="wheelWinAmount" id="wheelWinAmount">+0 ₽</div>
-        </div>
-        <button class="wheelWinClose" id="wheelWinClose" aria-label="Закрыть">✕</button>
-      </div>
+  <!-- RESULT (как реф-плашка, но под колесо) -->
+  <div class="wheelResult" id="wheelResult" aria-hidden="true">
+    <div class="wheelResultCard">
+      <div class="wheelResultIcon">🎁</div>
+      <div class="wheelResultTitle" id="wheelResultTitle">Вы выиграли</div>
+      <div class="wheelResultValue" id="wheelResultValue">+500 ₽</div>
+      <button class="wheelResultBtn" id="wheelResultBtn">Принять</button>
+      <div class="wheelResultHint">Нажмите для продолжения</div>
+      <div class="wheelConfetti" id="wheelConfetti" aria-hidden="true"></div>
     </div>
   </div>
 </div>
