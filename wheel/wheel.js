@@ -276,4 +276,22 @@ window.openWheel = openWheel;
 // авто-обновление HOME-кнопки (если есть)
 document.addEventListener("DOMContentLoaded", () => {
   refreshAvailabilityUI().catch(()=>{});
+  
+  document.addEventListener("click", (e) => {
+  const t = e.target;
+
+  // кнопка "крутить" на карточке
+  if (t.closest("#wheelSpinBtn")) {
+    e.stopPropagation();
+    window.openWheel?.();
+    return;
+  }
+
+  // клик по карточке
+  if (t.closest("#wheelOpenBtn")) {
+    window.openWheel?.();
+    return;
+  }
+});
+  
 });
