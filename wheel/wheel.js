@@ -1,61 +1,108 @@
-let wheelOverlay, wheelEl, wheelLabelsEl;
-let spinMainBtn, centerBtn, closeBtn;
-let spinning = false;
+let wheelOverlay, wheelEl;
+let spinMainBtn, closeBtn;
+let wheelTimerEl, wheelTopSubEl;
+let winToastEl, winAmountEl, winCloseEl;
 
-// временные призы (пока не пришлёшь свои)
+let spinning = false;
+let tickTimer = null;
+
+const COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+// временные призы (потом привяжем к твоей логике/супабейзу)
 const PRIZES = [
-  { label: "+10₽" },
-  { label: "+20₽" },
-  { label: "+50₽" },
-  { label: "+100₽" },
-  { label: "+200₽" },
-  { label: "+500₽" },
+  { amount: 10, label: "+10 ₽" },
+  { amount: 20, label: "+20 ₽" },
+  { amount: 50, label: "+50 ₽" },
+  { amount: 100, label: "+100 ₽" },
+  { amount: 200, label: "+200 ₽" },
+  { amount: 500, label: "+500 ₽" },
 ];
 
-// базовые цвета по кругу (чтобы не выглядело “дёшево”)
-const SEG_COLORS = ["#ffd166","#06d6a0","#118ab2","#ef476f","#8338ec","#ffa6d6"];
-
-function buildWheelGradient() {
-  const n = PRIZES.length;
-  const step = 360 / n;
-
-  const parts = [];
-  for (let i = 0; i < n; i++) {
-    const a0 = i * step;
-    const a1 = (i + 1) * step;
-    const c = SEG_COLORS[i % SEG_COLORS.length];
-    parts.push(`${c} ${a0}deg ${a1}deg`);
-  }
-  wheelEl.style.background = `conic-gradient(${parts.join(",")})`;
+function userKey() {
+  // чтобы у каждого юзера был свой кулдаун
+  const uid =
+    window.VEGAS?.getUserId?.() ||
+    window.Telegram?.WebApp?.initDataUnsafe?.user?.id ||
+    "guest";
+  return `vegas_wheel_last_spin_${uid}`;
 }
 
-function renderLabels() {
-  const n = PRIZES.length;
-  const step = 360 / n;
+function nowMs() { return Date.now(); }
 
-  wheelLabelsEl.innerHTML = "";
+function fmt(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = String(Math.floor(total / 3600)).padStart(2, "0");
+  const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+  const s = String(total % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
 
-  for (let i = 0; i < n; i++) {
-    const angle = i * step + step / 2; // центр сектора
+function getLastSpin() {
+  const raw = localStorage.getItem(userKey());
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
 
-    const item = document.createElement("div");
-    item.className = "wheelLabel";
-    // ставим текст радиально: сначала поворачиваем, потом смещаем вправо
-    item.style.transform = `rotate(${angle}deg) translateX(8px)`;
+function setLastSpin(ts) {
+  localStorage.setItem(userKey(), String(ts));
+}
 
-    const text = document.createElement("div");
-    text.className = "wheelLabelText";
-    text.textContent = PRIZES[i].label;
+function canSpin() {
+  const last = getLastSpin();
+  if (!last) return true;
+  return (nowMs() - last) >= COOLDOWN_MS;
+}
 
-    // чтобы текст не был “вверх ногами” на левой стороне:
-    // если угол в диапазоне 90..270 — разворачиваем на 180
-    if (angle > 90 && angle < 270) {
-      text.style.transform = "rotate(180deg)";
-    }
+function msLeft() {
+  const last = getLastSpin();
+  if (!last) return 0;
+  const left = (last + COOLDOWN_MS) - nowMs();
+  return Math.max(0, left);
+}
 
-    item.appendChild(text);
-    wheelLabelsEl.appendChild(item);
+function setSpinUi() {
+  const ok = canSpin();
+
+  if (!spinMainBtn || !wheelTimerEl || !wheelTopSubEl) return;
+
+  if (ok) {
+    spinMainBtn.disabled = false;
+    spinMainBtn.classList.remove("is-disabled");
+    wheelTimerEl.style.display = "none";
+    wheelTimerEl.textContent = "";
+    wheelTopSubEl.textContent = "1 прокрутка в день";
+  } else {
+    spinMainBtn.disabled = true;
+    spinMainBtn.classList.add("is-disabled");
+
+    const left = msLeft();
+    wheelTimerEl.style.display = "";
+    wheelTimerEl.textContent = `Доступно через ${fmt(left)}`;
+    wheelTopSubEl.textContent = "Прокрутка уже использована";
   }
+}
+
+function startTick() {
+  stopTick();
+  tickTimer = setInterval(() => setSpinUi(), 1000);
+}
+
+function stopTick() {
+  if (tickTimer) clearInterval(tickTimer);
+  tickTimer = null;
+}
+
+function showWin(amountText) {
+  if (!winToastEl || !winAmountEl) return;
+  winAmountEl.textContent = amountText;
+  winToastEl.classList.add("show");
+  winToastEl.setAttribute("aria-hidden", "false");
+
+  // авто-скрытие
+  setTimeout(() => {
+    winToastEl?.classList.remove("show");
+    winToastEl?.setAttribute("aria-hidden", "true");
+  }, 2600);
 }
 
 function ensureInjected(cb) {
@@ -69,43 +116,43 @@ function ensureInjected(cb) {
       bindWheelDom();
       cb();
     })
-    .catch(() => {
-      alert("Не смог загрузить wheel.html (проверь путь /wheel/wheel.html)");
-    });
+    .catch(() => alert("Не смог загрузить /wheel/wheel.html"));
 }
 
 function bindWheelDom() {
   wheelOverlay = document.getElementById("wheelOverlay");
   wheelEl = document.getElementById("wheel");
-  wheelLabelsEl = document.getElementById("wheelLabels");
-
   spinMainBtn = document.getElementById("wheelSpinMain");
-  centerBtn = document.getElementById("wheelCenterBtn");
   closeBtn = document.getElementById("wheelClose");
+  wheelTimerEl = document.getElementById("wheelTimer");
+  wheelTopSubEl = document.getElementById("wheelTopSub");
 
-  if (!wheelOverlay || !wheelEl || !wheelLabelsEl) {
-    console.error("wheel DOM not found");
-    return;
-  }
-
-  buildWheelGradient();
-  renderLabels();
+  winToastEl = document.getElementById("wheelWinToast");
+  winAmountEl = document.getElementById("wheelWinAmount");
+  winCloseEl = document.getElementById("wheelWinClose");
 
   closeBtn?.addEventListener("click", closeWheel);
 
-  // закрытие по клику мимо
-  wheelOverlay.addEventListener("click", (e) => {
+  wheelOverlay?.addEventListener("click", (e) => {
     if (e.target === wheelOverlay) closeWheel();
   });
 
   spinMainBtn?.addEventListener("click", spinWheel);
-  centerBtn?.addEventListener("click", spinWheel);
+
+  winCloseEl?.addEventListener("click", () => {
+    winToastEl?.classList.remove("show");
+    winToastEl?.setAttribute("aria-hidden", "true");
+  });
+
+  setSpinUi();
 }
 
 function openWheel() {
   ensureInjected(() => {
     wheelOverlay.classList.add("open");
     wheelOverlay.setAttribute("aria-hidden", "false");
+    setSpinUi();
+    startTick();
   });
 }
 
@@ -113,65 +160,66 @@ function closeWheel() {
   if (!wheelOverlay) return;
   wheelOverlay.classList.remove("open");
   wheelOverlay.setAttribute("aria-hidden", "true");
+  stopTick();
+
+  // убираем плашку если была
+  winToastEl?.classList.remove("show");
+  winToastEl?.setAttribute("aria-hidden", "true");
 }
 
 function pickIndex() {
-  // пока просто random; потом ты дашь шансы — сделаем weighted
   return Math.floor(Math.random() * PRIZES.length);
 }
 
 function spinWheel() {
   if (spinning || !wheelEl) return;
+  if (!canSpin()) return;
 
   spinning = true;
-  spinMainBtn && (spinMainBtn.disabled = true);
+  spinMainBtn.disabled = true;
 
   const n = PRIZES.length;
   const step = 360 / n;
-
   const index = pickIndex();
 
-  // ВАЖНО:
-  // стрелка сверху (0deg). Нам нужно, чтобы выигрышный сектор пришёл под стрелку.
-  // центр сектора = index*step + step/2
-  // значит вращаем так, чтобы этот угол оказался на 0deg => вращение = 360 - centerAngle
+  // центр сектора
   const centerAngle = index * step + step / 2;
+  // стрелка сверху, колесо крутится по часовой => чтобы центр сектора оказался под стрелкой
   const target = 360 - centerAngle;
 
-  const spins = 6; // сколько полных оборотов
+  const spins = 7;
   const finalDeg = spins * 360 + target;
 
-  // сброс transition для чистого повторного спина
+  // важный сброс, чтобы анимация повторялась одинаково и без артефактов
   wheelEl.style.transition = "none";
-  wheelEl.style.transform = "rotate(0deg)";
-  // reflow
+  wheelEl.style.transform = "translateZ(0) rotate(0deg)";
   void wheelEl.offsetWidth;
 
   wheelEl.style.transition = "transform 3.8s cubic-bezier(.12,.85,.18,1)";
-  wheelEl.style.transform = `rotate(${finalDeg}deg)`;
+  wheelEl.style.transform = `translateZ(0) rotate(${finalDeg}deg)`;
 
-  // лёгкая вибрация
   try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.("medium"); } catch (_) {}
   try { navigator.vibrate?.(18); } catch (_) {}
 
   setTimeout(() => {
-    spinning = false;
-    spinMainBtn && (spinMainBtn.disabled = false);
+    // фиксируем “прокрутил” сразу после результата
+    setLastSpin(nowMs());
 
-    const prize = PRIZES[index]?.label || "Приз";
-    // пока просто алерт — дальше подключим твою “плашку выигрыша” + конфетти
-    alert(`Вы выиграли: ${prize}`);
+    const prize = PRIZES[index];
+    showWin(prize?.label || "Приз");
+
+    spinning = false;
+    setSpinUi();      // сделает кнопку серой + таймер
   }, 3900);
 }
 
-// делаем глобально доступным (app.js вызывает window.openWheel?.())
+// глобально
 window.openWheel = openWheel;
 
-// также повесим на карточку, если она есть
+// на карточку HOME (чтобы работало даже без app.js-делегации)
 document.addEventListener("click", (e) => {
   const t = e.target;
-  if (t.closest("#wheelCard") || t.closest("#wheelOpenBtn") || t.closest("#wheelSpinBtn")) {
-    // если нажали на маленькую кнопку — не даём кликнуть “насквозь”
+  if (t.closest("#wheelOpenBtn") || t.closest("#wheelSpinBtn")) {
     if (t.closest("#wheelSpinBtn")) e.stopPropagation();
     openWheel();
   }
