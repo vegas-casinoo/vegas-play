@@ -3,6 +3,7 @@
   justify-content:space-between;
   align-items:center;
   gap:16px;
+  cursor: pointer;
 
   margin:14px 0;
   padding:16px;
@@ -11,6 +12,8 @@
   background: linear-gradient(135deg,#1e6bd6,#1bbad6);
   box-shadow: 0 16px 40px rgba(0,0,0,.35);
 }
+
+.wheelCard:active { transform: scale(.99); }
 
 .wheelCardLeft{
   display:flex;
