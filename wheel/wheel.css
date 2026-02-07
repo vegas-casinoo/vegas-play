@@ -46,26 +46,39 @@
 
 .wheelCardRight{
   display:flex;
-  align-items:center;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:8px;
 }
 
-.wheelBtn{
+.wheelMeta{
+  font-size:12px;
+  color:rgba(255,255,255,.75);
+}
+
+/* КНОПКА */
+.wheelSpinBtn{
   height:38px;
   padding:0 18px;
   border-radius:14px;
   font-weight:800;
   border:none;
   cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:110px;
 }
 
 /* доступно */
-.wheelBtn.active{
+.wheelSpinBtn.active{
   background: linear-gradient(135deg,#35ff9b,#1fd27a);
   color:#0b1a12;
 }
 
 /* недоступно */
-.wheelBtn.disabled{
+.wheelSpinBtn.disabled,
+.wheelSpinBtn:disabled{
   background: rgba(255,255,255,.25);
   color: rgba(255,255,255,.75);
   cursor: default;
