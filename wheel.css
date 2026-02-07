@@ -1,134 +1,82 @@
-/* ===== Wheel module styles (separate) ===== */
+/* ===== Wheel promo banner ===== */
 
-/* ===== Wheel entry: matches VEGAS neon-glass style ===== */
-
-.wheelHero{
-  position: relative;
-  width: 100%;
-
+.wheelPromo{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap: 14px;
+  gap:16px;
 
-  padding: 16px 16px;
-  border-radius: 22px;
+  padding:14px 16px;
+  border-radius:20px;
 
-  border: 1px solid rgba(255,255,255,.14);
-  background:
-    radial-gradient(260px 140px at 18% 20%, rgba(179,108,255,.18), transparent 62%),
-    radial-gradient(260px 160px at 92% 70%, rgba(90,215,255,.14), transparent 62%),
-    linear-gradient(180deg, rgba(18,20,28,.78), rgba(10,11,16,.62));
+  background: linear-gradient(
+    135deg,
+    #2b6cff,
+    #3b9cff
+  );
 
   box-shadow:
-    0 18px 50px rgba(0,0,0,.55),
-    inset 0 1px 0 rgba(255,255,255,.10);
+    0 14px 40px rgba(0,0,0,.45);
 
-  overflow:hidden;
-  text-align:left;
-  cursor: pointer;
 }
 
-.wheelHeroGlow{
-  position:absolute;
-  inset:-40px;
-  pointer-events:none;
-  background:
-    radial-gradient(420px 220px at 30% 30%, rgba(179,108,255,.20), transparent 60%),
-    radial-gradient(420px 240px at 80% 70%, rgba(90,215,255,.16), transparent 62%);
-  filter: blur(18px);
-  opacity:.9;
-}
-
-.wheelHeroLeft{
-  position: relative;
-  z-index: 1;
+.wheelPromoLeft{
   display:flex;
   align-items:center;
-  gap: 14px;
-  min-width: 0;
+  gap:14px;
 }
 
-.wheelHeroIcon{
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
+.wheelPromoIcon{
+  width:48px;
+  height:48px;
+  border-radius:14px;
 
   display:grid;
   place-items:center;
 
-  border: 1px solid rgba(255,255,255,.12);
-  background:
-    radial-gradient(28px 28px at 30% 25%, rgba(255,255,255,.14), transparent 60%),
-    rgba(255,255,255,.05);
-
-  box-shadow:
-    0 12px 30px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.10);
-
-  font-size: 26px;
-  line-height: 1;
+  background: rgba(255,255,255,.18);
+  font-size:24px;
 }
 
-.wheelHeroText{ min-width:0; }
-
-.wheelHeroTitle{
-  font-weight: 950;
-  letter-spacing: .2px;
-  font-size: 16px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.wheelHeroSub{
-  margin-top: 6px;
-  color: rgba(154,163,178,.90);
-  font-weight: 850;
-  font-size: 13px;
-  line-height: 1.15;
-}
-
-.wheelHeroRight{
-  position: relative;
-  z-index: 1;
-  display:flex;
-  flex-direction: column;
-  align-items:flex-end;
-  gap: 8px;
-}
-
-.wheelHeroBtn{
-  padding: 12px 14px;
-  border-radius: 16px;
-  font-weight: 950;
-
-  border: 1px solid rgba(255,255,255,.12);
-  background: linear-gradient(135deg, rgba(99,242,182,.95), rgba(70,165,255,.95));
+.wheelPromoTitle{
+  font-size:16px;
+  font-weight:900;
   color:#fff;
-
-  box-shadow: 0 14px 34px rgba(0,0,0,.35);
-  transition: transform 140ms cubic-bezier(.2,.8,.2,1), filter 140ms cubic-bezier(.2,.8,.2,1), opacity 140ms cubic-bezier(.2,.8,.2,1);
 }
 
-.wheelHeroBtn:active{ transform: scale(.98); filter: brightness(1.05); }
-
-.wheelHeroBtn.disabled{
-  background: rgba(255,255,255,.06);
-  color: rgba(245,247,251,.55);
-  border: 1px solid rgba(255,255,255,.10);
-  box-shadow: none;
+.wheelPromoSub{
+  margin-top:4px;
+  font-size:13px;
+  color:rgba(255,255,255,.85);
 }
 
-.wheelHeroMeta{
-  font-size: 12px;
-  font-weight: 850;
-  color: rgba(154,163,178,.80);
+.wheelPromoRight{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:6px;
 }
 
-.wheelHero:active{
-  transform: scale(.995);
-  filter: brightness(1.03);
+.wheelPromoMeta{
+  font-size:12px;
+  font-weight:700;
+  color:rgba(255,255,255,.85);
+}
+
+.wheelPromoBtn{
+  padding:10px 14px;
+  border-radius:14px;
+  font-weight:900;
+
+  background:#ffffff;
+  color:#2b6cff;
+
+  border:none;
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+}
+
+.wheelPromoBtn.disabled{
+  opacity:.6;
 }
 
 /* ===== Wheel modal ===== */
