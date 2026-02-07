@@ -1058,6 +1058,18 @@ if (elAvatar) {
 
     hideBootSplash(); // ✅ И СЮДА (чтобы не зависало при ошибке)
   }
+  
+    // ========= TABBAR HEIGHT (точный отступ под фикс-таббар) =========
+  function updateTabbarHeight() {
+    const tabbar = document.querySelector(".tabbar");
+    if (!tabbar) return;
+    document.documentElement.style.setProperty("--tabbar-h", tabbar.offsetHeight + "px");
+  }
+
+  window.addEventListener("load", updateTabbarHeight);
+  window.addEventListener("resize", updateTabbarHeight);
+  updateTabbarHeight();
+  
 })();
 }
 
