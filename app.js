@@ -336,6 +336,20 @@ if (t.closest("#promoBtn") || t.closest("#promoCardBtn")) {
   openPromoModal();
   return;
 }
+
+// Wheel of Fortune
+if (t.closest("#wheelEntryBtn")) {
+  haptic("light");
+  // если у тебя wheel.js экспортирует openWheel() глобально:
+  if (window.openWheel) {
+    window.openWheel();
+    return;
+  }
+  // если пока нет — хотя бы покажем, что клик дошёл
+  alert("Открыть колесо (пока не подключено)");
+  return;
+}
+
     if (t.closest("#depositQuickBtn") || t.closest("#withdrawQuickBtn")) { haptic("light"); setActiveTab("wallet"); return; }
     
     // Topbar PLUS => как депозит
