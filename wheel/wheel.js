@@ -50,3 +50,19 @@ function spinWheel() {
 
 // делаем глобально доступным
 window.openWheel = openWheel;
+
+(function () {
+  const openBtn = document.getElementById("wheelOpenBtn");
+  const spinBtn = document.getElementById("wheelSpinBtn");
+
+  function openWheel() {
+    // временно: чтобы увидеть что клик реально работает
+    alert("Открыть колесо (подключено)");
+  }
+
+  if (openBtn) openBtn.addEventListener("click", openWheel);
+  if (spinBtn) spinBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); // чтобы не срабатывал общий клик карточки
+    openWheel();
+  });
+})();
