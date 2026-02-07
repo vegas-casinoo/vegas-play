@@ -1078,5 +1078,23 @@ if (elAvatar) {
   screens.forEach(s => s.classList.remove("active", "leaving"));
   getScreen(activeTab)?.classList.add("active");
   renderBalance();
+  
+    // ========= BAR HEIGHTS (точно считаем topbar/tabbar) =========
+  function updateBarHeights() {
+    const tabbar = document.querySelector(".tabbar");
+    const topbar = document.querySelector(".topbar");
+
+    if (tabbar) {
+      document.documentElement.style.setProperty("--tabbar-h", tabbar.offsetHeight + "px");
+    }
+    if (topbar) {
+      document.documentElement.style.setProperty("--topbar-h", topbar.offsetHeight + "px");
+    }
+  }
+
+  window.addEventListener("load", updateBarHeights);
+  window.addEventListener("resize", updateBarHeights);
+  updateBarHeights();
+  
   initTelegram();
 })();
