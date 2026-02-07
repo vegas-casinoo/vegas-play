@@ -787,7 +787,16 @@ VEGAS предлагает инструменты, которые помогаю
 <link rel="stylesheet" href="/wheel/wheel.css" />
 <script defer src="/wheel/wheel.js"></script>
 
-<button id="testOpenWheel">OPEN WHEEL</button>
+<button id="testOpenWheel" style="
+  position: fixed;
+  left: 14px;
+  bottom: 90px; /* выше таббара */
+  z-index: 99999;
+  padding: 10px 14px;
+  border-radius: 12px;
+">
+  OPEN WHEEL
+</button>
 <script>
   document.getElementById("testOpenWheel").addEventListener("click", () => {
     window.openWheel?.();
