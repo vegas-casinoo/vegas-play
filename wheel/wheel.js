@@ -1,35 +1,85 @@
-let wheelOverlay, wheelEl;
-let spinMainBtn, closeBtn;
-let wheelTimerEl, wheelTopSubEl;
-let winToastEl, winAmountEl, winCloseEl;
+let wheelOverlay, wheelEl, spinBtn, timerEl, closeBtn;
+let resultOverlay, resultValueEl, resultBtn, confettiEl;
 
 let spinning = false;
-let tickTimer = null;
+let cooldownTimer = null;
 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
-// временные призы (потом привяжем к твоей логике/супабейзу)
+// Призы + шансы (как ты дал)
 const PRIZES = [
-  { amount: 10, label: "+10 ₽" },
-  { amount: 20, label: "+20 ₽" },
-  { amount: 50, label: "+50 ₽" },
-  { amount: 100, label: "+100 ₽" },
-  { amount: 200, label: "+200 ₽" },
-  { amount: 500, label: "+500 ₽" },
+  { label: "+30% к пополнению", kind: "dep_boost", value: 30, weight: 10 },
+  { label: "+20% к пополнению", kind: "dep_boost", value: 20, weight: 10 },
+  { label: "+10% к пополнению", kind: "dep_boost", value: 10, weight: 35 },
+  { label: "+5% к пополнению",  kind: "dep_boost", value: 5,  weight: 40 },
+  { label: "1000 ₽",           kind: "money",    value: 1000, weight: 2 },
+  { label: "500 ₽",            kind: "money",    value: 500,  weight: 3 },
 ];
 
-function userKey() {
-  // чтобы у каждого юзера был свой кулдаун
-  const uid =
-    window.VEGAS?.getUserId?.() ||
-    window.Telegram?.WebApp?.initDataUnsafe?.user?.id ||
-    "guest";
-  return `vegas_wheel_last_spin_${uid}`;
+function supa() { return window.VEGAS?.supabase || null; }
+function userId() { return window.VEGAS?.getUserId?.() || null; }
+
+function $(id){ return document.getElementById(id); }
+
+function ensureInjected(cb){
+  wheelOverlay = $("wheelOverlay");
+  if (wheelOverlay) return cb();
+
+  fetch("/wheel/wheel.html")
+    .then(r => r.text())
+    .then(html => {
+      document.body.insertAdjacentHTML("beforeend", html);
+      bindDom();
+      cb();
+    })
+    .catch(() => alert("Не смог загрузить /wheel/wheel.html"));
 }
 
-function nowMs() { return Date.now(); }
+function bindDom(){
+  wheelOverlay = $("wheelOverlay");
+  wheelEl = $("wheel");
+  spinBtn = $("wheelSpinMain");
+  timerEl = $("wheelTimer");
+  closeBtn = $("wheelClose");
 
-function fmt(ms) {
+  resultOverlay = $("wheelResult");
+  resultValueEl = $("wheelResultValue");
+  resultBtn = $("wheelResultBtn");
+  confettiEl = $("wheelConfetti");
+
+  // close
+  closeBtn?.addEventListener("click", closeWheel);
+  wheelOverlay?.addEventListener("click", (e) => {
+    if (e.target === wheelOverlay) closeWheel();
+  });
+
+  // spin
+  spinBtn?.addEventListener("click", spinWheel);
+
+  // result accept
+  resultBtn?.addEventListener("click", hideResult);
+  resultOverlay?.addEventListener("click", (e) => {
+    if (e.target === resultOverlay) hideResult();
+  });
+}
+
+function openWheel(){
+  ensureInjected(async () => {
+    wheelOverlay.classList.add("open");
+    wheelOverlay.setAttribute("aria-hidden", "false");
+    await refreshAvailabilityUI(); // сразу обновляем кнопку/таймер
+  });
+}
+
+function closeWheel(){
+  if (!wheelOverlay) return;
+  wheelOverlay.classList.remove("open");
+  wheelOverlay.setAttribute("aria-hidden", "true");
+}
+
+function nowMs(){ return Date.now(); }
+
+function fmt(ms){
   const total = Math.max(0, Math.floor(ms / 1000));
   const h = String(Math.floor(total / 3600)).padStart(2, "0");
   const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
@@ -37,222 +87,193 @@ function fmt(ms) {
   return `${h}:${m}:${s}`;
 }
 
-function getLastSpin() {
-  const raw = localStorage.getItem(userKey());
-  const n = Number(raw);
-  return Number.isFinite(n) && n > 0 ? n : 0;
+async function getWheelState(){
+  const sb = supa();
+  const uid = userId();
+  if (!sb || !uid) return { lastSpinTs: null };
+
+  const { data, error } = await sb
+    .from("wheel_state")
+    .select("last_spin_ts")
+    .eq("user_id", uid)
+    .maybeSingle();
+
+  if (error) return { lastSpinTs: null };
+
+  return { lastSpinTs: data?.last_spin_ts ? Date.parse(data.last_spin_ts) : null };
 }
 
-function setLastSpin(ts) {
-  localStorage.setItem(userKey(), String(ts));
+async function setWheelState(tsIso){
+  const sb = supa();
+  const uid = userId();
+  if (!sb || !uid) return;
+
+  // upsert
+  await sb.from("wheel_state").upsert({
+    user_id: uid,
+    last_spin_ts: tsIso
+  });
 }
 
-function setSpinDisabled(disabled, timerText = "") {
-  spinMainBtn.classList.toggle("disabled", disabled);
-  spinMainBtn.disabled = disabled;
+function canSpinFromState(lastSpinTs){
+  if (!lastSpinTs) return { can: true, leftMs: 0 };
+  const next = lastSpinTs + COOLDOWN_MS;
+  const left = next - nowMs();
+  return { can: left <= 0, leftMs: Math.max(0, left) };
+}
 
-  if (disabled) {
-    wheelTimer.style.display = "block";
-    wheelTimer.textContent = timerText;
-  } else {
-    wheelTimer.style.display = "none";
+function setSpinEnabled(can, leftMs){
+  // modal button
+  if (spinBtn){
+    spinBtn.disabled = !can;
+  }
+  if (timerEl){
+    timerEl.style.display = can ? "none" : "";
+    timerEl.textContent = can ? "" : `Доступно через ${fmt(leftMs)}`;
+  }
+
+  // HOME-кнопка (на карточке) — если есть
+  const homeBtn = document.getElementById("wheelSpinBtn");
+  if (homeBtn){
+    homeBtn.disabled = !can;
+    if (can){
+      homeBtn.classList.remove("disabled");
+      homeBtn.textContent = "Крутить";
+    } else {
+      homeBtn.classList.add("disabled");
+      homeBtn.textContent = fmt(leftMs);
+    }
   }
 }
 
-function canSpin() {
-  const last = getLastSpin();
-  if (!last) return true;
-  return (nowMs() - last) >= COOLDOWN_MS;
-}
+async function refreshAvailabilityUI(){
+  const st = await getWheelState();
+  const { can, leftMs } = canSpinFromState(st.lastSpinTs);
 
-function msLeft() {
-  const last = getLastSpin();
-  if (!last) return 0;
-  const left = (last + COOLDOWN_MS) - nowMs();
-  return Math.max(0, left);
-}
+  setSpinEnabled(can, leftMs);
 
-function setSpinUi() {
-  const ok = canSpin();
-
-  if (!spinMainBtn || !wheelTimerEl || !wheelTopSubEl) return;
-
-  if (ok) {
-    spinMainBtn.disabled = false;
-    spinMainBtn.classList.remove("is-disabled");
-    wheelTimerEl.style.display = "none";
-    wheelTimerEl.textContent = "";
-    wheelTopSubEl.textContent = "1 прокрутка в день";
-  } else {
-    spinMainBtn.disabled = true;
-    spinMainBtn.classList.add("is-disabled");
-
-    const left = msLeft();
-    wheelTimerEl.style.display = "";
-    wheelTimerEl.textContent = `Доступно через ${fmt(left)}`;
-    wheelTopSubEl.textContent = "Прокрутка уже использована";
+  // таймер тикает только когда нельзя
+  if (cooldownTimer) clearInterval(cooldownTimer);
+  if (!can){
+    cooldownTimer = setInterval(async () => {
+      const st2 = await getWheelState();
+      const p = canSpinFromState(st2.lastSpinTs);
+      setSpinEnabled(p.can, p.leftMs);
+      if (p.can && cooldownTimer){
+        clearInterval(cooldownTimer);
+        cooldownTimer = null;
+      }
+    }, 1000);
   }
 }
 
-function startTick() {
-  stopTick();
-  tickTimer = setInterval(() => setSpinUi(), 1000);
-}
-
-function stopTick() {
-  if (tickTimer) clearInterval(tickTimer);
-  tickTimer = null;
-}
-
-function showWin(amountText) {
-  if (!winToastEl || !winAmountEl) return;
-  winAmountEl.textContent = amountText;
-  winToastEl.classList.add("show");
-  winToastEl.setAttribute("aria-hidden", "false");
-
-  // авто-скрытие
-  setTimeout(() => {
-    winToastEl?.classList.remove("show");
-    winToastEl?.setAttribute("aria-hidden", "true");
-  }, 2600);
-}
-
-function ensureInjected(cb) {
-  wheelOverlay = document.getElementById("wheelOverlay");
-  if (wheelOverlay) return cb();
-
-  fetch("/wheel/wheel.html")
-    .then(r => r.text())
-    .then(html => {
-      document.body.insertAdjacentHTML("beforeend", html);
-      bindWheelDom();
-      cb();
-    })
-    .catch(() => alert("Не смог загрузить /wheel/wheel.html"));
-}
-
-function bindWheelDom() {
-  wheelOverlay = document.getElementById("wheelOverlay");
-  wheelEl = document.getElementById("wheel");
-  spinMainBtn = document.getElementById("wheelSpinMain");
-  closeBtn = document.getElementById("wheelClose");
-  wheelTimerEl = document.getElementById("wheelTimer");
-  wheelTopSubEl = document.getElementById("wheelTopSub");
-
-  winToastEl = document.getElementById("wheelWinToast");
-  winAmountEl = document.getElementById("wheelWinAmount");
-  winCloseEl = document.getElementById("wheelWinClose");
-
-  closeBtn?.addEventListener("click", closeWheel);
-
-  wheelOverlay?.addEventListener("click", (e) => {
-    if (e.target === wheelOverlay) closeWheel();
-  });
-
-  spinMainBtn?.addEventListener("click", spinWheel);
-
-  winCloseEl?.addEventListener("click", () => {
-    winToastEl?.classList.remove("show");
-    winToastEl?.setAttribute("aria-hidden", "true");
-  });
-
-  setSpinUi();
-}
-
-function openWheel() {
-  ensureInjected(() => {
-    wheelOverlay.classList.add("open");
-    wheelOverlay.setAttribute("aria-hidden", "false");
-    setSpinUi();
-    startTick();
-  });
-}
-
-function buildWheelGradient() {
-  wheelEl.style.background = `
-    conic-gradient(
-      from 0deg,
-      #6a5cff,
-      #3fa9f5,
-      #7b5cff,
-      #ff5ad6,
-      #6a5cff
-    )
-  `;
-}
-
-function closeWheel() {
-  if (!wheelOverlay) return;
-  wheelOverlay.classList.remove("open");
-  wheelOverlay.setAttribute("aria-hidden", "true");
-  stopTick();
-
-  // убираем плашку если была
-  winToastEl?.classList.remove("show");
-  winToastEl?.setAttribute("aria-hidden", "true");
-}
-
-function pickIndex() {
-  const total = PRIZES.reduce((s,p)=>s+p.weight,0);
+function pickWeightedIndex(){
+  const total = PRIZES.reduce((s,p)=>s + (p.weight||0), 0);
   let r = Math.random() * total;
-
-  for (let i = 0; i < PRIZES.length; i++) {
-    r -= PRIZES[i].weight;
+  for (let i=0;i<PRIZES.length;i++){
+    r -= (PRIZES[i].weight||0);
     if (r <= 0) return i;
   }
-  return 0;
+  return PRIZES.length - 1;
 }
 
-function spinWheel() {
-  if (spinning || !wheelEl) return;
-  if (!canSpin()) return;
-
-  spinning = true;
-  spinMainBtn.disabled = true;
-
+function spinToIndex(index){
   const n = PRIZES.length;
   const step = 360 / n;
-  const index = pickIndex();
 
-  // центр сектора
-  const centerAngle = index * step + step / 2;
-  // стрелка сверху, колесо крутится по часовой => чтобы центр сектора оказался под стрелкой
+  // стрелка сверху. центр сектора = i*step + step/2
+  const centerAngle = index * step + step/2;
   const target = 360 - centerAngle;
 
-  const spins = 7;
-  const finalDeg = spins * 360 + target;
+  const spins = 6;
+  const finalDeg = spins*360 + target;
 
-  // важный сброс, чтобы анимация повторялась одинаково и без артефактов
   wheelEl.style.transition = "none";
   wheelEl.style.transform = "translateZ(0) rotate(0deg)";
   void wheelEl.offsetWidth;
 
-  wheelEl.style.transition = "transform 3.8s cubic-bezier(.12,.85,.18,1)";
+  wheelEl.style.transition = "transform 3.9s cubic-bezier(.12,.85,.18,1)";
   wheelEl.style.transform = `translateZ(0) rotate(${finalDeg}deg)`;
-
-  try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.("medium"); } catch (_) {}
-  try { navigator.vibrate?.(18); } catch (_) {}
-
-  setTimeout(() => {
-    // фиксируем “прокрутил” сразу после результата
-    setLastSpin(nowMs());
-
-    const prize = PRIZES[index];
-    showWin(prize?.label || "Приз");
-
-    spinning = false;
-    setSpinUi();      // сделает кнопку серой + таймер
-  }, 3900);
 }
 
-// глобально
+function hapticSuccess(){
+  try { window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred?.("success"); } catch(_){}
+  try { navigator.vibrate?.([18, 40, 18]); } catch(_){}
+}
+
+function confettiBurst(){
+  if (!confettiEl) return;
+  confettiEl.innerHTML = "";
+
+  const colors = ["#67ffa9","#5ad7ff","#b36cff","#ff6ed2","#ffffff"];
+  const count = 70;
+
+  for (let i=0;i<count;i++){
+    const d = document.createElement("div");
+    d.className = "wc";
+    d.style.left = (Math.random()*100) + "%";
+    d.style.background = colors[(Math.random()*colors.length)|0];
+    d.style.animationDelay = (Math.random()*0.12).toFixed(2) + "s";
+    d.style.transform = `translateY(0) rotate(${(Math.random()*180)|0}deg)`;
+    confettiEl.appendChild(d);
+  }
+
+  setTimeout(()=>{ if(confettiEl) confettiEl.innerHTML=""; }, 1200);
+}
+
+function showResult(text){
+  if (!resultOverlay) return;
+  if (resultValueEl) resultValueEl.textContent = text;
+  resultOverlay.classList.add("open");
+  resultOverlay.setAttribute("aria-hidden","false");
+  confettiBurst();
+  hapticSuccess();
+}
+
+function hideResult(){
+  if (!resultOverlay) return;
+  resultOverlay.classList.remove("open");
+  resultOverlay.setAttribute("aria-hidden","true");
+}
+
+async function spinWheel(){
+  if (spinning || !wheelEl) return;
+
+  // проверка доступности
+  const st = await getWheelState();
+  const p = canSpinFromState(st.lastSpinTs);
+  if (!p.can){
+    setSpinEnabled(false, p.leftMs);
+    return;
+  }
+
+  spinning = true;
+  spinBtn && (spinBtn.disabled = true);
+
+  const index = pickWeightedIndex();
+  spinToIndex(index);
+
+  try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred?.("medium"); } catch(_){}
+  try { navigator.vibrate?.(18); } catch(_){}
+
+  setTimeout(async () => {
+    // фиксируем время спина в БД
+    await setWheelState(new Date().toISOString());
+
+    spinning = false;
+
+    // обновляем UI (и на HOME, и в модалке)
+    await refreshAvailabilityUI();
+
+    const prizeText = PRIZES[index]?.label || "Приз";
+    showResult(prizeText);
+  }, 4100);
+}
+
+// global export
 window.openWheel = openWheel;
 
-// на карточку HOME (чтобы работало даже без app.js-делегации)
-document.addEventListener("click", (e) => {
-  const t = e.target;
-  if (t.closest("#wheelOpenBtn") || t.closest("#wheelSpinBtn")) {
-    if (t.closest("#wheelSpinBtn")) e.stopPropagation();
-    openWheel();
-  }
-}, { passive: false });
+// авто-обновление HOME-кнопки (если есть)
+document.addEventListener("DOMContentLoaded", () => {
+  refreshAvailabilityUI().catch(()=>{});
+});
