@@ -388,6 +388,9 @@ function renderEntry(){
     drawWheel();
     renderEntry();
   }
+  
+  window.openWheel = openWheel;
+  
   function closeWheel(){
     if (!wheelModal) return;
     wheelModal.classList.remove("open");
