@@ -198,6 +198,7 @@ button:disabled{ opacity:.5; }
   position: relative;
   padding: 14px;
   padding-top: 18px;
+  overflow: hidden; /* 🔥 КЛЮЧЕВАЯ СТРОКА */
   padding-bottom: 12px; /* ✅ убрали постоянный огромный отступ */
 }
 
