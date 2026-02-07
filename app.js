@@ -338,12 +338,7 @@ if (t.closest("#promoBtn") || t.closest("#promoCardBtn")) {
 }
 
 // Wheel of Fortune (открытие модалки)
-if (
-  t.closest("#wheelEntryBtn") ||   // если у тебя есть такой id
-  t.closest("#wheelOpenBtn")  ||   // если кнопку так назвал wheel.js / html
-  t.closest("#wheelSpinBtn")  ||   // кнопка внутри модалки
-  t.closest("#spinBtn")            // старый hero "Крутить" (если ещё есть)
-) {
+if (t.closest("#wheelOpenBtn")) {
   haptic("medium");
   window.openWheel?.();
   return;
