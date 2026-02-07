@@ -361,7 +361,6 @@ if (t.closest("#promoBtn") || t.closest("#promoCardBtn")) {
     if (t.closest("#withdrawBtn") || t.closest("#walletHeroWithdraw")) { haptic("light"); alert("Вывод (пока заглушка)."); return; }
 
     if (t.closest("#testPlus100Btn")) { haptic("light"); testAdd100(); return; }
-    if (t.closest("#spinBtn")) { haptic("light"); alert("Колесо фортуны (пока заглушка)"); return; }
 
     if (t.closest("button")) haptic("light");
   }, { passive: true });
