@@ -1,32 +1,25 @@
-<div class="wheelOverlay" id="wheelOverlay" aria-hidden="true">
-  <div class="wheelModal" role="dialog" aria-modal="true">
-    <button class="wheelBack" id="wheelClose" aria-label="Назад">Закрыть</button>
+<!-- WHEEL CARD -->
+<div class="wheelCard">
+  <div class="wheelCardLeft">
+    <div class="wheelIcon">🎯</div>
 
-    <div class="wheelStage">
-      <div class="wheelPointer" aria-hidden="true"></div>
-
-      <div class="wheelRim">
-        <div class="wheelDisc" id="wheel">
-          <div class="wheelGlow" aria-hidden="true"></div>
-          <div class="wheelSpokes" aria-hidden="true"></div>
-          <div class="wheelHub" aria-hidden="true"></div>
-        </div>
-      </div>
+    <div class="wheelText">
+      <div class="wheelTitle">Колесо Фортуны</div>
+      <div class="wheelSub">Выигрывайте призы каждый день</div>
     </div>
-
-    <button class="wheelSpinMain" id="wheelSpinMain" type="button">Крутить</button>
-    <div class="wheelTimer" id="wheelTimer" style="display:none">Доступно через 23:59:59</div>
   </div>
 
-  <!-- RESULT (как реф-плашка, но под колесо) -->
-  <div class="wheelResult" id="wheelResult" aria-hidden="true">
-    <div class="wheelResultCard">
-      <div class="wheelResultIcon">🎁</div>
-      <div class="wheelResultTitle" id="wheelResultTitle">Вы выиграли</div>
-      <div class="wheelResultValue" id="wheelResultValue">+500 ₽</div>
-      <button class="wheelResultBtn" id="wheelResultBtn">Принять</button>
-      <div class="wheelResultHint">Нажмите для продолжения</div>
-      <div class="wheelConfetti" id="wheelConfetti" aria-hidden="true"></div>
-    </div>
+  <div class="wheelCardRight">
+    <!-- состояние: доступно -->
+    <button class="wheelBtn active">
+      Крутить
+    </button>
+
+    <!-- состояние: недоступно -->
+    <!--
+    <button class="wheelBtn disabled" disabled>
+      23:59:59
+    </button>
+    -->
   </div>
 </div>
