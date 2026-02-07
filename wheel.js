@@ -112,7 +112,9 @@
     // bind DOM refs
     wheelEntryBtn = document.getElementById("wheelEntryBtn");
     wheelEntrySub = document.getElementById("wheelEntrySub");
-
+    const wheelEntry = document.getElementById("wheelEntry");
+const wheelEntryMeta = document.getElementById("wheelEntryMeta");
+    
     wheelModal = document.getElementById("wheelModal");
     wheelCloseBtn = document.getElementById("wheelCloseBtn");
     wheelCanvas = document.getElementById("wheelCanvas");
@@ -209,29 +211,33 @@
     return Math.max(0, availableAt() - nowMs());
   }
 
-  function renderEntry(){
-    if (!wheelEntryBtn || !wheelEntrySub) return;
+function renderEntry(){
+  if (!wheelEntryBtn || !wheelEntrySub) return;
 
-    if (isAvailable()){
-      wheelEntryBtn.classList.remove("disabled");
-      wheelEntryBtn.textContent = "Крутить";
-      wheelEntrySub.textContent = "Выигрывайте призы каждый день";
-    } else {
-      wheelEntryBtn.classList.add("disabled");
-      wheelEntryBtn.textContent = fmtHMS(leftMs());
-      wheelEntrySub.textContent = "Следующая прокрутка через";
-    }
-
-    if (wheelSubHint){
-      wheelSubHint.textContent = isAvailable()
-        ? "Нажмите «Крутить»"
-        : `Доступно через ${fmtHMS(leftMs())}`;
-    }
-
-    if (wheelSpinBtn){
-      wheelSpinBtn.disabled = !isAvailable() || wheelSpinning;
-    }
+  if (isAvailable()){
+    wheelEntryBtn.classList.remove("disabled");
+    wheelEntryBtn.textContent = "Крутить";
+    wheelEntrySub.textContent = "Выигрывайте призы каждый день";
+    const meta = document.getElementById("wheelEntryMeta");
+    if (meta) meta.textContent = "1 прокрутка / 24 часа";
+  } else {
+    wheelEntryBtn.classList.add("disabled");
+    wheelEntryBtn.textContent = fmtHMS(leftMs());
+    wheelEntrySub.textContent = "До следующей прокрутки";
+    const meta = document.getElementById("wheelEntryMeta");
+    if (meta) meta.textContent = "Доступно скоро";
   }
+
+  if (wheelSubHint){
+    wheelSubHint.textContent = isAvailable()
+      ? "Нажмите «Крутить»"
+      : `Доступно через ${fmtHMS(leftMs())}`;
+  }
+
+  if (wheelSpinBtn){
+    wheelSpinBtn.disabled = !isAvailable() || wheelSpinning;
+  }
+}
 
   // ===== wheel drawing =====
   function drawWheel(){
@@ -446,14 +452,22 @@
 
   // ===== bind events =====
   function bindEvents(){
-    if (wheelEntryBtn){
-      wheelEntryBtn.addEventListener("click", async ()=>{
-        haptic("light");
-        const userId = getUserId?.();
-        if (!userId) return;
-        try { await loadState(userId); } catch(_){}
-        openWheel();
-      });
+    const wheelEntry = document.getElementById("wheelEntry");
+
+if (wheelEntry){
+  wheelEntry.addEventListener("click", async (e)=>{
+    // если нажали на правую кнопку — не даём событию улететь дважды
+    const btn = e.target.closest("#wheelEntryBtn");
+    if (btn) e.stopPropagation();
+
+    haptic("light");
+    const userId = getUserId?.();
+    if (!userId) return;
+
+    try { await loadState(userId); } catch(_){}
+    openWheel();
+  });
+}
     }
 
     if (wheelCloseBtn) wheelCloseBtn.addEventListener("click", ()=>{ haptic("light"); closeWheel(); });
