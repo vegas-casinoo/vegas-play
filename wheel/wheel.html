@@ -1,18 +1,32 @@
-<div class="wheelModal" id="wheelModal" aria-hidden="true">
-  <div class="wheelBackdrop" id="wheelBackdrop"></div>
+<div class="wheelOverlay" id="wheelOverlay" aria-hidden="true">
+  <div class="wheelModal" role="dialog" aria-modal="true">
+    <button class="wheelClose" id="wheelClose" aria-label="Закрыть">✕</button>
 
-  <div class="wheelSheet">
-    <button class="wheelClose" id="wheelClose">✕</button>
-
-    <div class="wheelStage">
-      <div class="wheelCircle" id="wheelCircle">
-        <!-- сектора будем рисовать дальше -->
-        🎡
+    <div class="wheelTopRow">
+      <div class="wheelMiniIcon">🎡</div>
+      <div class="wheelTopText">
+        <div class="wheelTopTitle">Колесо Фортуны</div>
+        <div class="wheelTopSub" id="wheelTopSub">1 прокрутка в день</div>
       </div>
-
-      <button class="wheelSpinMain" id="wheelSpinMain">
-        Крутить
-      </button>
     </div>
+
+    <div class="wheelWrap">
+      <div class="wheelPointer" aria-hidden="true"></div>
+
+      <div class="wheelRim">
+        <div class="wheel" id="wheel">
+          <div class="wheelGloss" aria-hidden="true"></div>
+          <div class="wheelLabels" id="wheelLabels" aria-hidden="true"></div>
+          <div class="wheelHub" aria-hidden="true"></div>
+          <div class="wheelCenter">
+            <div class="wheelCenterRing"></div>
+            <div class="wheelCenterBtn" id="wheelCenterBtn">Крутить</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="wheelSpinMain" id="wheelSpinMain" type="button">Крутить</button>
+    <div class="wheelTimer" id="wheelTimer" style="display:none">Доступно через 23:59:59</div>
   </div>
 </div>
