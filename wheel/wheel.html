@@ -1,23 +1,18 @@
-<div class="wheelOverlay" id="wheelOverlay">
-  <div class="wheelModal">
+<div class="wheelModal" id="wheelModal" aria-hidden="true">
+  <div class="wheelBackdrop" id="wheelBackdrop"></div>
 
-    <!-- Header -->
-    <div class="wheelHeader">
-      <button class="wheelClose" id="wheelClose">←</button>
-      <div class="wheelTitle">Колесо фортуны</div>
+  <div class="wheelSheet">
+    <button class="wheelClose" id="wheelClose">✕</button>
+
+    <div class="wheelStage">
+      <div class="wheelCircle" id="wheelCircle">
+        <!-- сектора будем рисовать дальше -->
+        🎡
+      </div>
+
+      <button class="wheelSpinMain" id="wheelSpinMain">
+        Крутить
+      </button>
     </div>
-
-    <!-- Wheel -->
-    <div class="wheelWrap">
-      <div class="wheelPointer"></div>
-      <div class="wheel" id="wheel"></div>
-    </div>
-
-    <!-- Action -->
-    <button class="wheelSpinBtn" id="wheelSpinBtn">
-      Крутить
-    </button>
-
-    <div class="wheelTimer" id="wheelTimer"></div>
   </div>
 </div>
