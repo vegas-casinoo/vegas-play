@@ -284,11 +284,14 @@ async function spinWheel(){
 window.openWheel = openWheel;
 
 // авто-обновление HOME-кнопки (если есть)
-document.addEventListener("DOMContentLoaded", () => {
-  refreshAvailabilityUI().catch(()=>{});
-  
-  document.addEventListener("click", (e) => {
+document.addEventListener("click", (e) => {
   const t = e.target;
+
+  // если нажали на таймер-плашку — ничего не делаем
+  if (t.closest("#wheelTimerPill")) {
+    e.stopPropagation();
+    return;
+  }
 
   // кнопка "крутить" на карточке
   if (t.closest("#wheelSpinBtn")) {
@@ -302,6 +305,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.openWheel?.();
     return;
   }
-});
+}, { passive: false });
   
 });
