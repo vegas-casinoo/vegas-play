@@ -1079,6 +1079,16 @@ if (elAvatar) {
   getScreen(activeTab)?.classList.add("active");
   renderBalance();
   
+  function updateBarHeights() {
+  const tabbar = document.querySelector(".tabbar");
+  const topbar = document.querySelector(".topbar");
+  const gfooter = document.querySelector(".globalFooterFixed");
+
+  if (tabbar) document.documentElement.style.setProperty("--tabbar-h", tabbar.offsetHeight + "px");
+  if (topbar) document.documentElement.style.setProperty("--topbar-h", topbar.offsetHeight + "px");
+  if (gfooter) document.documentElement.style.setProperty("--footer-h", gfooter.offsetHeight + "px");
+}
+  
     // ========= BAR HEIGHTS (точно считаем topbar/tabbar) =========
   function updateBarHeights() {
     const tabbar = document.querySelector(".tabbar");
