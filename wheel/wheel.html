@@ -1,33 +1,32 @@
-<!-- wheel.html -->
 <div class="wfOverlay" id="wfOverlay" aria-hidden="true">
   <div class="wfModal" role="dialog" aria-modal="true">
     <button class="wfBack" id="wfBack" type="button" aria-label="Назад">
       <span class="wfBackIcon">‹</span>
-      <span>Назад</span>
+      Назад
     </button>
 
     <div class="wfWheelStage">
       <div class="wfPointer" aria-hidden="true"></div>
 
       <div class="wfRim">
-        <div class="wfWheel" id="wfWheel" aria-hidden="true"></div>
-        <div class="wfGlow" aria-hidden="true"></div>
-        <div class="wfHub" aria-hidden="true"></div>
+        <div class="wfWheel" id="wfWheel">
+          <div class="wfGloss" aria-hidden="true"></div>
+          <div class="wfCenter" aria-hidden="true"></div>
+        </div>
       </div>
     </div>
 
-    <button class="wfSpin" id="wfSpin" type="button">Крутить</button>
-    <div class="wfTimer" id="wfTimer" style="display:none;">Доступно через 23:59:59</div>
+    <button class="wfSpinBtn" id="wfSpinBtn" type="button">Крутить</button>
+    <div class="wfTimer" id="wfTimer" style="display:none">Доступно через 23:59:59</div>
   </div>
 
-  <!-- result toast -->
+  <!-- RESULT OVERLAY -->
   <div class="wfResult" id="wfResult" aria-hidden="true">
+    <div class="wfConfetti" id="wfConfetti" aria-hidden="true"></div>
     <div class="wfResultCard">
       <div class="wfResultTitle">Вы выиграли</div>
-      <div class="wfResultValue" id="wfResultValue">+500 ₽</div>
-      <button class="wfResultBtn" id="wfResultBtn" type="button">Принять</button>
-      <div class="wfResultHint">Нажмите для продолжения</div>
+      <div class="wfResultValue" id="wfResultValue">+0</div>
+      <button class="wfResultBtn" id="wfResultBtn" type="button">Круто!</button>
     </div>
-    <div class="wfConfetti" id="wfConfetti" aria-hidden="true"></div>
   </div>
 </div>
