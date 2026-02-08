@@ -224,11 +224,11 @@
 </button>
 
 <!-- WHEEL (после промокода) -->
-<button class="bonusCard wheelBonus" id="wheelBonusOpen" type="button">
+<div class="bonusCard wheelBonus" id="wheelBonusOpen" role="button" tabindex="0">
   <div class="bonusBar wheelBar"></div>
 
-  <div class="bonusIconWrap">
-    <!-- SVG вместо эмодзи -->
+  <div class="bonusIconWrap wheelIconWrap">
+    <!-- SVG -->
     <svg class="wheelSvg" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2Z" stroke="currentColor" stroke-width="1.8"/>
       <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -243,12 +243,10 @@
   </div>
 
   <div class="bonusRight">
-    <button class="wheelBtn" id="wheelSpinBtn" type="button">Крутить</button>
-    <div class="wheelHint" id="wheelHint"> </div>
+    <button class="wheelBtn isReady" id="wheelSpinBtn" type="button">Крутить</button>
+    <div class="wheelHint" id="wheelHint"></div>
   </div>
-</button>
-
-  </div>
+</div>
 </section>
 
 <!-- ABOUT / RULES / PRIVACY / RESPONSIBLE -->
