@@ -223,30 +223,30 @@
   </div>
 </button>
 
-<div class="bonusCard wheelBonus" id="wheelOpenBtn">
-  <div class="bonusLeft">
-    <div class="bonusIcon wheelIcon">
-      <svg class="wheelIconSvg" viewBox="0 0 24 24" width="26" height="26">
-        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-        <circle cx="12" cy="12" r="2" fill="currentColor"/>
-        <path d="M12 3v6M12 15v6M3 12h6M15 12h6"
-              stroke="currentColor" stroke-width="2"/>
-      </svg>
-    </div>
+<!-- WHEEL (после промокода) -->
+<button class="bonusCard wheelBonus" id="wheelBonusOpen" type="button">
+  <div class="bonusBar wheelBar"></div>
 
-    <div class="bonusText">
-      <div class="bonusTitle">Колесо Фортуны</div>
-      <div class="bonusSub">Выигрывайте призы каждый день</div>
-    </div>
+  <div class="bonusIconWrap">
+    <!-- SVG вместо эмодзи -->
+    <svg class="wheelSvg" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2Z" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M12 12l5-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M12 12m-1.3 0a1.3 1.3 0 1 0 2.6 0a1.3 1.3 0 1 0 -2.6 0" fill="currentColor"/>
+    </svg>
+  </div>
+
+  <div class="bonusMain">
+    <div class="bonusTitle">Колесо Фортуны</div>
+    <div class="bonusSub">1 прокрутка каждые 24 часа</div>
   </div>
 
   <div class="bonusRight">
-    <button class="bonusActionBtn active" id="wheelSpinBtn">
-      Крутить
-    </button>
-    <div class="bonusMeta">1 прокрутка в день</div>
+    <button class="wheelBtn" id="wheelSpinBtn" type="button">Крутить</button>
+    <div class="wheelHint" id="wheelHint"> </div>
   </div>
-</div>
+</button>
 
   </div>
 </section>
