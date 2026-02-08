@@ -1153,7 +1153,8 @@ body.switching *{ animation: none !important; }
   display:flex;
   flex-direction:column;
   align-items:flex-end;
-  gap:10px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .bonusBadge{
@@ -1952,8 +1953,10 @@ grid-column: 4;
    WHEEL BONUS CARD (1:1)
    ========================= */
 .bonusCard.wheelBonus{
-  position: relative;
-  overflow: hidden;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 14px;
 }
 
 .bonusCard.wheelBonus .bonusIconWrap{
@@ -1997,6 +2000,12 @@ grid-column: 4;
   background: rgba(255,255,255,.14);
   color: rgba(255,255,255,.55);
   box-shadow: none;
+}
+
+/* округление контейнера иконки (и обрезка) */
+.wheelIconWrap{
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .wheelHint{
