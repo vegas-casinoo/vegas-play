@@ -193,13 +193,22 @@ function bind(){
   spinBtn?.addEventListener("click", spin);
 
   // открытие из бонусов
-  document.addEventListener("click", (e) => {
-    const t = e.target;
+document.addEventListener("click", (e) => {
+  const t = e.target;
 
-    if (t.closest("#wheelBonusOpen")) { open(); return; }
-    if (t.closest("#wheelSpinBtn")) { e.stopPropagation(); open(); return; }
-  }, { passive: false });
-}
+  // клик по кнопке справа
+  if (t.closest("#wheelSpinBtn")) {
+    e.stopPropagation();
+    open();
+    return;
+  }
+
+  // клик по всей карточке
+  if (t.closest("#wheelBonusOpen")) {
+    open();
+    return;
+  }
+}, { passive: false });
 
 async function spin(){
   if (spinning || !wheelEl) return;
