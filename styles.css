@@ -2038,3 +2038,25 @@ grid-column: 4;
   position: relative;
   z-index: 5;
 }
+
+.wheelSpinBtn{
+  position: relative;
+  z-index: 2;
+  align-self: center; /* <= вот это даст “по центру” вертикально */
+}
+
+/* если у карточки есть декоративные слои — они не должны ловить клики */
+.wheelCard::before,
+.wheelCard::after{
+  pointer-events: none;
+}
+
+/* округление “рамки” под SVG */
+.wheelIcon{
+  overflow: hidden; /* <= это и есть “обрезать по радиусу” */
+}
+.wheelIcon svg{
+  width: 26px;
+  height: 26px;
+  display:block;
+}
