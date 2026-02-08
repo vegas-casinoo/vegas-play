@@ -337,21 +337,15 @@ if (t.closest("#promoBtn") || t.closest("#promoCardBtn")) {
   return;
 }
 
-// Wheel of Fortune (кнопка "Крутить" внутри карточки)
+// Wheel of Fortune (кнопка внутри карточки)
 if (t.closest("#wheelSpinBtn")) {
   haptic("medium");
+  e.stopPropagation();
   window.openWheel?.();
   return;
 }
 
 // Wheel of Fortune (клик по карточке)
-if (t.closest("#wheelOpenBtn")) {
-  haptic("medium");
-  window.openWheel?.();
-  return;
-}
-
-// Wheel of Fortune (открытие модалки)
 if (t.closest("#wheelOpenBtn")) {
   haptic("medium");
   window.openWheel?.();
