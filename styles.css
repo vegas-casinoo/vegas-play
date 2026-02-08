@@ -1946,3 +1946,63 @@ grid-column: 4;
 .globalFooterFixed .footerCopy{
   margin: 10px 4px 0;
 }
+
+
+/* =========================
+   WHEEL BONUS CARD (1:1)
+   ========================= */
+.bonusCard.wheelBonus{
+  position: relative;
+  overflow: hidden;
+}
+
+.bonusCard.wheelBonus .bonusIconWrap{
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(140, 220, 255, .95);
+  box-shadow: 0 14px 34px rgba(0,0,0,.35);
+}
+
+.bonusCard.wheelBonus .wheelSvg{
+  color: rgba(160, 200, 255, .95);
+  filter: drop-shadow(0 10px 18px rgba(120, 90, 255, .18));
+}
+
+.bonusCard.wheelBonus .wheelBar{
+  background: linear-gradient(180deg, rgba(95, 220, 255, .65), rgba(180, 110, 255, .35));
+}
+
+.wheelBtn{
+  height: 36px;
+  min-width: 112px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 0;
+  font-weight: 900;
+  letter-spacing: .2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.wheelBtn.isReady{
+  background: linear-gradient(135deg,#35ff9b,#1fd27a);
+  color: #0b1a12;
+  box-shadow: 0 16px 34px rgba(36, 220, 127, .18);
+}
+
+.wheelBtn.isLocked,
+.wheelBtn:disabled{
+  background: rgba(255,255,255,.14);
+  color: rgba(255,255,255,.55);
+  box-shadow: none;
+}
+
+.wheelHint{
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,.65);
+  text-align: right;
+  min-height: 14px;
+}
