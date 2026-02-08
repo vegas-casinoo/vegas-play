@@ -275,3 +275,31 @@
     opacity: 0;
   }
 }
+
+/* чтобы wheel-карточка наследовала стиль бонусных карточек */
+.wheelBonus { cursor: pointer; }
+
+/* РАМКА под SVG — округление + обрезка */
+.wheelIconWrap{
+  border-radius: 18px;
+  overflow: hidden;         /* вот это решает "углы svg" */
+}
+
+.wheelSvg{
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+/* кнопка справа по центру + чуть ниже */
+.wheelRight{
+  display:flex;
+  align-items:center;
+}
+
+.wheelAction{
+  margin-top: 6px;          /* смещаем чуть ниже */
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
+}
